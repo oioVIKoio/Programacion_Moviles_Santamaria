@@ -1,4 +1,4 @@
-# 📱 Desarrollo de Aplicaciones Móviles
+# Desarrollo de Aplicaciones Móviles
 
 Repositorio de laboratorios del curso **Desarrollo de Aplicaciones Móviles**.
 
