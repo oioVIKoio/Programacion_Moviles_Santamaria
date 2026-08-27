@@ -75,3 +75,7 @@ Semana_02/
 ### Resultado del uso de IA
 
 A partir del prompt se obtuvo una implementación base del carrito. Posteriormente se revisó el código generado, se realizaron ajustes y se comprobó su funcionamiento desde Android Studio.
+
+## Prueba de funcionamiento
+
+Se verificó el funcionamiento del CRUD realizando el registro, listado, búsqueda y eliminación de un producto desde la consola. La aplicación finalizó correctamente mediante la opción `0`.
