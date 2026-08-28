@@ -11,12 +11,11 @@ data class Producto(
 fun main() {
 
     val scanner = Scanner(System.`in`)
-
     val productos = mutableListOf<Producto>()
 
-    println("========================================")
+    println("-".repeat(70))
     println("     CARRITO DE COMPRAS - TIENDA TECSUP")
-    println("========================================")
+    println("-".repeat(70))
 
     print("Cliente: ")
     val cliente = scanner.nextLine()
@@ -57,15 +56,33 @@ fun main() {
             val cantidad = scanner.nextInt()
             scanner.nextLine()
 
-            productos.add(
-                Producto(nombre, precio, cantidad)
-            )
+            val producto = Producto(nombre, precio, cantidad)
+            productos.add(producto)
 
             println("Producto agregado: $nombre")
         }
 
-        println("\nCliente: $cliente")
-        println("Productos registrados: ${productos.size}")
+        println("\n--------- DETALLE DEL CARRITO ---------")
+
+        var subtotal = 0.0
+        var cantidadTotal = 0
+
+        for (producto in productos) {
+
+            val importe = producto.precio * producto.cantidad
+
+            subtotal = subtotal + importe
+            cantidadTotal = cantidadTotal + producto.cantidad
+
+            println(
+                "${producto.nombre} x${producto.cantidad}  S/ %.2f".format(importe)
+            )
+        }
+
+        println("---------------------------------------")
+        println("Cliente               : $cliente")
+        println("Cantidad de productos : $cantidadTotal")
+        println("Subtotal              : S/ %.2f".format(subtotal))
 
     } else {
         println("Cantidad inválida. Debe ingresar un número entero.")
