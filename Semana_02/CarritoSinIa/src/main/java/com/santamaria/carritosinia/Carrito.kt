@@ -13,9 +13,9 @@ fun main() {
     val scanner = Scanner(System.`in`)
     val productos = mutableListOf<Producto>()
 
-    println("-".repeat(70))
+    println("-".repeat(50))
     println("     CARRITO DE COMPRAS - TIENDA TECSUP")
-    println("-".repeat(70))
+    println("-".repeat(50))
 
     print("Cliente: ")
     val cliente = scanner.nextLine()
@@ -78,11 +78,17 @@ fun main() {
                 "${producto.nombre} x${producto.cantidad}  S/ %.2f".format(importe)
             )
         }
+        val igv = subtotal * 0.18
+        val total = subtotal + igv
 
-        println("---------------------------------------")
+        println("=".repeat(50))
         println("Cliente               : $cliente")
         println("Cantidad de productos : $cantidadTotal")
         println("Subtotal              : S/ %.2f".format(subtotal))
+        println("IGV (18%)             : S/ %.2f".format(igv))
+        println("TOTAL A PAGAR         : S/ %.2f".format(total))
+        println("=".repeat(50))
+
 
     } else {
         println("Cantidad inválida. Debe ingresar un número entero.")
