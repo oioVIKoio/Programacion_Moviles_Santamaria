@@ -1,22 +1,30 @@
 package com.yldefonso.estudiante
 
-import java.util.Scanner
-
 fun main() {
 
-    val scanner = Scanner(System.`in`)
-
-    // DATOS DE ENTRADA
-
     print("Nombre del estudiante: ")
-    val estudiante = scanner.nextLine()
+    val estudiante = readln()
+
+    if (estudiante.isBlank()) {
+        println("Nombre incorrecto")
+        return
+    }
 
     print("Cantidad de cursos: ")
-    val cantidadCursos = scanner.nextInt()
+    val cantidadCursos = readln().toIntOrNull()
+
+    if (cantidadCursos == null || cantidadCursos <= 0) {
+        println("Cantidad de cursos incorrecta")
+        return
+    }
 
     print("Valor de cada credito: S/ ")
-    val valorCredito = scanner.nextDouble()
-    scanner.nextLine()
+    val valorCredito = readln().toDoubleOrNull()
+
+    if (valorCredito == null || valorCredito <= 0) {
+        println("Valor del credito incorrecto")
+        return
+    }
 
     val nombresCursos = Array(cantidadCursos) { "" }
     val creditosCursos = IntArray(cantidadCursos)
@@ -25,26 +33,33 @@ fun main() {
     var totalCreditos = 0
     var totalPagar = 0.0
 
-    // REGISTRO DE CURSOS
-
     for (i in 1..cantidadCursos) {
 
         println("\n--- CURSO $i ---")
 
         print("Nombre del curso: ")
-        nombresCursos[i - 1] = scanner.nextLine()
+        nombresCursos[i - 1] = readln()
+
+        if (nombresCursos[i - 1].isBlank()) {
+            println("Nombre del curso incorrecto")
+            return
+        }
 
         print("Cantidad de creditos: ")
-        creditosCursos[i - 1] = scanner.nextInt()
-        scanner.nextLine()
+        val creditos = readln().toIntOrNull()
+
+        if (creditos == null || creditos <= 0) {
+            println("Cantidad de creditos incorrecta")
+            return
+        }
+
+        creditosCursos[i - 1] = creditos
 
         costosCursos[i - 1] = creditosCursos[i - 1] * valorCredito
 
         totalCreditos += creditosCursos[i - 1]
         totalPagar += costosCursos[i - 1]
     }
-
-    // CALCULOS
 
     val cargaAcademica: String
 
@@ -65,8 +80,6 @@ fun main() {
     }
 
     val valorCuota = totalPagar / cantidadCuotas
-
-    // RESULTADO FINAL
 
     println("\n========== RESULTADO FINAL ==========")
     println("ESTUDIANTE: $estudiante")
