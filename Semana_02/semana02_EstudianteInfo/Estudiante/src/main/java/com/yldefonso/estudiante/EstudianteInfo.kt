@@ -65,4 +65,26 @@ fun main() {
     }
 
     val valorCuota = totalPagar / cantidadCuotas
+
+    // RESULTADO FINAL
+
+    println("\n========== RESULTADO FINAL ==========")
+    println("ESTUDIANTE: $estudiante")
+    println("-------------------------------------")
+    println("CURSO\t\tCREDITOS\tCOSTO")
+    println("-------------------------------------")
+
+    for (i in 1..cantidadCursos) {
+        println(
+            "${nombresCursos[i - 1]}\t\t${creditosCursos[i - 1]}\t\tS/ ${"%.2f".format(costosCursos[i - 1])}"
+        )
+    }
+
+    println("-------------------------------------")
+    println("CURSOS MATRICULADOS: $cantidadCursos")
+    println("TOTAL CREDITOS: $totalCreditos")
+    println("TOTAL A PAGAR: S/ ${"%.2f".format(totalPagar)}")
+    println("CARGA ACADEMICA: $cargaAcademica")
+    println("FORMA DE PAGO: $cantidadCuotas CUOTAS DE S/ ${"%.2f".format(valorCuota)}")
+    println("=====================================")
 }
