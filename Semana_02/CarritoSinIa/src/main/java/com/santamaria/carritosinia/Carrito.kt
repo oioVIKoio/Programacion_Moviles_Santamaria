@@ -147,12 +147,12 @@ fun main() {
     when {
         total > 5000 -> {
             println("Descuento aplicado    : 10%")
-            println(String.format("Descuento             : S/ %8.2f", descuento))
+            println(String.format("Descuento         : S/ %8.2f", descuento))
         }
 
         total > 3000 -> {
-            println("Descuento aplicado    : 5%")
-            println(String.format("Descuento             : S/ %8.2f", descuento))
+            println("Descuento aplicado  : 5%")
+            println(String.format("Descuento            : S/ %8.2f", descuento))
         }
 
         else -> {
