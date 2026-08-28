@@ -5,20 +5,74 @@ import java.util.Scanner
 data class Producto(
     val nombre: String,
     val precio: Double,
-    val cantidad: Int
+    var cantidad: Int
 )
+
+fun calcularSubtotal(productos: List<Producto>): Double {
+
+    var subtotal = 0.0
+
+    for (producto in productos) {
+        subtotal += producto.precio * producto.cantidad
+    }
+
+    return subtotal
+}
+
+fun calcularIGV(subtotal: Double): Double {
+    return subtotal * 0.18
+}
+
+fun calcularTotal(subtotal: Double, igv: Double): Double {
+    return subtotal + igv
+}
+
+fun mostrarDetalle(productos: List<Producto>) {
+
+    println("\n--------- DETALLE DEL CARRITO ---------")
+
+    var i = 1
+
+    for (producto in productos) {
+
+        val importe = producto.precio * producto.cantidad
+
+        println(
+            String.format(
+                "%d. %-20s x%d S/ %8.2f",
+                i,
+                producto.nombre,
+                producto.cantidad,
+                importe
+            )
+        )
+
+        i++
+    }
+
+    println("---------------------------------------")
+}
+
+fun calcularDescuento(total: Double): Double {
+
+    return when {
+        total > 5000 -> total * 0.10
+        total > 3000 -> total * 0.05
+        else -> 0.0
+    }
+}
 
 fun main() {
 
     val scanner = Scanner(System.`in`)
-    val productos = mutableListOf<Producto>()
+    val carrito = mutableListOf<Producto>()
 
-    println("-".repeat(50))
+    println("=".repeat(50))
     println("     CARRITO DE COMPRAS - TIENDA TECSUP")
-    println("-".repeat(50))
+    println("=".repeat(50))
 
     print("Cliente: ")
-    val cliente = scanner.nextLine()
+    val nombreCliente = scanner.nextLine()
 
     print("¿Cuántos productos desea registrar?: ")
     val cantidadProductos = scanner.nextLine().toIntOrNull()
@@ -54,66 +108,67 @@ fun main() {
             return
         }
 
-        val producto = Producto(nombre, precio, cantidad)
-        productos.add(producto)
+        val producto = Producto(
+            nombre,
+            precio,
+            cantidad
+        )
 
-        println("Producto agregado: $nombre")
+        carrito.add(producto)
+
+        println("Producto agregado: ${producto.nombre}")
     }
 
-    println("\n--------- DETALLE DEL CARRITO ---------")
+    val subtotal = calcularSubtotal(carrito)
+    val igv = calcularIGV(subtotal)
+    val total = calcularTotal(subtotal, igv)
 
-    var subtotal = 0.0
-    var cantidadTotal = 0
+    mostrarDetalle(carrito)
 
-    for (producto in productos) {
+    println("Cantidad de productos : ${carrito.size}")
+    println(String.format("Subtotal              : S/ %8.2f", subtotal))
+    println(String.format("IGV (18%%)             : S/ %8.2f", igv))
+    println(String.format("TOTAL A PAGAR         : S/ %8.2f", total))
 
-        val importe = producto.precio * producto.cantidad
+    println("---------------------------------------")
 
-        subtotal = subtotal + importe
-        cantidadTotal = cantidadTotal + producto.cantidad
+    val masCaro = carrito.maxByOrNull { it.precio }
 
+    if (masCaro != null) {
         println(
-            "${producto.nombre} x${producto.cantidad}  S/ %.2f".format(importe)
+            "Producto más caro: ${masCaro.nombre} " +
+                    String.format("(S/ %.2f)", masCaro.precio)
         )
     }
 
-    val igv = subtotal * 0.18
-    val total = subtotal + igv
-    var productoMasCaro = productos[0]
+    val descuento = calcularDescuento(total)
+    val totalConDescuento = total - descuento
 
-    for (producto in productos) {
-        if (producto.precio > productoMasCaro.precio) {
-            productoMasCaro = producto
+    when {
+        total > 5000 -> {
+            println("Descuento aplicado    : 10%")
+            println(String.format("Descuento             : S/ %8.2f", descuento))
+        }
+
+        total > 3000 -> {
+            println("Descuento aplicado    : 5%")
+            println(String.format("Descuento             : S/ %8.2f", descuento))
+        }
+
+        else -> {
+            println("Descuento aplicado    : No aplica")
         }
     }
 
-    var descuento = 0.0
+    println(
+        String.format(
+            "TOTAL CON DESCUENTO   : S/ %8.2f",
+            totalConDescuento
+        )
+    )
 
-    if (total > 3000) {
-        descuento = total * 0.05
-    }
-
-    val totalConDescuento = total - descuento
     println("=".repeat(50))
-    println("Cliente               : $cliente")
-    println("Cantidad de productos : $cantidadTotal")
-    println("Subtotal              : S/ %.2f".format(subtotal))
-    println("IGV (18%)             : S/ ${"%.2f".format(igv)}")
-    println("TOTAL A PAGAR         : S/ %.2f".format(total))
-    println("=".repeat(50))
-    println("Producto más caro     : ${productoMasCaro.nombre}")
-    println("Precio                : S/ %.2f".format(productoMasCaro.precio))
-
-    if (descuento > 0) {
-        println("Descuento aplicado    : 5%")
-        println("Descuento             : S/ %.2f".format(descuento))
-    } else {
-        println("Descuento aplicado    : No aplica")
-    }
-
-    println("TOTAL CON DESCUENTO   : S/ %.2f".format(totalConDescuento))
-    println("=".repeat(50))
-    println("Gracias por su compra, $cliente!")
+    println("Gracias por su compra, $nombreCliente!")
     println("=".repeat(50))
 
     scanner.close()
