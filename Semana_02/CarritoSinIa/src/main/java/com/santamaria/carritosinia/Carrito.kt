@@ -79,13 +79,41 @@ fun main() {
 
     val igv = subtotal * 0.18
     val total = subtotal + igv
+    var productoMasCaro = productos[0]
 
+    for (producto in productos) {
+        if (producto.precio > productoMasCaro.precio) {
+            productoMasCaro = producto
+        }
+    }
+
+    var descuento = 0.0
+
+    if (total > 3000) {
+        descuento = total * 0.05
+    }
+
+    val totalConDescuento = total - descuento
     println("=".repeat(50))
     println("Cliente               : $cliente")
     println("Cantidad de productos : $cantidadTotal")
     println("Subtotal              : S/ %.2f".format(subtotal))
-    println("IGV (18%%)           : S/ %.2f".format(igv))
+    println("IGV (18%)             : S/ ${"%.2f".format(igv)}")
     println("TOTAL A PAGAR         : S/ %.2f".format(total))
+    println("=".repeat(50))
+    println("Producto más caro     : ${productoMasCaro.nombre}")
+    println("Precio                : S/ %.2f".format(productoMasCaro.precio))
+
+    if (descuento > 0) {
+        println("Descuento aplicado    : 5%")
+        println("Descuento             : S/ %.2f".format(descuento))
+    } else {
+        println("Descuento aplicado    : No aplica")
+    }
+
+    println("TOTAL CON DESCUENTO   : S/ %.2f".format(totalConDescuento))
+    println("=".repeat(50))
+    println("Gracias por su compra, $cliente!")
     println("=".repeat(50))
 
     scanner.close()
