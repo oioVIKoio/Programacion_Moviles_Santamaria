@@ -1,4 +1,3 @@
-
 package com.rojastuesta.matricula
 
 fun main() {
@@ -171,11 +170,22 @@ fun main() {
 
         val descuento = matricula * porcentajeDescuento
         val matriculaDescuento = matricula - descuento
+
         val subtotal = totalCursos + matriculaDescuento
 
-        val totalPagar = subtotal
+        // IGV 18%
+        val igv = subtotal * 0.18
+
+        val totalPagar = subtotal + igv
 
         totalesPagar[posicion] = totalPagar
+
+        println("\n-------- CÁLCULO DE PAGO --------")
+        println("Matrícula: S/ ${"%.2f".format(matricula)}")
+        println("Descuento: S/ ${"%.2f".format(descuento)}")
+        println("Subtotal: S/ ${"%.2f".format(subtotal)}")
+        println("IGV (18%): S/ ${"%.2f".format(igv)}")
+        println("Total a pagar: S/ ${"%.2f".format(totalPagar)}")
 
         // ================================
         // FORMA DE PAGO
@@ -226,6 +236,9 @@ fun main() {
         )
         reporteFinal.append(
             "SUBTOTAL: S/ ${"%.2f".format(subtotal)}\n"
+        )
+        reporteFinal.append(
+            "IGV (18%): S/ ${"%.2f".format(igv)}\n"
         )
         reporteFinal.append(
             "TOTAL A PAGAR: S/ ${"%.2f".format(totalPagar)}\n"
