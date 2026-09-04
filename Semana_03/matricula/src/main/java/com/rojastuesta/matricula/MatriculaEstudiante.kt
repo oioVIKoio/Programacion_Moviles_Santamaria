@@ -1,16 +1,31 @@
+
 package com.rojastuesta.matricula
 
 fun main() {
 
     println("=====================================")
     println("       SISTEMA DE MATRÍCULA")
+    println("             Y AFORO")
     println("=====================================")
+
+    print("Aforo máximo: ")
+    val aforo = readln().toIntOrNull()
+
+    if (aforo == null || aforo <= 0) {
+        println("Aforo incorrecto")
+        return
+    }
 
     print("Cantidad de estudiantes a matricular: ")
     val cantidadEstudiantes = readln().toIntOrNull()
 
     if (cantidadEstudiantes == null || cantidadEstudiantes <= 0) {
         println("Cantidad de estudiantes incorrecta")
+        return
+    }
+
+    if (cantidadEstudiantes > aforo) {
+        println("La cantidad de estudiantes supera el aforo")
         return
     }
 
@@ -173,7 +188,6 @@ fun main() {
 
         val subtotal = totalCursos + matriculaDescuento
 
-        // IGV 18%
         val igv = subtotal * 0.18
 
         val totalPagar = subtotal + igv
@@ -269,5 +283,11 @@ fun main() {
         )
     }
 
+    println("\n=====================================")
+    println("              AFORO")
+    println("=====================================")
+    println("AFORO MÁXIMO: $aforo")
+    println("MATRICULADOS: $cantidadEstudiantes")
+    println("VACANTES DISPONIBLES: ${aforo - cantidadEstudiantes}")
     println("=====================================")
 }
