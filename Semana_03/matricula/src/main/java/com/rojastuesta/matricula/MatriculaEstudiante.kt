@@ -1,3 +1,4 @@
+
 package com.rojastuesta.matricula
 
 fun main() {
@@ -16,6 +17,7 @@ fun main() {
 
     val nombres = Array(cantidadEstudiantes) { "" }
     val turnos = Array(cantidadEstudiantes) { "" }
+    val categorias = Array(cantidadEstudiantes) { "" }
     val totalesPagar = DoubleArray(cantidadEstudiantes)
 
     for (posicion in 0 until cantidadEstudiantes) {
@@ -28,6 +30,10 @@ fun main() {
         val nombre = readln()
 
         nombres[posicion] = nombre
+
+        // ================================
+        // TURNO
+        // ================================
 
         println("\n-------- TURNO --------")
         println("1. Mañana  - 10% de descuento")
@@ -63,6 +69,39 @@ fun main() {
         }
 
         turnos[posicion] = turno
+
+        // ================================
+        // CATEGORÍA
+        // ================================
+
+        println("\n-------- CATEGORÍA --------")
+        println("1. Ordinario")
+        println("2. Becado")
+
+        print("Seleccione la categoría: ")
+        val opcionCategoria = readln().toIntOrNull()
+
+        if (opcionCategoria == null || opcionCategoria !in 1..2) {
+            println("Categoría incorrecta")
+            return
+        }
+
+        val categoria: String
+        val matricula: Double
+
+        if (opcionCategoria == 1) {
+            categoria = "ORDINARIO"
+            matricula = 500.00
+        } else {
+            categoria = "BECADO"
+            matricula = 0.00
+        }
+
+        categorias[posicion] = categoria
+
+        // ================================
+        // CURSOS
+        // ================================
 
         println("\n-------- CURSOS --------")
 
@@ -105,8 +144,15 @@ fun main() {
             totalCreditos += creditos
             totalCursos += costoCurso
 
-            println("$nombreCurso: $creditos créditos - S/ ${"%.2f".format(costoCurso)}")
+            println(
+                "$nombreCurso: $creditos créditos - " +
+                        "S/ ${"%.2f".format(costoCurso)}"
+            )
         }
+
+        // ================================
+        // CARGA ACADÉMICA
+        // ================================
 
         println("\n-------- CARGA ACADÉMICA --------")
 
@@ -119,12 +165,21 @@ fun main() {
         println("Total de créditos: $totalCreditos")
         println("Carga académica: $cargaAcademica")
 
-        val descuento = totalCursos * porcentajeDescuento
-        val subtotal = totalCursos - descuento
+        // ================================
+        // CÁLCULOS
+        // ================================
+
+        val descuento = matricula * porcentajeDescuento
+        val matriculaDescuento = matricula - descuento
+        val subtotal = totalCursos + matriculaDescuento
 
         val totalPagar = subtotal
 
         totalesPagar[posicion] = totalPagar
+
+        // ================================
+        // FORMA DE PAGO
+        // ================================
 
         println("\n-------- FORMA DE PAGO --------")
 
@@ -141,6 +196,10 @@ fun main() {
         println("Cantidad de cuotas: $cantidadCuotas")
         println("Valor de cada cuota: S/ ${"%.2f".format(valorCuota)}")
 
+        // ================================
+        // REPORTE
+        // ================================
+
         println("\n=====================================")
         println("         REPORTE DE MATRÍCULA")
         println("=====================================")
@@ -149,18 +208,40 @@ fun main() {
 
         reporteFinal.append("ESTUDIANTE: $nombre\n")
         reporteFinal.append("TURNO: $turno\n")
-        reporteFinal.append("TOTAL DE CRÉDITOS: $totalCreditos\n")
-        reporteFinal.append("CARGA ACADÉMICA: $cargaAcademica\n")
-        reporteFinal.append("TOTAL CURSOS: S/ ${"%.2f".format(totalCursos)}\n")
-        reporteFinal.append("DESCUENTO: S/ ${"%.2f".format(descuento)}\n")
-        reporteFinal.append("SUBTOTAL: S/ ${"%.2f".format(subtotal)}\n")
-        reporteFinal.append("TOTAL A PAGAR: S/ ${"%.2f".format(totalPagar)}\n")
+        reporteFinal.append("CATEGORÍA: $categoria\n")
+        reporteFinal.append(
+            "MATRÍCULA: S/ ${"%.2f".format(matricula)}\n"
+        )
+        reporteFinal.append(
+            "TOTAL DE CRÉDITOS: $totalCreditos\n"
+        )
+        reporteFinal.append(
+            "CARGA ACADÉMICA: $cargaAcademica\n"
+        )
+        reporteFinal.append(
+            "TOTAL CURSOS: S/ ${"%.2f".format(totalCursos)}\n"
+        )
+        reporteFinal.append(
+            "DESCUENTO: S/ ${"%.2f".format(descuento)}\n"
+        )
+        reporteFinal.append(
+            "SUBTOTAL: S/ ${"%.2f".format(subtotal)}\n"
+        )
+        reporteFinal.append(
+            "TOTAL A PAGAR: S/ ${"%.2f".format(totalPagar)}\n"
+        )
         reporteFinal.append("CUOTAS: $cantidadCuotas\n")
-        reporteFinal.append("VALOR DE CUOTA: S/ ${"%.2f".format(valorCuota)}\n")
+        reporteFinal.append(
+            "VALOR DE CUOTA: S/ ${"%.2f".format(valorCuota)}\n"
+        )
 
         println(reporteFinal.toString())
         println("=====================================")
     }
+
+    // ================================
+    // RESUMEN
+    // ================================
 
     println("\n=====================================")
     println("       RESUMEN DE ESTUDIANTES")
@@ -170,6 +251,7 @@ fun main() {
         println(
             "${posicion + 1}. ${nombres[posicion]} | " +
                     "Turno: ${turnos[posicion]} | " +
+                    "Categoría: ${categorias[posicion]} | " +
                     "Total: S/ ${"%.2f".format(totalesPagar[posicion])}"
         )
     }
