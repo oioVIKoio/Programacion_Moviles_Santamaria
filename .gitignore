@@ -1,0 +1,7 @@
+# Android Studio / IntelliJ
+.idea/
+*.iml
+
+# Gradle
+.gradle/
+**/gradle/gradle-daemon-jvm.properties
