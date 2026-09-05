@@ -126,8 +126,14 @@ fun main() {
     val descuento = matricula * porcentajeDescuento
     val matriculaDescuento = matricula - descuento
 
-    // Los cursos siempre se pagan, incluso si el estudiante es becado
+    // Subtotal antes del IGV
     val subtotal = totalCursos + matriculaDescuento
+
+    // IGV del 18%
+    val igv = subtotal * 0.18
+
+    // Total incluyendo IGV
+    val totalPagar = subtotal + igv
 
     println("\n=====================================")
     println("             RESULTADO")
@@ -155,6 +161,7 @@ fun main() {
     println("DESCUENTO: S/ ${"%.2f".format(descuento)}")
     println("MATRÍCULA CON DESCUENTO: S/ ${"%.2f".format(matriculaDescuento)}")
     println("SUBTOTAL: S/ ${"%.2f".format(subtotal)}")
-    println("TOTAL A PAGAR: S/ ${"%.2f".format(subtotal)}")
+    println("IGV (18%): S/ ${"%.2f".format(igv)}")
+    println("TOTAL A PAGAR: S/ ${"%.2f".format(totalPagar)}")
     println("=====================================")
 }
