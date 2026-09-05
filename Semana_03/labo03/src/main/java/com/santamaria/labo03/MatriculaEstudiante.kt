@@ -1,14 +1,9 @@
 package com.santamaria.labo03
 
 fun main() {
-
     println("=====================================")
     println("       SISTEMA DE MATRÍCULA")
     println("=====================================")
-
-    // =========================================
-    // DATOS DEL ESTUDIANTE
-    // =========================================
 
     print("Nombre del estudiante: ")
     val estudiante = readln()
@@ -18,16 +13,35 @@ fun main() {
         return
     }
 
-    // =========================================
-    // TURNO
-    // =========================================
+    println("\n------ CATEGORÍA DE ESTUDIANTE ------")
+    println("1. Ordinario")
+    println("2. Becado")
+    print("Seleccione la categoría: ")
+
+    val opcionCategoria = readln().toIntOrNull()
+
+    if (opcionCategoria == null || opcionCategoria !in 1..2) {
+        println("Categoría incorrecta")
+        return
+    }
+
+    val categoria: String
+    val matricula: Double
+
+    if (opcionCategoria == 1) {
+        categoria = "ORDINARIO"
+        matricula = 500.00
+    } else {
+        categoria = "BECADO"
+        matricula = 0.00
+    }
 
     println("\n---------- TURNO ----------")
     println("1. Mañana - 10% descuento")
     println("2. Tarde  - 15% descuento")
     println("3. Noche  - 20% descuento")
-
     print("Seleccione el turno: ")
+
     val opcionTurno = readln().toIntOrNull()
 
     if (opcionTurno == null || opcionTurno !in 1..3) {
@@ -49,10 +63,6 @@ fun main() {
         porcentajeDescuento = 0.20
     }
 
-    // =========================================
-    // VALOR DEL CRÉDITO
-    // =========================================
-
     print("\nValor de cada crédito: S/ ")
     val valorCredito = readln().toDoubleOrNull()
 
@@ -60,10 +70,6 @@ fun main() {
         println("Valor del crédito incorrecto")
         return
     }
-
-    // =========================================
-    // CURSOS
-    // =========================================
 
     print("\nCantidad de cursos: ")
     val cantidadCursos = readln().toIntOrNull()
@@ -81,7 +87,6 @@ fun main() {
     var totalCursos = 0.0
 
     for (i in 1..cantidadCursos) {
-
         println("\n--- CURSO $i ---")
 
         print("Nombre del curso: ")
@@ -101,17 +106,11 @@ fun main() {
         }
 
         creditosCursos[i - 1] = creditos
+        costosCursos[i - 1] = creditos * valorCredito
 
-        costosCursos[i - 1] =
-            creditosCursos[i - 1] * valorCredito
-
-        totalCreditos += creditosCursos[i - 1]
+        totalCreditos += creditos
         totalCursos += costosCursos[i - 1]
     }
-
-    // =========================================
-    // CARGA ACADÉMICA
-    // =========================================
 
     val cargaAcademica: String
 
@@ -123,43 +122,24 @@ fun main() {
         cargaAcademica = "REQUIERE AUTORIZACION"
     }
 
-    // =========================================
-    // MATRÍCULA
-    // =========================================
-
-    val matricula = 500.00
-
-    // =========================================
-    // DESCUENTO DE MATRÍCULA
-    // =========================================
-
+    // El descuento del turno se aplica solamente a la matrícula
     val descuento = matricula * porcentajeDescuento
-
     val matriculaDescuento = matricula - descuento
 
-    // =========================================
-    // SUBTOTAL
-    // =========================================
-
+    // Los cursos siempre se pagan, incluso si el estudiante es becado
     val subtotal = totalCursos + matriculaDescuento
 
-    // =========================================
-    // RESULTADO
-    // =========================================
-
     println("\n=====================================")
-    println("          RESULTADO")
+    println("             RESULTADO")
     println("=====================================")
-
     println("NOMBRE: $estudiante")
+    println("CATEGORÍA: $categoria")
     println("TURNO: $turno")
-
     println("-------------------------------------")
     println("CURSO\t\tCREDITOS\tCOSTO")
     println("-------------------------------------")
 
     for (i in 1..cantidadCursos) {
-
         println(
             "${nombresCursos[i - 1]}\t\t" +
                     "${creditosCursos[i - 1]}\t\t" +
@@ -173,6 +153,7 @@ fun main() {
     println("CARGA ACADÉMICA: $cargaAcademica")
     println("MATRÍCULA: S/ ${"%.2f".format(matricula)}")
     println("DESCUENTO: S/ ${"%.2f".format(descuento)}")
+    println("MATRÍCULA CON DESCUENTO: S/ ${"%.2f".format(matriculaDescuento)}")
     println("SUBTOTAL: S/ ${"%.2f".format(subtotal)}")
     println("TOTAL A PAGAR: S/ ${"%.2f".format(subtotal)}")
     println("=====================================")
