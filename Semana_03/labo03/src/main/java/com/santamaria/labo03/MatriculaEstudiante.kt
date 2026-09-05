@@ -1,113 +1,188 @@
 package com.santamaria.labo03
 
 fun main() {
+
     println("=====================================")
     println("       SISTEMA DE MATRÍCULA")
     println("=====================================")
 
-    print("Aforo máximo: ")
-    val aforoMaximo = readln().toIntOrNull()
+    // AFORO
 
-    if (aforoMaximo == null || aforoMaximo <= 0) {
-        println("Aforo incorrecto")
-        return
+    val aforo: Int
+
+    while (true) {
+        print("Ingrese el aforo máximo: ")
+
+        val valor = readln().toIntOrNull()
+
+        if (valor != null && valor > 0) {
+            aforo = valor
+            break
+        }
+
+        println("Aforo incorrecto. Ingrese un número mayor a 0.")
     }
 
-    print("Cantidad de estudiantes a registrar: ")
-    val cantidadEstudiantes = readln().toIntOrNull()
+    // CANTIDAD DE ESTUDIANTES
 
-    if (cantidadEstudiantes == null || cantidadEstudiantes <= 0) {
-        println("Cantidad de estudiantes incorrecta")
-        return
+    val cantidadEstudiantes: Int
+
+    while (true) {
+        print("Ingrese la cantidad de estudiantes a matricular: ")
+
+        val valor = readln().toIntOrNull()
+
+        if (valor != null && valor > 0 && valor <= aforo) {
+            cantidadEstudiantes = valor
+            break
+        }
+
+        if (valor != null && valor > aforo) {
+            println("La cantidad supera el aforo disponible.")
+        } else {
+            println("Cantidad incorrecta. Ingrese un número mayor a 0.")
+        }
     }
 
-    if (cantidadEstudiantes > aforoMaximo) {
-        println("No se puede realizar el registro.")
-        println("La cantidad de estudiantes supera el aforo máximo.")
-        return
-    }
+    // ARREGLOS PARA LOS ESTUDIANTES
+
+    val nombres = Array(cantidadEstudiantes) { "" }
+    val categorias = Array(cantidadEstudiantes) { "" }
+    val turnos = Array(cantidadEstudiantes) { "" }
+    val totalesPagar = DoubleArray(cantidadEstudiantes)
 
     var estudiantesRegistrados = 0
 
-    for (numeroEstudiante in 1..cantidadEstudiantes) {
+    // REGISTRO DE ESTUDIANTES
 
-        println("\n=====================================")
-        println("       ESTUDIANTE $numeroEstudiante")
+    while (estudiantesRegistrados < cantidadEstudiantes) {
+
+        val posicion = estudiantesRegistrados
+
+        println()
+        println("=====================================")
+        println("       ESTUDIANTE ${posicion + 1}")
         println("=====================================")
 
-        print("Nombre del estudiante: ")
-        val estudiante = readln()
+        // NOMBRE
 
-        if (estudiante.isBlank()) {
-            println("Nombre incorrecto")
-            return
+        while (true) {
+            print("Nombre del estudiante: ")
+
+            val nombre = readln().trim()
+
+            if (nombre.isNotBlank()) {
+                nombres[posicion] = nombre
+                break
+            }
+
+            println("El nombre no puede estar vacío.")
         }
 
-        println("\n------ CATEGORÍA DE ESTUDIANTE ------")
-        println("1. Ordinario")
-        println("2. Becado")
-        print("Seleccione la categoría: ")
-
-        val opcionCategoria = readln().toIntOrNull()
-
-        if (opcionCategoria == null || opcionCategoria !in 1..2) {
-            println("Categoría incorrecta")
-            return
-        }
+        // CATEGORÍA
 
         val categoria: String
         val matricula: Double
 
-        if (opcionCategoria == 1) {
-            categoria = "ORDINARIO"
-            matricula = 500.00
-        } else {
-            categoria = "BECADO"
-            matricula = 0.00
+        while (true) {
+
+            println()
+            println("1. Ordinario - Matrícula S/ 500.00")
+            println("2. Becado    - Matrícula S/ 0.00")
+            print("Seleccione la categoría: ")
+
+            val opcion = readln().toIntOrNull()
+
+            if (opcion == 1) {
+                categoria = "ORDINARIO"
+                matricula = 500.00
+                break
+            }
+
+            if (opcion == 2) {
+                categoria = "BECADO"
+                matricula = 0.00
+                break
+            }
+
+            println("Categoría incorrecta. Seleccione 1 o 2.")
         }
 
-        println("\n---------- TURNO ----------")
-        println("1. Mañana - 10% descuento")
-        println("2. Tarde  - 15% descuento")
-        println("3. Noche  - 20% descuento")
-        print("Seleccione el turno: ")
+        categorias[posicion] = categoria
 
-        val opcionTurno = readln().toIntOrNull()
-
-        if (opcionTurno == null || opcionTurno !in 1..3) {
-            println("Turno incorrecto")
-            return
-        }
+        // TURNO
 
         val turno: String
         val porcentajeDescuento: Double
 
-        if (opcionTurno == 1) {
-            turno = "MAÑANA"
-            porcentajeDescuento = 0.10
-        } else if (opcionTurno == 2) {
-            turno = "TARDE"
-            porcentajeDescuento = 0.15
-        } else {
-            turno = "NOCHE"
-            porcentajeDescuento = 0.20
+        while (true) {
+
+            println()
+            println("1. Mañana - 10% descuento")
+            println("2. Tarde  - 15% descuento")
+            println("3. Noche  - 20% descuento")
+            print("Seleccione el turno: ")
+
+            val opcion = readln().toIntOrNull()
+
+            if (opcion == 1) {
+                turno = "MAÑANA"
+                porcentajeDescuento = 0.10
+                break
+            }
+
+            if (opcion == 2) {
+                turno = "TARDE"
+                porcentajeDescuento = 0.15
+                break
+            }
+
+            if (opcion == 3) {
+                turno = "NOCHE"
+                porcentajeDescuento = 0.20
+                break
+            }
+
+            println("Turno incorrecto. Seleccione 1, 2 o 3.")
         }
 
-        print("\nValor de cada crédito: S/ ")
-        val valorCredito = readln().toDoubleOrNull()
+        turnos[posicion] = turno
 
-        if (valorCredito == null || valorCredito <= 0) {
-            println("Valor del crédito incorrecto")
-            return
+        // VALOR DEL CRÉDITO
+
+        val valorCredito: Double
+
+        while (true) {
+            print("\nValor de cada crédito: S/ ")
+
+            val valor = readln().toDoubleOrNull()
+
+            if (valor != null && valor > 0) {
+                valorCredito = valor
+                break
+            }
+
+            println("Valor del crédito incorrecto.")
         }
 
-        print("\nCantidad de cursos: ")
-        val cantidadCursos = readln().toIntOrNull()
+        // CANTIDAD DE CURSOS
 
-        if (cantidadCursos == null || cantidadCursos <= 0) {
-            println("Cantidad de cursos incorrecta")
-            return
+        val cantidadCursos: Int
+
+        while (true) {
+            print("Cantidad de cursos: ")
+
+            val valor = readln().toIntOrNull()
+
+            if (valor != null && valor > 0) {
+                cantidadCursos = valor
+                break
+            }
+
+            println("Cantidad de cursos incorrecta.")
         }
+
+        // ARREGLOS DE CURSOS
 
         val nombresCursos = Array(cantidadCursos) { "" }
         val creditosCursos = IntArray(cantidadCursos)
@@ -116,31 +191,74 @@ fun main() {
         var totalCreditos = 0
         var totalCursos = 0.0
 
-        for (i in 1..cantidadCursos) {
-            println("\n--- CURSO $i ---")
+        // REGISTRO DE CURSOS
 
-            print("Nombre del curso: ")
-            nombresCursos[i - 1] = readln()
+        for (curso in 0 until cantidadCursos) {
 
-            if (nombresCursos[i - 1].isBlank()) {
-                println("Nombre del curso incorrecto")
-                return
+            println()
+            println("--- CURSO ${curso + 1} ---")
+
+            // NOMBRE DEL CURSO
+
+            while (true) {
+
+                print("Nombre del curso: ")
+
+                val nombreCurso = readln().trim()
+
+                if (nombreCurso.isBlank()) {
+                    println("El nombre del curso no puede estar vacío.")
+                    continue
+                }
+
+                // EVITAR CURSOS REPETIDOS
+
+                var repetido = false
+
+                for (i in 0 until curso) {
+                    if (nombresCursos[i].equals(nombreCurso, ignoreCase = true)) {
+                        repetido = true
+                        break
+                    }
+                }
+
+                if (repetido) {
+                    println("Ese curso ya fue registrado.")
+                    continue
+                }
+
+                nombresCursos[curso] = nombreCurso
+                break
             }
 
-            print("Cantidad de créditos: ")
-            val creditos = readln().toIntOrNull()
+            // CRÉDITOS
 
-            if (creditos == null || creditos <= 0) {
-                println("Cantidad de créditos incorrecta")
-                return
+            while (true) {
+
+                print("Cantidad de créditos: ")
+
+                val creditos = readln().toIntOrNull()
+
+                if (creditos != null && creditos > 0) {
+
+                    creditosCursos[curso] = creditos
+                    totalCreditos += creditos
+
+                    break
+                }
+
+                println("Cantidad de créditos incorrecta.")
             }
 
-            creditosCursos[i - 1] = creditos
-            costosCursos[i - 1] = creditos * valorCredito
+            // COSTO DEL CURSO
 
-            totalCreditos += creditos
-            totalCursos += costosCursos[i - 1]
+            costosCursos[curso] =
+                creditosCursos[curso] * valorCredito
+
+            totalCursos += costosCursos[curso]
         }
+
+        // CARGA ACADÉMICA
 
         val cargaAcademica: String
 
@@ -152,53 +270,99 @@ fun main() {
             cargaAcademica = "REQUIERE AUTORIZACION"
         }
 
+        // DESCUENTO POR TURNO
+
         val descuento = matricula * porcentajeDescuento
+
         val matriculaDescuento = matricula - descuento
+
+        // SUBTOTAL
 
         val subtotal = totalCursos + matriculaDescuento
 
+        // IGV
+
         val igv = subtotal * 0.18
+
+        // TOTAL
 
         val totalPagar = subtotal + igv
 
-        println("\n-------------------------------------")
-        println("           RESUMEN")
-        println("-------------------------------------")
-        println("NOMBRE: $estudiante")
-        println("CATEGORÍA: $categoria")
-        println("TURNO: $turno")
+        totalesPagar[posicion] = totalPagar
 
-        for (i in 1..cantidadCursos) {
+        // FORMA DE PAGO
+
+        val cantidadCuotas: Int
+
+        if (totalPagar > 2300) {
+            cantidadCuotas = 3
+        } else {
+            cantidadCuotas = 2
+        }
+
+        val valorCuota = totalPagar / cantidadCuotas
+
+        // RESULTADO DEL ESTUDIANTE
+
+        println()
+        println("=====================================")
+        println("          RESUMEN DE MATRÍCULA")
+        println("=====================================")
+
+        println("NOMBRE: ${nombres[posicion]}")
+        println("CATEGORÍA: ${categorias[posicion]}")
+        println("TURNO: ${turnos[posicion]}")
+
+        println("-------------------------------------")
+        println("CURSO\t\tCRÉDITOS\tCOSTO")
+        println("-------------------------------------")
+
+        for (curso in 0 until cantidadCursos) {
+
             println(
-                "${nombresCursos[i - 1]} - " +
-                        "${creditosCursos[i - 1]} créditos - " +
-                        "S/ ${"%.2f".format(costosCursos[i - 1])}"
+                "${nombresCursos[curso]}\t\t" +
+                        "${creditosCursos[curso]}\t\t" +
+                        "S/ ${"%.2f".format(costosCursos[curso])}"
             )
         }
 
         println("-------------------------------------")
-        println("TOTAL CREDITOS: $totalCreditos")
+        println("CURSOS MATRICULADOS: $cantidadCursos")
+        println("TOTAL CRÉDITOS: $totalCreditos")
         println("CARGA ACADÉMICA: $cargaAcademica")
         println("MATRÍCULA: S/ ${"%.2f".format(matricula)}")
         println("DESCUENTO: S/ ${"%.2f".format(descuento)}")
-        println("MATRÍCULA CON DESCUENTO: S/ ${"%.2f".format(matriculaDescuento)}")
+        println(
+            "MATRÍCULA CON DESCUENTO: " +
+                    "S/ ${"%.2f".format(matriculaDescuento)}"
+        )
         println("SUBTOTAL: S/ ${"%.2f".format(subtotal)}")
         println("IGV (18%): S/ ${"%.2f".format(igv)}")
         println("TOTAL A PAGAR: S/ ${"%.2f".format(totalPagar)}")
+        println("FORMA DE PAGO: $cantidadCuotas cuotas")
+        println("VALOR DE CADA CUOTA: S/ ${"%.2f".format(valorCuota)}")
+        println("=====================================")
 
         estudiantesRegistrados++
 
-        println("-------------------------------------")
-        println("ESTUDIANTE REGISTRADO CORRECTAMENTE")
+        println()
+        println("Estudiante registrado correctamente.")
+        println(
+            "Matriculados: $estudiantesRegistrados / $aforo"
+        )
+        println(
+            "Vacantes disponibles: ${aforo - estudiantesRegistrados}"
+        )
     }
 
-    val vacantes = aforoMaximo - estudiantesRegistrados
+    // REPORTE FINAL
 
-    println("\n=====================================")
-    println("          REPORTE DE AFORO")
+    println()
     println("=====================================")
-    println("AFORO MÁXIMO: $aforoMaximo")
-    println("ESTUDIANTES REGISTRADOS: $estudiantesRegistrados")
-    println("VACANTES DISPONIBLES: $vacantes")
+    println("          REPORTE FINAL")
+    println("=====================================")
+    println("AFORO MÁXIMO: $aforo")
+    println("ESTUDIANTES MATRICULADOS: $estudiantesRegistrados")
+    println("VACANTES DISPONIBLES: ${aforo - estudiantesRegistrados}")
     println("=====================================")
 }

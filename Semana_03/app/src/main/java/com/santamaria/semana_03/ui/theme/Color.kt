@@ -1,4 +1,4 @@
-package com.santamaria.semana03.ui.theme
+package com.santamaria.semana_03.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

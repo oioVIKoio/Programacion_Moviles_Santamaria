@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.santamaria.semana03"
+    namespace = "com.santamaria.semana_03"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -12,7 +12,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.santamaria.semana03"
+        applicationId = "com.santamaria.semana_03"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

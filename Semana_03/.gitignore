@@ -13,22 +13,3 @@
 .externalNativeBuild
 .cxx
 local.properties
-
-
-
-
-# Android Studio
-.idea/
-
-# Gradle
-.gradle/
-build/
-
-# Local configuration
-local.properties
-
-# Kotlin
-.kotlin/
-
-# macOS
-.DS_Store

@@ -22,7 +22,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Semana03"
+rootProject.name = "Semana_03"
 include(":app")
 include(":labo03")
  

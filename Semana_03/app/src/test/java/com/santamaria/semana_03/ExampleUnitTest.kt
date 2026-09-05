@@ -1,4 +1,4 @@
-package com.santamaria.semana03
+package com.santamaria.semana_03
 
 import org.junit.Test
 
