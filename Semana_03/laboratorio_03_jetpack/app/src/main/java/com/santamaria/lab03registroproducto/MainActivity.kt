@@ -123,12 +123,26 @@ fun RegistroProductoScreen(modifier: Modifier = Modifier) {
         ) {
             Button(
                 onClick = {
-                    if (nombreProducto.isBlank() || precio.isBlank() || cantidad.isBlank()) {
-                        mensajeError = "Error: Todos los campos son obligatorios"
-                        mostrarResumen = false
-                    } else {
-                        mensajeError = ""
-                        mostrarResumen = true
+                    when {
+                        nombreProducto.isBlank() || precio.isBlank() || cantidad.isBlank() -> {
+                            mensajeError = "Error: Todos los campos son obligatorios"
+                            mostrarResumen = false
+                        }
+
+                        precio.toDoubleOrNull() == null -> {
+                            mensajeError = "Error: El precio debe ser numérico"
+                            mostrarResumen = false
+                        }
+
+                        cantidad.toIntOrNull() == null -> {
+                            mensajeError = "Error: La cantidad debe ser un número entero"
+                            mostrarResumen = false
+                        }
+
+                        else -> {
+                            mensajeError = ""
+                            mostrarResumen = true
+                        }
                     }
                 },
                 modifier = Modifier.weight(1f)
