@@ -1,6 +1,8 @@
 package com.santamaria.lab03registroproducto
 
 import android.os.Bundle
+
+import androidx.compose.ui.graphics.Color
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -149,6 +151,10 @@ fun RegistroProductoScreen(modifier: Modifier = Modifier) {
                     )
                 }
             }
+            Text(
+                text = "✓ Producto registrado correctamente",
+                color = Color(0xFF2E7D32)
+            )
         }
     }
 }
