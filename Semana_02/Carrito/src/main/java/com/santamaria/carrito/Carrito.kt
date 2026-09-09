@@ -1,7 +1,5 @@
 package com.santamaria.carrito
 
-import java.util.Scanner
-
 data class Producto(
     val id: Int,
     var nombre: String,
@@ -32,7 +30,6 @@ class ProductoService {
 
 fun main() {
 
-    val scanner = Scanner(System.`in`)
     val service = ProductoService()
 
     var opcion: Int
@@ -51,11 +48,11 @@ fun main() {
 
         println("Opción: ")
 
-        if (scanner.hasNextInt()) {
-            opcion = scanner.nextInt()
-            scanner.nextLine()
+        val entrada = readln().toIntOrNull()
+
+        if (entrada != null) {
+            opcion = entrada
         } else {
-            scanner.nextLine()
             opcion = -1
             println("Por favor, ingrese un número válido.")
             continue
@@ -65,18 +62,16 @@ fun main() {
 
             1 -> {
                 println("ID: ")
-                val id = scanner.nextInt()
-                scanner.nextLine()
+                val id = readln().toInt()
 
                 println("Nombre: ")
-                val nombre = scanner.nextLine()
+                val nombre = readln()
 
                 println("Precio: ")
-                val precio = scanner.nextDouble()
+                val precio = readln().toDouble()
 
                 println("Stock: ")
-                val stock = scanner.nextInt()
-                scanner.nextLine()
+                val stock = readln().toInt()
 
                 service.agregar(
                     Producto(id, nombre, precio, stock)
@@ -91,7 +86,7 @@ fun main() {
 
             3 -> {
                 println("ID: ")
-                val id = scanner.nextInt()
+                val id = readln().toInt()
 
                 println(
                     service.buscar(id)
@@ -101,7 +96,7 @@ fun main() {
 
             4 -> {
                 println("ID: ")
-                val id = scanner.nextInt()
+                val id = readln().toInt()
 
                 if (service.eliminar(id)) {
                     println("Producto eliminado")
