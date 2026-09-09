@@ -1,7 +1,5 @@
 package com.santamaria.carritosinia
 
-import java.util.Scanner
-
 data class Producto(
     val nombre: String,
     val precio: Double,
@@ -64,7 +62,6 @@ fun calcularDescuento(total: Double): Double {
 
 fun main() {
 
-    val scanner = Scanner(System.`in`)
     val carrito = mutableListOf<Producto>()
 
     println("=".repeat(50))
@@ -72,14 +69,13 @@ fun main() {
     println("=".repeat(50))
 
     print("Cliente: ")
-    val nombreCliente = scanner.nextLine()
+    val nombreCliente = readln()
 
     print("¿Cuántos productos desea registrar?: ")
-    val cantidadProductos = scanner.nextLine().toIntOrNull()
+    val cantidadProductos = readln().toIntOrNull()
 
     if (cantidadProductos == null || cantidadProductos <= 0) {
         println("Cantidad inválida.")
-        scanner.close()
         return
     }
 
@@ -88,23 +84,21 @@ fun main() {
         println("\nProducto $i")
 
         print("Nombre: ")
-        val nombre = scanner.nextLine()
+        val nombre = readln()
 
         print("Precio: ")
-        val precio = scanner.nextLine().toDoubleOrNull()
+        val precio = readln().toDoubleOrNull()
 
         if (precio == null || precio <= 0) {
             println("Precio inválido.")
-            scanner.close()
             return
         }
 
         print("Cantidad: ")
-        val cantidad = scanner.nextLine().toIntOrNull()
+        val cantidad = readln().toIntOrNull()
 
         if (cantidad == null || cantidad <= 0) {
             println("Cantidad inválida.")
-            scanner.close()
             return
         }
 
@@ -162,7 +156,7 @@ fun main() {
 
     println(
         String.format(
-            "TOTAL CON DESCUENTO   : S/ %8.2f",
+            "TOTAL CON DESCUENTO   : S/ %.2f",
             totalConDescuento
         )
     )
@@ -170,6 +164,4 @@ fun main() {
     println("=".repeat(50))
     println("Gracias por su compra, $nombreCliente!")
     println("=".repeat(50))
-
-    scanner.close()
 }
