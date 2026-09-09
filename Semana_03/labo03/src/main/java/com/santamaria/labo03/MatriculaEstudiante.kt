@@ -6,7 +6,6 @@ fun main() {
     println("       SISTEMA DE MATRÍCULA")
     println("=====================================")
 
-    // AFORO
 
     val aforo: Int
 
@@ -23,7 +22,6 @@ fun main() {
         println("Aforo incorrecto. Ingrese un número mayor a 0.")
     }
 
-    // CANTIDAD DE ESTUDIANTES
 
     val cantidadEstudiantes: Int
 
@@ -44,7 +42,6 @@ fun main() {
         }
     }
 
-    // ARREGLOS PARA LOS ESTUDIANTES
 
     val nombres = Array(cantidadEstudiantes) { "" }
     val categorias = Array(cantidadEstudiantes) { "" }
@@ -53,7 +50,6 @@ fun main() {
 
     var estudiantesRegistrados = 0
 
-    // REGISTRO DE ESTUDIANTES
 
     while (estudiantesRegistrados < cantidadEstudiantes) {
 
@@ -79,7 +75,6 @@ fun main() {
             println("El nombre no puede estar vacío.")
         }
 
-        // CATEGORÍA
 
         val categoria: String
         val matricula: Double
@@ -110,7 +105,6 @@ fun main() {
 
         categorias[posicion] = categoria
 
-        // TURNO
 
         val turno: String
         val porcentajeDescuento: Double
@@ -148,7 +142,6 @@ fun main() {
 
         turnos[posicion] = turno
 
-        // VALOR DEL CRÉDITO
 
         val valorCredito: Double
 
@@ -165,7 +158,6 @@ fun main() {
             println("Valor del crédito incorrecto.")
         }
 
-        // CANTIDAD DE CURSOS
 
         val cantidadCursos: Int
 
@@ -182,7 +174,6 @@ fun main() {
             println("Cantidad de cursos incorrecta.")
         }
 
-        // ARREGLOS DE CURSOS
 
         val nombresCursos = Array(cantidadCursos) { "" }
         val creditosCursos = IntArray(cantidadCursos)
@@ -191,14 +182,12 @@ fun main() {
         var totalCreditos = 0
         var totalCursos = 0.0
 
-        // REGISTRO DE CURSOS
 
         for (curso in 0 until cantidadCursos) {
 
             println()
             println("--- CURSO ${curso + 1} ---")
 
-            // NOMBRE DEL CURSO
 
             while (true) {
 
@@ -211,7 +200,6 @@ fun main() {
                     continue
                 }
 
-                // EVITAR CURSOS REPETIDOS
 
                 var repetido = false
 
@@ -231,8 +219,6 @@ fun main() {
                 break
             }
 
-            // CRÉDITOS
-
             while (true) {
 
                 print("Cantidad de créditos: ")
@@ -250,15 +236,12 @@ fun main() {
                 println("Cantidad de créditos incorrecta.")
             }
 
-            // COSTO DEL CURSO
-
             costosCursos[curso] =
                 creditosCursos[curso] * valorCredito
 
             totalCursos += costosCursos[curso]
         }
 
-        // CARGA ACADÉMICA
 
         val cargaAcademica: String
 
@@ -270,27 +253,22 @@ fun main() {
             cargaAcademica = "REQUIERE AUTORIZACION"
         }
 
-        // DESCUENTO POR TURNO
 
         val descuento = matricula * porcentajeDescuento
 
         val matriculaDescuento = matricula - descuento
 
-        // SUBTOTAL
 
         val subtotal = totalCursos + matriculaDescuento
 
-        // IGV
 
         val igv = subtotal * 0.18
 
-        // TOTAL
 
         val totalPagar = subtotal + igv
 
         totalesPagar[posicion] = totalPagar
 
-        // FORMA DE PAGO
 
         val cantidadCuotas: Int
 
@@ -302,7 +280,6 @@ fun main() {
 
         val valorCuota = totalPagar / cantidadCuotas
 
-        // RESULTADO DEL ESTUDIANTE
 
         println()
         println("=====================================")
@@ -355,7 +332,6 @@ fun main() {
         )
     }
 
-    // REPORTE FINAL
 
     println()
     println("=====================================")
