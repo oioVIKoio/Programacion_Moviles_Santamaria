@@ -3,6 +3,7 @@ package com.santamaria.laboratorio04
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -45,223 +46,175 @@ fun PantallaCarrito() {
     val total = subtotal + igv
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
-
-        Text(
-            text = "Mi Carrito TECSUP",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = nombre,
-            onValueChange = { nombre = it },
-            label = {
-                Text("Nombre del producto")
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-
-            OutlinedTextField(
-                value = precio,
-                onValueChange = { precio = it },
-                label = {
-                    Text("Precio (S/)")
-                },
-                modifier = Modifier.weight(1f)
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            OutlinedTextField(
-                value = cantidad,
-                onValueChange = { cantidad = it },
-                label = {
-                    Text("Cantidad")
-                },
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Button(
-            onClick = {
-
-                val precioNum =
-                    precio.toDoubleOrNull() ?: 0.0
-
-                val cantidadNum =
-                    cantidad.toIntOrNull() ?: 0
-
-                if (
-                    nombre.isNotBlank() &&
-                    precioNum > 0 &&
-                    cantidadNum > 0
-                ) {
-
-                    productos.add(
-                        Producto(
-                            nombre,
-                            precioNum,
-                            cantidadNum
-                        )
-                    )
-
-                    nombre = ""
-                    precio = ""
-                    cantidad = ""
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("AGREGAR")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (productos.isEmpty()) {
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-
-                    Text(
-                        text = "Tu carrito está vacío",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(4.dp)
-                    )
-
-                    Text(
-                        text = "Agrega tu primer producto",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-
-        } else {
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                verticalArrangement =
-                    Arrangement.spacedBy(12.dp)
-            ) {
-
-                items(productos) { producto ->
-
-                    TarjetaProducto(
-                        producto = producto,
-                        onEliminar = {
-                            productos.remove(producto)
-                        }
-                    )
-                }
-            }
-        }
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            tonalElevation = 4.dp
+            color = MaterialTheme.colorScheme.primary
+        ) {
+            Text(
+                text = "Mi Carrito TECSUP",
+                modifier = Modifier.padding(
+                    horizontal = 16.dp,
+                    vertical = 16.dp
+                ),
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
         ) {
 
-            Column(
-                modifier = Modifier.padding(16.dp)
+            Spacer(Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = nombre,
+                onValueChange = { nombre = it },
+                label = { Text("Nombre del producto") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth()
             ) {
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement =
-                        Arrangement.SpaceBetween
+                OutlinedTextField(
+                    value = precio,
+                    onValueChange = { precio = it },
+                    label = { Text("Precio (S/)") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(Modifier.width(8.dp))
+
+                OutlinedTextField(
+                    value = cantidad,
+                    onValueChange = { cantidad = it },
+                    label = { Text("Cantidad") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            Button(
+                onClick = {
+
+                    val precioNum =
+                        precio.toDoubleOrNull() ?: 0.0
+
+                    val cantidadNum =
+                        cantidad.toIntOrNull() ?: 0
+
+                    if (
+                        nombre.isNotBlank() &&
+                        precioNum > 0 &&
+                        cantidadNum > 0
+                    ) {
+
+                        productos.add(
+                            Producto(
+                                nombre,
+                                precioNum,
+                                cantidadNum
+                            )
+                        )
+
+                        nombre = ""
+                        precio = ""
+                        cantidad = ""
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "AGREGAR",
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(Modifier.height(10.dp))
+
+            HorizontalDivider()
+
+            Spacer(Modifier.height(10.dp))
+
+            if (productos.isEmpty()) {
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("Productos:")
-                    Text("${productos.size}")
+
+                    Column(
+                        horizontalAlignment =
+                            Alignment.CenterHorizontally
+                    ) {
+
+                        Text(
+                            text = "Tu carrito está vacío",
+                            style =
+                                MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color =
+                                MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(Modifier.height(4.dp))
+
+                        Text(
+                            text = "Agrega tu primer producto",
+                            style =
+                                MaterialTheme.typography.bodyMedium,
+                            color =
+                                MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
 
-                Spacer(
-                    modifier = Modifier.height(6.dp)
-                )
+            } else {
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement =
-                        Arrangement.SpaceBetween
-                ) {
-                    Text("Subtotal")
-                    Text("S/ %.2f".format(subtotal))
-                }
-
-                Spacer(
-                    modifier = Modifier.height(6.dp)
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement =
-                        Arrangement.SpaceBetween
-                ) {
-                    Text("IGV (18%)")
-                    Text("S/ %.2f".format(igv))
-                }
-
-                Spacer(
-                    modifier = Modifier.height(8.dp)
-                )
-
-                HorizontalDivider()
-
-                Spacer(
-                    modifier = Modifier.height(8.dp)
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement =
-                        Arrangement.SpaceBetween
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalArrangement =
+                        Arrangement.spacedBy(8.dp)
                 ) {
 
-                    Text(
-                        text = "TOTAL",
-                        style =
-                            MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
+                    items(productos) { producto ->
 
-                    Text(
-                        text = "S/ %.2f".format(total),
-                        style =
-                            MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color =
-                            MaterialTheme.colorScheme.primary
-                    )
+                        TarjetaProducto(
+                            producto = producto,
+                            onEliminar = {
+                                productos.remove(producto)
+                            }
+                        )
+                    }
                 }
             }
+
+            PanelTotales(
+                cantidadProductos = productos.size,
+                subtotal = subtotal,
+                igv = igv,
+                total = total
+            )
         }
     }
 }
@@ -273,13 +226,26 @@ fun TarjetaProducto(
 ) {
 
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.primary.copy(
+                alpha = 0.45f
+            )
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor =
+                MaterialTheme.colorScheme.surface
+        )
     ) {
 
         Row(
             modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(
+                    horizontal = 12.dp,
+                    vertical = 10.dp
+                ),
             verticalAlignment =
                 Alignment.CenterVertically
         ) {
@@ -300,6 +266,8 @@ fun TarjetaProducto(
                         producto.precio,
                         producto.cantidad
                     ),
+                    style =
+                        MaterialTheme.typography.bodySmall,
                     color =
                         MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -310,8 +278,8 @@ fun TarjetaProducto(
                     producto.precio *
                             producto.cantidad
                 ),
-                style =
-                    MaterialTheme.typography.titleMedium
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
             )
 
             IconButton(
@@ -324,6 +292,86 @@ fun TarjetaProducto(
                     contentDescription = "Eliminar",
                     tint =
                         MaterialTheme.colorScheme.error
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PanelTotales(
+    cantidadProductos: Int,
+    subtotal: Double,
+    igv: Double,
+    total: Double
+) {
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.primaryContainer
+            .copy(alpha = 0.35f)
+    ) {
+
+        Column(
+            modifier = Modifier.padding(12.dp)
+        ) {
+
+            Text(
+                text = "Productos: $cantidadProductos",
+                style = MaterialTheme.typography.bodySmall,
+                color =
+                    MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            if (cantidadProductos > 0) {
+
+                Spacer(Modifier.height(4.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement =
+                        Arrangement.SpaceBetween
+                ) {
+                    Text("Subtotal")
+                    Text("S/ %.2f".format(subtotal))
+                }
+
+                Spacer(Modifier.height(4.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement =
+                        Arrangement.SpaceBetween
+                ) {
+                    Text("IGV (18%)")
+                    Text("S/ %.2f".format(igv))
+                }
+            }
+
+            Spacer(Modifier.height(6.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement =
+                    Arrangement.SpaceBetween,
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                Text(
+                    text = "TOTAL",
+                    style =
+                        MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    text = "S/ %.2f".format(total),
+                    style =
+                        MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color =
+                        MaterialTheme.colorScheme.primary
                 )
             }
         }

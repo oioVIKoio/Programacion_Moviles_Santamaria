@@ -29,11 +29,11 @@ IGV y total de la compra.
 
 ### Carrito vacío
 
-![img.png](img.png)
+![img_1.png](img_1.png)
 
 ### Carrito con productos
 
-![img_3.png](img_3.png)
+![img.png](img.png)
 
 ## Preguntas conceptuales
 
