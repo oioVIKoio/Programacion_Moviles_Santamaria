@@ -9,12 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-data class Producto(
-    val nombre: String,
-    val precio: Double,
-    val cantidad: Int
-)
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
