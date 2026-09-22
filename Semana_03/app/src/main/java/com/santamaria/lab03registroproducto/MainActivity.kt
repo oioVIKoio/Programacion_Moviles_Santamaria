@@ -68,12 +68,10 @@ fun RegistroProductoScreen(modifier: Modifier = Modifier) {
             text = "Registro de Producto",
             fontSize = 28.sp
         )
-
         Text(
             text = "Ingrese los datos del producto",
             fontSize = 16.sp
         )
-
         OutlinedTextField(
             value = nombreProducto,
             onValueChange = { nombreProducto = it },
