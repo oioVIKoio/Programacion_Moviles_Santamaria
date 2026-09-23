@@ -44,7 +44,7 @@ fun HomeScreen(navController: NavController) {
         ) {
 
             Text("TECSUP Fit")
-            Text("Hola, Diego")
+            Text("Hola, Victor")
 
             Spacer(modifier = Modifier.height(16.dp))
 
