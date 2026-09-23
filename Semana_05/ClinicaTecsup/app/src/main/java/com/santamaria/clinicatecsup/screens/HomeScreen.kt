@@ -1,4 +1,4 @@
-package com.santamaria.clinica.screens
+package com.santamaria.clinicatecsup.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
