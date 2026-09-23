@@ -1,0 +1,60 @@
+package com.santamaria.navlab.navigation
+
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+
+import com.santamaria.navlab.screens.DetailScreen
+import com.santamaria.navlab.screens.HomeScreen
+import com.santamaria.navlab.screens.ListScreen
+import com.santamaria.navlab.screens.ProfileScreen
+import com.santamaria.navlab.screens.LoginScreen
+
+@Composable
+fun AppNavigation() {
+
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Login.route
+    ) {
+
+        composable(Screen.Login.route) {
+            LoginScreen(navController)
+        }
+
+        composable(Screen.Home.route) {
+            HomeScreen(navController)
+        }
+
+        composable(Screen.List.route) {
+            ListScreen(navController)
+        }
+
+        composable(Screen.Profile.route) {
+            ProfileScreen(navController)
+        }
+
+        composable(
+            route = Screen.Detail.route,
+            arguments = listOf(
+                navArgument("itemId") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+
+            val itemId =
+                backStackEntry.arguments?.getInt("itemId") ?: 0
+
+            DetailScreen(
+                navController = navController,
+                itemId = itemId
+            )
+        }
+    }
+}
