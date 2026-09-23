@@ -7,8 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.santamaria.clinica.screens.AppointmentScreen
-import com.santamaria.clinica.screens.HomeScreen
+import com.santamaria.clinicatecsup.screens.AppointmentScreen
+import com.santamaria.clinicatecsup.screens.HomeScreen
 
 @Composable
 fun AppNavigation() {
