@@ -74,7 +74,7 @@ De esta manera, cada estudiante puede abrir su propio expediente utilizando el i
 
 **Evidencia:**
 
-![Navegación al detalle](img_2.png)
+![img_5.png](img_5.png)
 
 ---
 
