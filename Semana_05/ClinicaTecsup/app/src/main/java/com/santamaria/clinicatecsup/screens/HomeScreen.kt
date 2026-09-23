@@ -18,7 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.santamaria.clinica.navigation.Screen
+import com.santamaria.clinicatecsup.navigation.Screen
 
 @Composable
 fun HomeScreen(navController: NavController) {
