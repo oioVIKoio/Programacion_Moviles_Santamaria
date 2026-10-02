@@ -26,7 +26,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -117,29 +120,53 @@ fun TarjetaProducto(
                         text = {
                             Text("Favoritos")
                         },
-                        onClick = {
-                            expanded = false
-                        }
-                    )
-
-                    DropdownMenuItem(
-                        text = {
-                            Text("Compartir")
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Favorite,
+                                contentDescription = "Favoritos"
+                            )
                         },
                         onClick = {
                             expanded = false
                         }
                     )
 
+                    HorizontalDivider()
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("Compartir")
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Compartir"
+                            )
+                        },
+                        onClick = {
+                            expanded = false
+                        }
+                    )
+
+                    HorizontalDivider()
+
                     DropdownMenuItem(
                         text = {
                             Text("Reportar")
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = "Reportar"
+                            )
                         },
                         onClick = {
                             expanded = false
                         }
                     )
                 }
+
+
             }
         }
     }
