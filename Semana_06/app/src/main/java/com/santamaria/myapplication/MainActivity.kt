@@ -1,0 +1,81 @@
+package com.santamaria.myapplication
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+
+class MainActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContent {
+            MaterialTheme {
+                AppNavegacion()
+            }
+        }
+    }
+}
+
+@Composable
+fun PantallaTienda(
+    favoritos: Set<String>,
+    onFavoritoClick: (Producto) -> Unit
+) {
+
+    val productos = remember {
+        listOf(
+            Producto(
+                nombre = "Audífonos",
+                precio = 89.00
+            ),
+            Producto(
+                nombre = "Smartwatch",
+                precio = 199.00
+            ),
+            Producto(
+                nombre = "Funda celular",
+                precio = 25.00
+            )
+        )
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+
+            items(productos) { producto ->
+
+                TarjetaProducto(
+                    producto = producto,
+                    esFavorito = producto.nombre in favoritos,
+                    onFavoritoClick = onFavoritoClick
+                )
+            }
+        }
+    }
+}
