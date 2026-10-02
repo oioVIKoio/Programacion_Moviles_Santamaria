@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                PantallaTienda()
+                AppNavegacion()
             }
         }
     }
@@ -61,19 +61,16 @@ fun PantallaTienda() {
         modifier = Modifier.fillMaxSize()
     ) {
 
-        // CABECERA DE TECSUP STORE
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color = morado
         ) {
-
             Column(
                 modifier = Modifier.padding(
                     horizontal = 16.dp,
                     vertical = 12.dp
                 )
             ) {
-
                 Text(
                     text = "TECSUP Store",
                     color = Color.White,
@@ -93,16 +90,13 @@ fun PantallaTienda() {
             modifier = Modifier.height(16.dp)
         )
 
-        // LISTA DE PRODUCTOS
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
             items(productos) { producto ->
-
                 TarjetaProducto(
                     producto = producto
                 )
