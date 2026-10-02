@@ -106,7 +106,6 @@ fun TarjetaProducto(
                         expanded = true
                     }
                 ) {
-
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "Opciones del producto"

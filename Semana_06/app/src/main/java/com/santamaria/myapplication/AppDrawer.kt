@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +37,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AppDrawer(
     destinoActual: String,
+    cantidadFavoritos: Int,
     onDestinoSeleccionado: (String) -> Unit
 ) {
 
@@ -56,13 +59,11 @@ fun AppDrawer(
                 )
         ) {
 
-            // ENCABEZADO DEL USUARIO
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                // AVATAR CIRCULAR
                 Column(
                     modifier = Modifier
                         .size(56.dp)
@@ -116,7 +117,6 @@ fun AppDrawer(
                 modifier = Modifier.height(12.dp)
             )
 
-            // INICIO
             NavigationDrawerItem(
                 label = {
                     Text(
@@ -145,17 +145,15 @@ fun AppDrawer(
                 }
             )
 
-            // MIS PEDIDOS
             NavigationDrawerItem(
                 label = {
                     Text(
                         text = "Mis pedidos",
-                        fontWeight =
-                            if (destinoActual == "Mis pedidos") {
-                                FontWeight.Bold
-                            } else {
-                                FontWeight.Normal
-                            }
+                        fontWeight = if (destinoActual == "Mis pedidos") {
+                            FontWeight.Bold
+                        } else {
+                            FontWeight.Normal
+                        }
                     )
                 },
                 selected = destinoActual == "Mis pedidos",
@@ -175,25 +173,38 @@ fun AppDrawer(
                 }
             )
 
-            // FAVORITOS
             NavigationDrawerItem(
                 label = {
                     Text(
                         text = "Favoritos",
-                        fontWeight =
-                            if (destinoActual == "Favoritos") {
-                                FontWeight.Bold
-                            } else {
-                                FontWeight.Normal
-                            }
+                        fontWeight = if (destinoActual == "Favoritos") {
+                            FontWeight.Bold
+                        } else {
+                            FontWeight.Normal
+                        }
                     )
                 },
                 selected = destinoActual == "Favoritos",
                 icon = {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = "Favoritos"
-                    )
+
+                    BadgedBox(
+                        badge = {
+
+                            if (cantidadFavoritos > 0) {
+                                Badge {
+                                    Text(
+                                        text = cantidadFavoritos.toString()
+                                    )
+                                }
+                            }
+                        }
+                    ) {
+
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = "Favoritos"
+                        )
+                    }
                 },
                 colors = NavigationDrawerItemDefaults.colors(
                     selectedContainerColor = lavanda,
@@ -205,17 +216,15 @@ fun AppDrawer(
                 }
             )
 
-            // PERFIL
             NavigationDrawerItem(
                 label = {
                     Text(
                         text = "Perfil",
-                        fontWeight =
-                            if (destinoActual == "Perfil") {
-                                FontWeight.Bold
-                            } else {
-                                FontWeight.Normal
-                            }
+                        fontWeight = if (destinoActual == "Perfil") {
+                            FontWeight.Bold
+                        } else {
+                            FontWeight.Normal
+                        }
                     )
                 },
                 selected = destinoActual == "Perfil",
@@ -235,7 +244,6 @@ fun AppDrawer(
                 }
             )
 
-            // OPCIONAL SEGÚN EL LABORATORIO
             NavigationDrawerItem(
                 label = {
                     Text("Cerrar sesión")
@@ -248,7 +256,7 @@ fun AppDrawer(
                     )
                 },
                 onClick = {
-                    // Solo visual en esta fase
+                    // Funcionalidad opcional no implementada
                 }
             )
         }

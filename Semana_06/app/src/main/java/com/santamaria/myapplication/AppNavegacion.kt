@@ -58,6 +58,7 @@ fun AppNavegacion() {
 
             AppDrawer(
                 destinoActual = destinoActual,
+                cantidadFavoritos = favoritos.size,
                 onDestinoSeleccionado = { destino ->
 
                     destinoActual = destino
@@ -88,7 +89,6 @@ fun AppNavegacion() {
                             )
 
                             if (destinoActual == "Inicio") {
-
                                 Text(
                                     text = "Más vendidos",
                                     style = MaterialTheme.typography.bodySmall
@@ -145,7 +145,6 @@ fun AppNavegacion() {
                     }
 
                     "Mis pedidos" -> {
-
                         PantallaSeccion(
                             titulo = "Mis pedidos",
                             mensaje = "Aquí podrás consultar tus pedidos."
@@ -153,15 +152,13 @@ fun AppNavegacion() {
                     }
 
                     "Favoritos" -> {
-
                         PantallaSeccion(
                             titulo = "Favoritos",
-                            mensaje = "Aquí aparecerán tus productos favoritos."
+                            mensaje = "Tienes ${favoritos.size} producto(s) favorito(s)."
                         )
                     }
 
                     "Perfil" -> {
-
                         PantallaSeccion(
                             titulo = "Perfil",
                             mensaje = "Información del perfil del usuario."
