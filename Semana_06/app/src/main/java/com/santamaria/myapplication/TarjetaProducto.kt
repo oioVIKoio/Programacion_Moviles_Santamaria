@@ -27,6 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 
 @Composable
 fun TarjetaProducto(
@@ -90,17 +93,53 @@ fun TarjetaProducto(
             }
 
             // Primer requisito del Laboratorio 06:
-            // icono de tres puntos a la derecha de cada producto.
-            IconButton(
-                onClick = {
-                    expanded = !expanded
-                }
-            ) {
+            Box {
 
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "Opciones del producto"
-                )
+                IconButton(
+                    onClick = {
+                        expanded = true
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Opciones del producto"
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = {
+                        expanded = false
+                    }
+                ) {
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("Favoritos")
+                        },
+                        onClick = {
+                            expanded = false
+                        }
+                    )
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("Compartir")
+                        },
+                        onClick = {
+                            expanded = false
+                        }
+                    )
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("Reportar")
+                        },
+                        onClick = {
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
     }
