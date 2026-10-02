@@ -16,6 +16,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +26,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -43,11 +45,14 @@ fun AppNavegacion() {
         mutableStateOf("Inicio")
     }
 
+    val morado = Color(0xFF6A1B9A)
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
 
             AppDrawer(
+                destinoActual = destinoActual,
                 onDestinoSeleccionado = { destino ->
 
                     destinoActual = destino
@@ -65,12 +70,32 @@ fun AppNavegacion() {
 
                 TopAppBar(
                     title = {
-                        Text(destinoActual)
+
+                        Column {
+
+                            Text(
+                                text = if (destinoActual == "Inicio") {
+                                    "TECSUP Store"
+                                } else {
+                                    destinoActual
+                                },
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            if (destinoActual == "Inicio") {
+                                Text(
+                                    text = "Más vendidos",
+                                    style =
+                                        MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
                     },
                     navigationIcon = {
 
                         IconButton(
                             onClick = {
+
                                 scope.launch {
                                     drawerState.open()
                                 }
@@ -82,7 +107,12 @@ fun AppNavegacion() {
                                 contentDescription = "Abrir menú"
                             )
                         }
-                    }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = morado,
+                        titleContentColor = Color.White,
+                        navigationIconContentColor = Color.White
+                    )
                 )
             }
         ) { innerPadding ->
