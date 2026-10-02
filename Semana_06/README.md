@@ -137,6 +137,62 @@ Durante la Fase 2 se utilizó IA como apoyo para implementar el estado compartid
 
 Los prompts utilizados y las correcciones realizadas durante la implementación se encuentran documentados en `PROMPTS.md`.
 
+## Preguntas de reflexión
+
+### 1. ¿Por qué el DropdownMenu se declara dentro de un Box junto al ícono de 3 puntos y no en cualquier lugar de la pantalla?
+
+El `DropdownMenu` se coloca dentro de un `Box` junto al botón de tres puntos porque así queda asociado visualmente al elemento que lo abre. El `Box` permite mantener ambos componentes relacionados, haciendo que cuando cambie el estado `expanded`, el menú aparezca junto al botón correspondiente de la tarjeta y no como un elemento independiente de la pantalla.
+
+### 2. ¿Cuál es la diferencia entre el alcance de un DropdownMenu y un NavigationDrawer?
+
+El `DropdownMenu` tiene un alcance específico y contextual. En este laboratorio se utiliza para realizar acciones relacionadas con un producto, como agregarlo a favoritos, compartirlo o reportarlo.
+
+En cambio, el `NavigationDrawer` tiene un alcance general dentro de la aplicación, ya que permite navegar entre las secciones principales como Inicio, Mis pedidos, Favoritos y Perfil.
+
+### 3. En la Fase 2, ¿cómo se logra que el contador de favoritos del drawer conozca cuántos productos fueron marcados desde las tarjetas?
+
+Se utilizó un estado compartido en `AppNavegacion`. Cada `TarjetaProducto` comunica la acción de agregar o quitar un producto mediante `onFavoritoClick`.
+
+`AppNavegacion` mantiene la lista de favoritos y envía `favoritos.size` hacia `AppDrawer`. De esta manera, el `Badge` del item Favoritos utiliza la misma información y se actualiza automáticamente cuando se agrega o quita un producto.
+
+El flujo utilizado fue:
+
+```text
+TarjetaProducto
+      ↓
+onFavoritoClick
+      ↓
+AppNavegacion
+      ↓
+Estado compartido de favoritos
+      ↓
+favoritos.size
+      ↓
+AppDrawer
+      ↓
+Badge
+```
+
+### 4. ¿Qué tuviste que corregir del código generado con IA y por qué?
+
+Durante la implementación con IA se tuvo que corregir principalmente la distribución de `TarjetaProducto`. En una primera integración, el nombre y el precio quedaron comprimidos y los componentes se mostraban de forma incorrecta.
+
+Para solucionarlo se reorganizó la tarjeta utilizando un `Row` como contenedor principal, una `Column` con `Modifier.weight(1f)` para distribuir correctamente el espacio del nombre y precio, y un `Box` para mantener el `DropdownMenu` asociado al botón de tres puntos.
+
+También se revisó dónde debía mantenerse el estado de favoritos. Finalmente se dejó en `AppNavegacion`, ya que las tarjetas y el drawer necesitan trabajar con la misma información.
+
+## Observaciones
+
+1. En la Fase 1, el `DropdownMenu` y el `NavigationDrawer` podían funcionar de manera independiente. En la Fase 2 fue necesario comunicar los composables para que una acción realizada desde una tarjeta también pudiera reflejarse en el drawer.
+
+2. El uso de IA permitió avanzar rápidamente con la implementación del estado compartido y el `Badge`, pero fue necesario revisar y probar el resultado. Durante la integración apareció un problema en la distribución visual de las tarjetas que tuvo que corregirse antes de continuar.
+
+## Conclusiones
+
+1. El laboratorio permitió diferenciar el propósito de los menús utilizados en Jetpack Compose. El `DropdownMenu` permite realizar acciones contextuales sobre un elemento, mientras que el `NavigationDrawer` permite organizar la navegación general de la aplicación.
+
+2. La Fase 2 permitió aplicar el manejo de estado compartido entre composables. Al mantener los favoritos en `AppNavegacion`, fue posible comunicar `TarjetaProducto` con `AppDrawer` y actualizar dinámicamente el contador sin mantener estados separados.
+
 ## Tecnologías utilizadas
 
 - Kotlin
