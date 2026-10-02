@@ -21,7 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AppDrawer() {
+fun AppDrawer(
+    onDestinoSeleccionado: (String) -> Unit
+) {
 
     ModalDrawerSheet(
         modifier = Modifier
@@ -62,7 +64,7 @@ fun AppDrawer() {
                     )
                 },
                 onClick = {
-                    // Navegación en el siguiente commit
+                    onDestinoSeleccionado("Inicio")
                 }
             )
 
@@ -78,7 +80,7 @@ fun AppDrawer() {
                     )
                 },
                 onClick = {
-                    // Navegación en el siguiente commit
+                    onDestinoSeleccionado("Mis pedidos")
                 }
             )
 
@@ -94,7 +96,7 @@ fun AppDrawer() {
                     )
                 },
                 onClick = {
-                    // Navegación en el siguiente commit
+                    onDestinoSeleccionado("Favoritos")
                 }
             )
 
@@ -110,7 +112,7 @@ fun AppDrawer() {
                     )
                 },
                 onClick = {
-                    // Navegación en el siguiente commit
+                    onDestinoSeleccionado("Perfil")
                 }
             )
         }
