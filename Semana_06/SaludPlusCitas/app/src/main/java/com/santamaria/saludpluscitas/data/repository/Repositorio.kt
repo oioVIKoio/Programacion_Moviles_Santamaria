@@ -132,41 +132,39 @@ object Repositorio {
 
     // Especialidades cuyo nombre contiene el texto (sin importar mayúsculas).
     fun buscarEspecialidades(texto: String): List<Especialidad> {
-        // TODO: filter + contains (ignoreCase).
-        return especialidades
+        val dato = texto.trim()
+        return especialidades.filter { it.nombre.contains(dato, ignoreCase = true) }
     }
 
     // Las 3 primeras especialidades para el LazyRow del Inicio.
     fun especialidadesDestacadas(): List<Especialidad> {
-        // TODO: take.
-        return emptyList()
+        return especialidades.take(3)
     }
 
     fun obtenerEspecialidad(id: Int): Especialidad? {
-        // TODO: find por id.
-        return null
+        return especialidades.find { it.id == id }
     }
 
     fun obtenerMedico(id: Int): Medico? {
-        // TODO: find por id.
-        return null
+        return medicos.find { it.id == id }
     }
 
     fun obtenerCita(id: Int): Cita? {
-        // TODO: find por id.
-        return null
+        return citas.find { it.id == id }
     }
 
     // Médicos de una especialidad, mejor calificados primero.
     fun medicosPorEspecialidad(especialidadId: Int): List<Medico> {
-        // TODO: filter + sortedByDescending por calificacion.
-        return emptyList()
+        return medicos
+            .filter { it.especialidadId == especialidadId }
+            .sortedByDescending { it.calificacion }
     }
 
     // Médicos de una especialidad cuyo nombre contiene el texto.
     fun buscarMedicos(especialidadId: Int, texto: String): List<Medico> {
-        // TODO: filter por nombre sobre medicosPorEspecialidad.
-        return emptyList()
+        val dato = texto.trim()
+        return medicosPorEspecialidad(especialidadId)
+            .filter { it.nombre.contains(dato, ignoreCase = true) }
     }
 
     // ---------------------------------------------------------------
