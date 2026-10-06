@@ -208,8 +208,10 @@ object Repositorio {
 
     // Citas del usuarioActual ordenadas por fecha y hora.
     fun citasDelUsuario(): List<Cita> {
-        // TODO: filter por usuarioId + sortedWith(compareBy(fecha, hora)).
-        return emptyList()
+        val usuario = usuarioActual ?: return emptyList()
+        return citas
+            .filter { it.usuarioId == usuario.id }
+            .sortedWith(compareBy({ it.fecha }, { it.hora }))
     }
 
     // Reto extra (Detalle de cita).
