@@ -187,8 +187,23 @@ object Repositorio {
         hora: String,
         motivo: String
     ): Cita? {
-        // TODO: validar con any que el horario esté libre y agregar con add.
-        return null
+        val usuario = usuarioActual ?: return null
+
+        val ocupado = citas.any {
+            it.medicoId == medicoId && it.fecha == fecha && it.hora == hora
+        }
+        if (ocupado) return null
+
+        val cita = Cita(
+            id = (citas.maxOfOrNull { it.id } ?: 0) + 1,
+            usuarioId = usuario.id,
+            medicoId = medicoId,
+            fecha = fecha,
+            hora = hora,
+            motivo = motivo.trim()
+        )
+        citas.add(cita)
+        return cita
     }
 
     // Citas del usuarioActual ordenadas por fecha y hora.
