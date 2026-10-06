@@ -21,9 +21,9 @@ object Repositorio {
     val usuarios = mutableStateListOf(
         Usuario(
             id = 1,
-            nombre = "Juan Pérez",
+            nombre = "Victor Santamaria",
             telefono = "987654321",
-            correo = "juan@correo.com",
+            correo = "victor.santamaria@gmail.com",
             password = "123456"
         )
     )

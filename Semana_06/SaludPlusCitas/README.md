@@ -16,7 +16,7 @@ La guía indica partir del proyecto `SaludPlusCitas.zip`, pero **no se recibió*
 
 El paquete es `com.santamaria.saludpluscitas` para identificar al autor. La configuración de Gradle se tomó del proyecto de la Semana 05 (`ClinicaTecsup`).
 
-**Usuario de prueba:** teléfono `987654321` (o `juan@correo.com`) · contraseña `123456`.
+**Usuario de prueba:** Victor Santamaria · teléfono `987654321` (o `victor.santamaria@gmail.com`) · contraseña `123456`.
 
 ## Ramas
 | Rama | Fase |
@@ -27,7 +27,7 @@ El paquete es `com.santamaria.saludpluscitas` para identificar al autor. La conf
 ## Avance Fase 1
 - [x] Esqueleto (primer commit)
 - [x] a. Repositorio: usuarios
-- [ ] b. Splash + Registro + Login
+- [x] b. Splash + Registro + Login
 - [ ] c. Repositorio: especialidades y médicos
 - [ ] d. Inicio con tarjetas, saludo y `LazyRow`
 - [ ] e. `NavigationBar` con 4 destinos
