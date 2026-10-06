@@ -16,6 +16,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChildCare
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Female
 import androidx.compose.material.icons.filled.Healing
@@ -26,6 +29,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -45,7 +51,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.santamaria.saludpluscitas.data.model.Especialidad
+import com.santamaria.saludpluscitas.navigation.Rutas
 import com.santamaria.saludpluscitas.ui.theme.AzulClaro
 import com.santamaria.saludpluscitas.ui.theme.AzulPrimario
 import com.santamaria.saludpluscitas.ui.theme.AzulPastel
@@ -55,6 +63,7 @@ import com.santamaria.saludpluscitas.ui.theme.NaranjaTexto
 import com.santamaria.saludpluscitas.ui.theme.RojoPastel
 import com.santamaria.saludpluscitas.ui.theme.RojoTexto
 import com.santamaria.saludpluscitas.ui.theme.SuperficieBlanca
+import com.santamaria.saludpluscitas.ui.theme.TextoSecundario
 
 // Componentes reutilizables de la app.
 // Pendientes (se crean junto con la pantalla que los usa):
@@ -293,6 +302,53 @@ fun TarjetaEspecialidadDestacada(
                 textAlign = TextAlign.Center,
                 lineHeight = 16.sp,
                 color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
+// Destino de la barra inferior.
+data class DestinoBarra(
+    val titulo: String,
+    val icono: ImageVector,
+    val ruta: String
+)
+
+private val destinosBarra = listOf(
+    DestinoBarra("Inicio", Icons.Default.Home, Rutas.Home.ruta),
+    DestinoBarra("Citas", Icons.Default.CalendarMonth, Rutas.MisCitas.ruta),
+    DestinoBarra("Resultados", Icons.Default.Description, Rutas.Resultados.ruta),
+    DestinoBarra("Perfil", Icons.Default.Person, Rutas.Perfil.ruta)
+)
+
+// NavigationBar con los 4 destinos principales. rutaActual marca cuál está activo.
+@Composable
+fun BarraNavegacion(
+    navController: NavController,
+    rutaActual: String
+) {
+    NavigationBar(containerColor = SuperficieBlanca) {
+        destinosBarra.forEach { destino ->
+            NavigationBarItem(
+                selected = destino.ruta == rutaActual,
+                onClick = {
+                    if (destino.ruta != rutaActual) {
+                        navController.navigate(destino.ruta) {
+                            // Sin copias del mismo destino en la pila; Atrás vuelve al Inicio.
+                            popUpTo(Rutas.Home.ruta)
+                            launchSingleTop = true
+                        }
+                    }
+                },
+                icon = { Icon(imageVector = destino.icono, contentDescription = null) },
+                label = { Text(text = destino.titulo, fontSize = 12.sp) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = AzulPrimario,
+                    selectedTextColor = AzulPrimario,
+                    indicatorColor = AzulClaro,
+                    unselectedIconColor = TextoSecundario,
+                    unselectedTextColor = TextoSecundario
+                )
             )
         }
     }

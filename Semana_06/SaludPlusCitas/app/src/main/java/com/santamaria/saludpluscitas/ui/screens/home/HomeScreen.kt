@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.santamaria.saludpluscitas.data.repository.Repositorio
 import com.santamaria.saludpluscitas.navigation.Rutas
+import com.santamaria.saludpluscitas.ui.components.BarraNavegacion
 import com.santamaria.saludpluscitas.ui.components.TarjetaAccion
 import com.santamaria.saludpluscitas.ui.components.TarjetaEspecialidadDestacada
 import com.santamaria.saludpluscitas.ui.theme.AzulPastel
@@ -46,7 +47,6 @@ import com.santamaria.saludpluscitas.ui.theme.TextoSecundario
 import com.santamaria.saludpluscitas.ui.theme.VerdePastel
 import com.santamaria.saludpluscitas.ui.theme.VerdeTexto
 
-// TODO: NavigationBar en bottomBar: Inicio, Citas, Resultados, Perfil.
 @Composable
 fun HomeScreen(
     navController: NavController
@@ -56,7 +56,13 @@ fun HomeScreen(
     val destacadas = Repositorio.especialidadesDestacadas()
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.surface,
+        bottomBar = {
+            BarraNavegacion(
+                navController = navController,
+                rutaActual = Rutas.Home.ruta
+            )
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
