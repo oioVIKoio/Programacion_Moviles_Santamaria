@@ -26,7 +26,7 @@ El paquete es `com.santamaria.saludpluscitas` para identificar al autor. La conf
 
 ## Avance Fase 1
 - [x] Esqueleto (primer commit)
-- [ ] a. Repositorio: usuarios
+- [x] a. Repositorio: usuarios
 - [ ] b. Splash + Registro + Login
 - [ ] c. Repositorio: especialidades y médicos
 - [ ] d. Inicio con tarjetas, saludo y `LazyRow`

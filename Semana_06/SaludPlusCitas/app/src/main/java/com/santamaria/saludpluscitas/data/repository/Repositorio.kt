@@ -81,27 +81,49 @@ object Repositorio {
     // Usuarios y sesión
     // ---------------------------------------------------------------
 
-    // Registra un usuario nuevo. Devuelve false si el teléfono
-    // (o el correo, si se llenó) ya está registrado.
+    // Registra un usuario nuevo y deja su sesión iniciada. Devuelve false
+    // si el teléfono (o el correo, si se llenó) ya está registrado.
     fun registrarUsuario(
         nombre: String,
         telefono: String,
         correo: String,
         password: String
     ): Boolean {
-        // TODO: validar duplicados con any y agregar el usuario con add.
-        return false
+        val tel = telefono.trim()
+        val email = correo.trim()
+
+        val existe = usuarios.any {
+            it.telefono == tel || (email.isNotBlank() && it.correo.equals(email, ignoreCase = true))
+        }
+        if (existe) return false
+
+        val nuevo = Usuario(
+            id = (usuarios.maxOfOrNull { it.id } ?: 0) + 1,
+            nombre = nombre.trim(),
+            telefono = tel,
+            correo = email,
+            password = password
+        )
+        usuarios.add(nuevo)
+        usuarioActual = nuevo
+        return true
     }
 
     // Busca al usuario por teléfono o correo y contraseña.
     // Si existe, lo guarda en usuarioActual y devuelve true.
     fun iniciarSesion(usuario: String, password: String): Boolean {
-        // TODO: buscar con find y guardar la sesión en usuarioActual.
-        return false
+        val dato = usuario.trim()
+        val encontrado = usuarios.find {
+            (it.telefono == dato ||
+                (it.correo.isNotBlank() && it.correo.equals(dato, ignoreCase = true))) &&
+                it.password == password
+        }
+        usuarioActual = encontrado
+        return encontrado != null
     }
 
     fun cerrarSesion() {
-        // TODO: limpiar usuarioActual.
+        usuarioActual = null
     }
 
     // ---------------------------------------------------------------
