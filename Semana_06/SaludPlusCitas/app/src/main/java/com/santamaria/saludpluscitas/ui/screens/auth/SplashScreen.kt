@@ -1,6 +1,5 @@
 package com.santamaria.saludpluscitas.ui.screens.auth
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,9 +11,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.MedicalServices
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -23,21 +26,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.santamaria.saludpluscitas.R
 import com.santamaria.saludpluscitas.navigation.Rutas
 import com.santamaria.saludpluscitas.ui.components.BotonPrimario
+import com.santamaria.saludpluscitas.ui.theme.AzulClaro
 import com.santamaria.saludpluscitas.ui.theme.AzulOscuro
 import com.santamaria.saludpluscitas.ui.theme.AzulPrimario
 import com.santamaria.saludpluscitas.ui.theme.TextoSecundario
 
-// Fondo de la ilustración del diseño, para que la imagen no se note recortada.
 private val FondoSplash = Color(0xFFF5F6FA)
+private val HojaVerde = Color(0xFF5BA889)
+private val HojaAzul = Color(0xFF7FB3D5)
 
 @Composable
 fun SplashScreen(
@@ -75,14 +77,14 @@ fun SplashScreen(
             color = TextoSecundario
         )
 
-        Image(
-            painter = painterResource(id = R.drawable.ilustracion_doctor),
-            contentDescription = "Doctor",
-            contentScale = ContentScale.Fit,
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-        )
+                .weight(1f),
+            contentAlignment = Alignment.Center
+        ) {
+            IlustracionDoctor()
+        }
 
         BotonPrimario(
             texto = "Comenzar",
@@ -94,6 +96,69 @@ fun SplashScreen(
                 text = "Ya tengo una cuenta",
                 color = AzulPrimario,
                 fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+}
+
+// Ilustración del doctor armada con íconos de Material:
+// doctor al centro, maletín médico en una insignia y hojas a los lados.
+@Composable
+private fun IlustracionDoctor() {
+    Box(
+        modifier = Modifier.size(260.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(230.dp)
+                .clip(CircleShape)
+                .background(AzulClaro.copy(alpha = 0.6f))
+        )
+        Box(
+            modifier = Modifier
+                .size(170.dp)
+                .clip(CircleShape)
+                .background(AzulClaro),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = "Doctor",
+                tint = AzulPrimario,
+                modifier = Modifier.size(130.dp)
+            )
+        }
+        Icon(
+            imageVector = Icons.Default.Spa,
+            contentDescription = null,
+            tint = HojaVerde,
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .size(64.dp)
+        )
+        Icon(
+            imageVector = Icons.Default.Spa,
+            contentDescription = null,
+            tint = HojaAzul,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .size(56.dp)
+        )
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 28.dp, end = 28.dp)
+                .size(56.dp)
+                .clip(CircleShape)
+                .background(Color.White),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.MedicalServices,
+                contentDescription = null,
+                tint = AzulPrimario,
+                modifier = Modifier.size(30.dp)
             )
         }
     }
