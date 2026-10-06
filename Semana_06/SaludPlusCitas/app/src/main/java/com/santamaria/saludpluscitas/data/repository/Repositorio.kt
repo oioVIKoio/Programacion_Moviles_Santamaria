@@ -1,0 +1,184 @@
+package com.santamaria.saludpluscitas.data.repository
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.santamaria.saludpluscitas.data.model.Cita
+import com.santamaria.saludpluscitas.data.model.Especialidad
+import com.santamaria.saludpluscitas.data.model.Medico
+import com.santamaria.saludpluscitas.data.model.Usuario
+
+// Todos los datos viven en memoria (sin Room, SQLite ni Firebase).
+// Se pierden al cerrar la app.
+object Repositorio {
+
+    // ---------------------------------------------------------------
+    // Colecciones
+    // ---------------------------------------------------------------
+
+    // Usuario de prueba para poder iniciar sesión sin registrarse.
+    val usuarios = mutableStateListOf(
+        Usuario(
+            id = 1,
+            nombre = "Juan Pérez",
+            telefono = "987654321",
+            correo = "juan@correo.com",
+            password = "123456"
+        )
+    )
+
+    var usuarioActual by mutableStateOf<Usuario?>(null)
+
+    val especialidades = listOf(
+        Especialidad(1, "Medicina General", "Atención integral"),
+        Especialidad(2, "Pediatría", "Niños y adolescentes"),
+        Especialidad(3, "Ginecología", "Salud de la mujer"),
+        Especialidad(4, "Cardiología", "Corazón y vasos sanguíneos"),
+        Especialidad(5, "Dermatología", "Piel, cabello y uñas"),
+        Especialidad(6, "Traumatología", "Huesos y articulaciones"),
+        Especialidad(7, "Oftalmología", "Salud visual")
+    )
+
+    private const val DIRECCION = "Av. Los Olivos 123, Lima"
+
+    val medicos = listOf(
+        // Medicina General
+        Medico(1, "Dr. Carlos Mendoza", 1, "Médico general", "10234", 4.7, 102, "Disponible hoy", DIRECCION),
+        Medico(2, "Dra. Lucía Fernández", 1, "Médica general", "10876", 4.5, 64, "Disponible mañana", DIRECCION),
+        // Pediatría
+        Medico(3, "Dra. Patricia Vargas", 2, "Pediatra", "11452", 4.9, 140, "Disponible hoy", DIRECCION),
+        Medico(4, "Dr. Jorge Salazar", 2, "Pediatra", "11987", 4.6, 71, "Disponible esta semana", DIRECCION),
+        // Ginecología (datos del diseño de referencia)
+        Medico(5, "Dra. Ana Torres", 3, "Ginecóloga", "12345", 4.9, 120, "Disponible hoy", DIRECCION),
+        Medico(6, "Dra. Claudia Rojas", 3, "Ginecóloga", "12678", 4.8, 95, "Disponible mañana", DIRECCION),
+        Medico(7, "Dr. Luis Ramírez", 3, "Ginecólogo", "12901", 4.7, 88, "Disponible hoy", DIRECCION),
+        Medico(8, "Dra. Mariana Soto", 3, "Ginecóloga", "13024", 4.6, 76, "Disponible esta semana", DIRECCION),
+        // Cardiología
+        Medico(9, "Dr. Ricardo Paredes", 4, "Cardiólogo", "13456", 4.8, 110, "Disponible mañana", DIRECCION),
+        Medico(10, "Dra. Elena Castro", 4, "Cardióloga", "13789", 4.7, 83, "Disponible hoy", DIRECCION),
+        // Dermatología
+        Medico(11, "Dra. Sofía Quispe", 5, "Dermatóloga", "14123", 4.8, 97, "Disponible hoy", DIRECCION),
+        Medico(12, "Dr. Martín Herrera", 5, "Dermatólogo", "14456", 4.4, 52, "Disponible esta semana", DIRECCION),
+        // Traumatología
+        Medico(13, "Dr. Andrés Flores", 6, "Traumatólogo", "14789", 4.7, 91, "Disponible mañana", DIRECCION),
+        Medico(14, "Dra. Valeria Ríos", 6, "Traumatóloga", "15012", 4.6, 68, "Disponible hoy", DIRECCION),
+        // Oftalmología
+        Medico(15, "Dr. Fernando Chávez", 7, "Oftalmólogo", "15345", 4.8, 105, "Disponible esta semana", DIRECCION),
+        Medico(16, "Dra. Gabriela Núñez", 7, "Oftalmóloga", "15678", 4.5, 59, "Disponible mañana", DIRECCION)
+    )
+
+    // Turnos de 30 minutos que atiende cada médico.
+    val horariosBase = listOf(
+        "08:00", "08:30", "09:00",
+        "09:30", "10:00", "10:30",
+        "11:00", "11:30", "12:00"
+    )
+
+    val citas = mutableStateListOf<Cita>()
+
+    // ---------------------------------------------------------------
+    // Usuarios y sesión
+    // ---------------------------------------------------------------
+
+    // Registra un usuario nuevo. Devuelve false si el teléfono
+    // (o el correo, si se llenó) ya está registrado.
+    fun registrarUsuario(
+        nombre: String,
+        telefono: String,
+        correo: String,
+        password: String
+    ): Boolean {
+        // TODO: validar duplicados con any y agregar el usuario con add.
+        return false
+    }
+
+    // Busca al usuario por teléfono o correo y contraseña.
+    // Si existe, lo guarda en usuarioActual y devuelve true.
+    fun iniciarSesion(usuario: String, password: String): Boolean {
+        // TODO: buscar con find y guardar la sesión en usuarioActual.
+        return false
+    }
+
+    fun cerrarSesion() {
+        // TODO: limpiar usuarioActual.
+    }
+
+    // ---------------------------------------------------------------
+    // Especialidades y médicos
+    // ---------------------------------------------------------------
+
+    // Especialidades cuyo nombre contiene el texto (sin importar mayúsculas).
+    fun buscarEspecialidades(texto: String): List<Especialidad> {
+        // TODO: filter + contains (ignoreCase).
+        return especialidades
+    }
+
+    // Las 3 primeras especialidades para el LazyRow del Inicio.
+    fun especialidadesDestacadas(): List<Especialidad> {
+        // TODO: take.
+        return emptyList()
+    }
+
+    fun obtenerEspecialidad(id: Int): Especialidad? {
+        // TODO: find por id.
+        return null
+    }
+
+    fun obtenerMedico(id: Int): Medico? {
+        // TODO: find por id.
+        return null
+    }
+
+    fun obtenerCita(id: Int): Cita? {
+        // TODO: find por id.
+        return null
+    }
+
+    // Médicos de una especialidad, mejor calificados primero.
+    fun medicosPorEspecialidad(especialidadId: Int): List<Medico> {
+        // TODO: filter + sortedByDescending por calificacion.
+        return emptyList()
+    }
+
+    // Médicos de una especialidad cuyo nombre contiene el texto.
+    fun buscarMedicos(especialidadId: Int, texto: String): List<Medico> {
+        // TODO: filter por nombre sobre medicosPorEspecialidad.
+        return emptyList()
+    }
+
+    // ---------------------------------------------------------------
+    // Citas
+    // ---------------------------------------------------------------
+
+    // Horarios de horariosBase que el médico aún no tiene reservados ese día.
+    fun horariosDisponibles(medicoId: Int, fecha: String): List<String> {
+        // TODO: horas ocupadas = citas filter (medico + fecha) + map hora;
+        //       luego horariosBase filter las que no están ocupadas.
+        return horariosBase
+    }
+
+    // Crea la cita del usuarioActual. Devuelve null si ese horario
+    // ya está tomado o si no hay sesión iniciada.
+    fun agendarCita(
+        medicoId: Int,
+        fecha: String,
+        hora: String,
+        motivo: String
+    ): Cita? {
+        // TODO: validar con any que el horario esté libre y agregar con add.
+        return null
+    }
+
+    // Citas del usuarioActual ordenadas por fecha y hora.
+    fun citasDelUsuario(): List<Cita> {
+        // TODO: filter por usuarioId + sortedWith(compareBy(fecha, hora)).
+        return emptyList()
+    }
+
+    // Reto extra (Detalle de cita).
+    fun cancelarCita(id: Int): Boolean {
+        // TODO: removeIf por id.
+        return false
+    }
+}
