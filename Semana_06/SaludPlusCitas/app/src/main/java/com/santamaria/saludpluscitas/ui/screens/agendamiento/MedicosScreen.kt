@@ -1,24 +1,99 @@
 package com.santamaria.saludpluscitas.ui.screens.agendamiento
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.santamaria.saludpluscitas.data.repository.Repositorio
 import com.santamaria.saludpluscitas.navigation.Rutas
-import com.santamaria.saludpluscitas.ui.components.PantallaEnConstruccion
+import com.santamaria.saludpluscitas.ui.components.BarraSuperior
+import com.santamaria.saludpluscitas.ui.components.CampoBusqueda
+import com.santamaria.saludpluscitas.ui.components.EstadoVacio
+import com.santamaria.saludpluscitas.ui.components.TarjetaMedico
 
-// TODO: Título "Médicos de <especialidad>" con Repositorio.obtenerEspecialidad.
-//       Lupa para buscar (Repositorio.buscarMedicos).
-//       LazyColumn con Repositorio.medicosPorEspecialidad (mejor calificados primero).
-//       Tarjeta: avatar, nombre, profesión, ★ calificación (reseñas) y chip de disponibilidad.
-//       Al tocar un médico → Fecha y hora con su medicoId.
 @Composable
 fun MedicosScreen(
     navController: NavController,
     especialidadId: Int
 ) {
-    PantallaEnConstruccion(
-        titulo = "5. Médicos",
-        detalle = "especialidadId = $especialidadId",
-        "Elegir médico (médico 5)" to { navController.navigate(Rutas.FechaHora.crearRuta(5)) },
-        "Volver" to { navController.popBackStack() }
-    )
+    val especialidad = Repositorio.obtenerEspecialidad(especialidadId)
+
+    // La lupa muestra u oculta el buscador.
+    var buscando by remember { mutableStateOf(false) }
+    var busqueda by remember { mutableStateOf("") }
+
+    // buscarMedicos ya viene ordenado por calificación (usa medicosPorEspecialidad).
+    val medicos = Repositorio.buscarMedicos(especialidadId, busqueda)
+
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.surface,
+        topBar = {
+            BarraSuperior(
+                titulo = "Médicos de ${especialidad?.nombre ?: ""}",
+                onAtras = { navController.popBackStack() },
+                acciones = {
+                    IconButton(onClick = {
+                        buscando = !buscando
+                        if (!buscando) busqueda = ""
+                    }) {
+                        Icon(
+                            imageVector = if (buscando) Icons.Default.Close else Icons.Default.Search,
+                            contentDescription = "Buscar médico"
+                        )
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(horizontal = 20.dp)
+        ) {
+            if (buscando) {
+                CampoBusqueda(
+                    valor = busqueda,
+                    onValorChange = { busqueda = it },
+                    placeholder = "Buscar médico..."
+                )
+            }
+
+            if (medicos.isEmpty()) {
+                EstadoVacio(mensaje = "No se encontraron médicos")
+            } else {
+                LazyColumn(
+                    contentPadding = PaddingValues(vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(medicos, key = { it.id }) { medico ->
+                        TarjetaMedico(
+                            medico = medico,
+                            onClick = {
+                                navController.navigate(Rutas.FechaHora.crearRuta(medico.id))
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
 }

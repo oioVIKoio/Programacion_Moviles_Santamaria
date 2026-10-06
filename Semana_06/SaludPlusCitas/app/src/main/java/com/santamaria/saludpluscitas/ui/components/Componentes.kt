@@ -1,5 +1,21 @@
 package com.santamaria.saludpluscitas.ui.components
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.SearchOff
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.foundation.layout.RowScope
+import com.santamaria.saludpluscitas.data.model.Medico
+import com.santamaria.saludpluscitas.ui.theme.Estrella
+import com.santamaria.saludpluscitas.ui.theme.VerdePastel
+import com.santamaria.saludpluscitas.ui.theme.VerdeTexto
+import com.santamaria.saludpluscitas.ui.theme.FondoClaro
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -68,20 +84,12 @@ import com.santamaria.saludpluscitas.ui.theme.TextoSecundario
 // Componentes reutilizables de la app.
 // Pendientes (se crean junto con la pantalla que los usa):
 //
-// TODO: BarraSuperior(titulo, onAtras, acciones)
-//       TopAppBar con flecha atrás; la usan todas las vistas internas.
-// TODO: TarjetaEspecialidad(especialidad, onClick)
-//       Fila con ícono de color, nombre, descripción y chevron.
-// TODO: TarjetaMedico(medico, onClick)
-//       Avatar, nombre, profesión, calificación con estrella y chip de disponibilidad.
 // TODO: ChipHorario(hora, seleccionado, onClick)
 //       Celda del LazyVerticalGrid de horarios.
 // TODO: TarjetaCita(cita, onClick)
 //       Resumen de una cita para Mis citas.
 // TODO: FilaDato(icono, etiqueta, valor)
 //       Fila con ícono de Confirmar cita (Fecha, Hora, Tipo de atención, Dirección).
-// TODO: EstadoVacio(mensaje)
-//       Mensaje cuando una lista no tiene elementos.
 
 // Botón azul redondeado de ancho completo ("Comenzar", "Registrarme", "Continuar"...).
 @Composable
@@ -351,5 +359,206 @@ fun BarraNavegacion(
                 )
             )
         }
+    }
+}
+
+// Barra superior de las vistas internas: flecha atrás, título centrado y acciones.
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BarraSuperior(
+    titulo: String,
+    onAtras: () -> Unit,
+    acciones: @Composable RowScope.() -> Unit = {}
+) {
+    CenterAlignedTopAppBar(
+        title = {
+            Text(text = titulo, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        },
+        navigationIcon = {
+            IconButton(onClick = onAtras) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Atrás"
+                )
+            }
+        },
+        actions = acciones,
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = SuperficieBlanca
+        )
+    )
+}
+
+// Buscador con lupa y fondo gris claro ("Buscar especialidad...").
+@Composable
+fun CampoBusqueda(
+    valor: String,
+    onValorChange: (String) -> Unit,
+    placeholder: String,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = valor,
+        onValueChange = onValorChange,
+        placeholder = { Text(placeholder, color = TextoSecundario) },
+        leadingIcon = {
+            Icon(imageVector = Icons.Default.Search, contentDescription = null, tint = TextoSecundario)
+        },
+        singleLine = true,
+        shape = RoundedCornerShape(12.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = AzulPrimario,
+            unfocusedBorderColor = BordeSuave,
+            focusedContainerColor = FondoClaro,
+            unfocusedContainerColor = FondoClaro
+        ),
+        modifier = modifier.fillMaxWidth()
+    )
+}
+
+// Fila de la lista de especialidades: ícono de color, nombre, descripción y chevron.
+@Composable
+fun TarjetaEspecialidad(
+    especialidad: Especialidad,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 10.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconoEspecialidad(especialidadId = especialidad.id)
+        Spacer(modifier = Modifier.width(14.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = especialidad.nombre,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = especialidad.descripcion,
+                fontSize = 13.sp,
+                color = TextoSecundario
+            )
+        }
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = TextoSecundario
+        )
+    }
+}
+
+// Avatar del médico: no hay fotos, se usa un ícono en un círculo.
+@Composable
+fun AvatarMedico(
+    modifier: Modifier = Modifier,
+    tamano: Int = 64
+) {
+    Box(
+        modifier = modifier
+            .size(tamano.dp)
+            .clip(RoundedCornerShape(50))
+            .background(AzulClaro),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Person,
+            contentDescription = null,
+            tint = AzulPrimario,
+            modifier = Modifier.size((tamano * 0.6f).dp)
+        )
+    }
+}
+
+// Tarjeta del médico: avatar, nombre, profesión, calificación y chip de disponibilidad.
+@Composable
+fun TarjetaMedico(
+    medico: Medico,
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = SuperficieBlanca),
+        border = BorderStroke(1.dp, BordeSuave),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AvatarMedico()
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = medico.nombre,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(text = medico.profesion, fontSize = 13.sp, color = TextoSecundario)
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        tint = Estrella,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "${medico.calificacion} (${medico.resenas})",
+                        fontSize = 13.sp,
+                        color = TextoSecundario
+                    )
+                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = medico.disponibilidad,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = VerdeTexto,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(VerdePastel)
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+// Mensaje centrado cuando una lista no tiene elementos.
+@Composable
+fun EstadoVacio(
+    mensaje: String,
+    modifier: Modifier = Modifier,
+    icono: ImageVector = Icons.Outlined.SearchOff
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 48.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = icono,
+            contentDescription = null,
+            tint = TextoSecundario,
+            modifier = Modifier.size(48.dp)
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = mensaje,
+            fontSize = 15.sp,
+            color = TextoSecundario,
+            textAlign = TextAlign.Center
+        )
     }
 }
