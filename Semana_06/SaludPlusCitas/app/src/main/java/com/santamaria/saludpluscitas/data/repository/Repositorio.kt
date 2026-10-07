@@ -214,9 +214,9 @@ object Repositorio {
             .sortedWith(compareBy({ it.fecha }, { it.hora }))
     }
 
-    // Reto extra (Detalle de cita).
+    // Reto extra (Detalle de cita). Borra la cita y su horario vuelve a
+    // quedar libre. Devuelve false si no existía.
     fun cancelarCita(id: Int): Boolean {
-        // TODO: removeIf por id.
-        return false
+        return citas.removeIf { it.id == id }
     }
 }
