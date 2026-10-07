@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -60,8 +61,6 @@ private data class DiaCalendario(
     val fecha: String
 )
 
-private const val MES = "Octubre 2026"
-
 private val localePeru: Locale = Locale.forLanguageTag("es-PE")
 private val finDeSemana = setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
 
@@ -71,6 +70,22 @@ private fun diasHabiles(desde: LocalDate): List<LocalDate> {
         .filter { it.dayOfWeek !in finDeSemana }
         .take(5)
         .toList()
+}
+
+// Mes y año de los días visibles: "Octubre 2026", o "Octubre / Noviembre 2026"
+// si la semana cruza de mes.
+private fun tituloMes(dias: List<LocalDate>): String {
+    fun mes(fecha: LocalDate) = fecha.month
+        .getDisplayName(TextStyle.FULL_STANDALONE, localePeru)
+        .replaceFirstChar { it.uppercase() }
+
+    val primero = dias.first()
+    val ultimo = dias.last()
+    return when {
+        primero.month == ultimo.month -> "${mes(primero)} ${primero.year}"
+        primero.year == ultimo.year -> "${mes(primero)} / ${mes(ultimo)} ${primero.year}"
+        else -> "${mes(primero)} ${primero.year} / ${mes(ultimo)} ${ultimo.year}"
+    }
 }
 
 // LocalDate → "Mié", "8" y "2026-10-08" (ISO, igual que en la Fase 1).
@@ -90,7 +105,11 @@ fun FechaHoraScreen(
 
     // Hoy no cambia mientras la pantalla está abierta.
     val hoy = remember { LocalDate.now() }
-    val dias = diasHabiles(hoy).map { it.aDiaCalendario() }
+
+    // 0 = semana actual. Las flechas suman o restan una semana; no baja de 0.
+    var semana by rememberSaveable { mutableIntStateOf(0) }
+    val fechasVisibles = diasHabiles(hoy.plusWeeks(semana.toLong()))
+    val dias = fechasVisibles.map { it.aDiaCalendario() }
 
     // rememberSaveable: al volver de Confirmar se mantiene lo elegido.
     var fecha by rememberSaveable { mutableStateOf<String?>(null) }
@@ -118,23 +137,36 @@ fun FechaHoraScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Las flechas se activan en la Fase 2 (calendario dinámico).
+            // Al cambiar de semana se borra lo elegido: ese día ya no está a la vista.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {}, enabled = false) {
+                IconButton(
+                    onClick = {
+                        semana--
+                        fecha = null
+                        hora = null
+                    },
+                    enabled = semana > 0
+                ) {
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Semana anterior")
                 }
                 Text(
-                    text = MES,
+                    text = tituloMes(fechasVisibles),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center
                 )
-                IconButton(onClick = {}, enabled = false) {
+                IconButton(
+                    onClick = {
+                        semana++
+                        fecha = null
+                        hora = null
+                    }
+                ) {
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Semana siguiente")
                 }
             }
