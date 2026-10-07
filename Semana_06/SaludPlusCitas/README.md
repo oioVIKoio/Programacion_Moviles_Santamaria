@@ -56,6 +56,19 @@ Todos probados en el emulador (ver [Cómo probar](#cómo-probar-cada-criterio-de
 
 **Fase 1 completa:** las 15 pantallas y el `Repositorio` terminados, sin `TODO` ni `PantallaEnConstruccion`. La Fase 2 continúa en la rama `con-ia`.
 
+## Avance Fase 2 (`con-ia`): calendario dinámico con IA
+La rama parte del código de la Fase 1 (`git checkout sin-ia -- Semana_06/SaludPlusCitas`). Los prompts, las respuestas y lo que se corrigió están en [`PROMPTS.md`](PROMPTS.md).
+
+| Requisito de la guía | Qué se hizo | Commit |
+|---|---|---|
+| Partir de la Fase 1 | Se trae el proyecto de `sin-ia` como base | `304c9dc` |
+| 5 días hábiles desde hoy | `LocalDate.now()` + `generateSequence` + `filter` (sin sábados ni domingos) + `take(5)` | `790dac7` |
+| Flechas por semana y mes dinámico | `plusWeeks(semana)`; `<` deshabilitada en la semana actual; "Octubre 2026" (u "Octubre / Noviembre 2026" si la semana cruza de mes) | `9560839` |
+| Fecha en español en la Pantalla 7 | `DateTimeFormatter` `"EEEE d 'de' MMMM yyyy"` con `es-PE` → "Viernes 16 de octubre 2026" | Este commit |
+| Horarios recalculados y bloqueo | Sin cambios: la fecha sigue en ISO, así que `horariosDisponibles` y `agendarCita` funcionan igual | — |
+
+**Fase 2 completa.**
+
 ## Cómo probar cada criterio de la rúbrica
 Entrar con el usuario de prueba y seguir cada fila.
 
@@ -64,9 +77,10 @@ Entrar con el usuario de prueba y seguir cada fila.
 | Registro, login y sesión (1) | Registrar un usuario con campos vacíos; luego uno válido. Cerrar sesión desde Perfil. | Errores bajo cada campo; el registro entra al Inicio con "¡Hola, <nombre>!"; cerrar sesión vuelve al Splash y Atrás sale de la app. |
 | NavigationBar (2) | En Inicio tocar Citas, Resultados y Perfil; luego Atrás. | Cada pestaña abre su pantalla; Atrás vuelve al Inicio. |
 | LazyRow / LazyColumn (2) | Inicio → destacadas. Especialidades → escribir "car" y luego "carxyz". Mis citas sin citas. | 3 destacadas en fila; "car" deja solo Cardiología; "carxyz" muestra mensaje; Mis citas vacía muestra "Aún no tienes citas agendadas". |
-| Flujo de agendamiento (3) | Agendar cita → Ginecología → Dra. Ana Torres → Mar 13 → 09:30 → Continuar → Agendar cita → Atrás. | Cada pantalla recibe su parámetro (`especialidadId`, `medicoId`, `fecha`, `hora`); Confirmar muestra "Martes 13 de octubre de 2026" y "09:30 a 10:00"; Atrás desde Cita agendada vuelve al Inicio, no a Confirmar. |
-| Horarios reactivos (2) | Volver a Ana Torres, Mar 13. Luego Dra. Claudia Rojas, Mar 13. Probar Continuar sin elegir. | 09:30 ya no aparece para Ana ese día pero sí para Claudia; Continuar deshabilitado sin día y hora; al cambiar de día se borra la hora. |
+| Flujo de agendamiento (3) | Agendar cita → Ginecología → Dra. Ana Torres → un día → 09:30 → Continuar → Agendar cita → Atrás. | Cada pantalla recibe su parámetro (`especialidadId`, `medicoId`, `fecha`, `hora`); Confirmar muestra la fecha en texto (en `sin-ia`, "Martes 13 de octubre de 2026"; en `con-ia`, p. ej. "Martes 13 de octubre 2026") y "09:30 a 10:00"; Atrás desde Cita agendada vuelve al Inicio, no a Confirmar. |
+| Horarios reactivos (2) | Volver a Ana Torres, mismo día. Luego Dra. Claudia Rojas, mismo día. Probar Continuar sin elegir. | 09:30 ya no aparece para Ana ese día pero sí para Claudia; Continuar deshabilitado sin día y hora; al cambiar de día se borra la hora. |
 | Repositorio (2) | Mis citas con 2 citas agendadas en desorden. | Salen ordenadas por fecha y hora. |
+| Calendario IA (1) — `con-ia` | Abrir Fecha y hora; tocar `>` varias veces y luego `<`. | Salen los 5 días hábiles desde hoy; `<` está deshabilitada en la semana actual; el mes cambia (p. ej. "Octubre / Noviembre 2026" y luego "Noviembre 2026"); al cambiar de semana o de día se borra la hora. |
 
 ### Retos extra
 | Reto | Prueba | Resultado esperado |
@@ -100,6 +114,8 @@ Entrar con el usuario de prueba y seguir cada fila.
 - **Login** con teléfono **o** correo; el registro deja la sesión iniciada.
 - **Fecha en formato ISO** (`"2026-10-13"`) en la ruta y en `Cita`, para que en la Fase 2 solo cambie cómo se generan los días.
 - **Fase 1:** semana fija Lun 12 – Vie 16 de octubre de 2026; las flechas del mes están deshabilitadas hasta la Fase 2. El texto de la fecha se arma a mano (`formatearFecha`, `rangoHora`).
+- **Fase 2:** los días salen de `LocalDate` y `formatearFecha` usa `DateTimeFormatter` con el formato de la guía, sin "de" antes del año. Como todas las pantallas usan esa misma función, la fecha en español sale igual en Confirmar, Cita agendada, Mis citas, Detalle, Notificaciones y Resultados. Con `es-PE` el mes sale como "setiembre".
+- **Semana que cruza de mes:** la guía no lo aclara; el título muestra los dos meses ("Octubre / Noviembre 2026").
 - **Menú hamburguesa del Inicio:** no se incluyó; la guía no pide drawer en esta app.
 - **Resultados:** la lista es fija e igual para cualquier paciente, como indica la guía.
 - **`PantallaEnConstruccion`** se borró al terminar la última pantalla, porque ya no se usaba.

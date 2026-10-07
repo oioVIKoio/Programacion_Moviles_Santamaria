@@ -68,6 +68,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+import java.util.Locale
 import androidx.navigation.NavController
 import com.santamaria.saludpluscitas.data.model.Cita
 import com.santamaria.saludpluscitas.data.model.Especialidad
@@ -653,29 +657,18 @@ fun FilaDato(
     }
 }
 
-// Fase 1: formatos a mano desde la fecha ISO. En la Fase 2 se usa LocalDate.
-private val nombresMes = listOf(
-    "enero", "febrero", "marzo", "abril", "mayo", "junio",
-    "julio", "agosto", "setiembre", "octubre", "noviembre", "diciembre"
-)
+// Fase 2: fecha en español con java.time, en el formato de la guía.
+private val formatoFecha = DateTimeFormatter.ofPattern("EEEE d 'de' MMMM yyyy", Locale.forLanguageTag("es-PE"))
 
-// Días de la semana fija de FechaHora (12 al 16 de octubre de 2026).
-private val nombresDia = mapOf(
-    "2026-10-12" to "Lunes",
-    "2026-10-13" to "Martes",
-    "2026-10-14" to "Miércoles",
-    "2026-10-15" to "Jueves",
-    "2026-10-16" to "Viernes"
-)
-
-// "2026-10-13" → "Martes 13 de octubre de 2026"
+// "2026-10-13" → "Martes 13 de octubre 2026". Si no es ISO, la devuelve igual.
 fun formatearFecha(fecha: String): String {
-    val partes = fecha.split("-")
-    if (partes.size != 3) return fecha
-    val (anio, mes, dia) = partes
-    val nombreMes = nombresMes.getOrNull(mes.toInt() - 1) ?: mes
-    val texto = "${dia.toInt()} de $nombreMes de $anio"
-    return nombresDia[fecha]?.let { "$it $texto" } ?: texto
+    return try {
+        LocalDate.parse(fecha)
+            .format(formatoFecha)
+            .replaceFirstChar { it.uppercase() }
+    } catch (e: DateTimeParseException) {
+        fecha
+    }
 }
 
 // "09:30" → "09:30 a 10:00" (cada cita dura 30 minutos).

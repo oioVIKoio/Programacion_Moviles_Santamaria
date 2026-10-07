@@ -40,3 +40,21 @@ Cada prompt sigue el formato de la guía: **prompt → respuesta resumida → qu
 - Decisión: al cambiar de semana se reinician `fecha` y `hora`. Si no, el día elegido dejaría de verse y Continuar seguiría habilitado con él.
 - `FULL` devuelve el mes en minúscula ("octubre"); se pone la primera letra en mayúscula.
 - Probado el 7/10/2026: semana 0 = Mié 7–Mar 13 "Octubre 2026" (con `<` deshabilitada), +1 = 14–20, +3 = 28 oct–3 nov "Octubre / Noviembre 2026", +4 = 4–10 "Noviembre 2026". Al volver con `<` se detiene en la semana actual. Con Jue 8 09:00 elegido, avanzar de semana borra la selección.
+
+---
+
+## Prompt 3: fecha en texto en español (Pantalla 7)
+
+**Prompt:**
+> La Pantalla 7 (Confirmar cita) tiene que mostrar la fecha en texto en español, como "Martes 16 de setiembre 2026". Hoy `formatearFecha` arma el texto a mano y solo conoce los días de la semana fija de la Fase 1. Cámbiala para que use `java.time` y sirva para cualquier fecha ISO, sin cambiar su nombre ni sus parámetros.
+
+**Respuesta resumida:**
+- `DateTimeFormatter.ofPattern("EEEE d 'de' MMMM yyyy", Locale.forLanguageTag("es-PE"))` sobre `LocalDate.parse(fecha)`, con la primera letra en mayúscula.
+- Se borran las listas a mano `nombresMes` y `nombresDia`.
+- Si la fecha no es ISO, `DateTimeParseException` y se devuelve el texto tal cual.
+
+**Qué se corrigió / decidió / revisó:**
+- El formato de la Fase 1 ponía "de" antes del año ("13 de octubre de 2026"). Se dejó como en la guía: "… de octubre 2026", sin "de" antes del año.
+- Se revisó que con `es-PE` el mes 9 sale "setiembre" (como en la guía) y no "septiembre": en Resultados aparece "Viernes 25 de setiembre 2026", así que no hizo falta reemplazarlo a mano.
+- Como `formatearFecha` se usa en Confirmar, Cita agendada, Mis citas, Detalle, Notificaciones y Resultados, el cambio se ve en todas sin tocar esas pantallas.
+- Probado: Ana Torres, Vie 16/10 09:00 → Confirmar, Cita agendada, Mis citas, Detalle (y su `AlertDialog`) y Notificaciones muestran "Viernes 16 de octubre 2026".
