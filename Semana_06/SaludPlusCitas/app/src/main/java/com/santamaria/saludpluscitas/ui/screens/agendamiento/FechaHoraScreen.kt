@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,6 +48,10 @@ import com.santamaria.saludpluscitas.ui.components.ResumenMedico
 import com.santamaria.saludpluscitas.ui.theme.AzulPrimario
 import com.santamaria.saludpluscitas.ui.theme.FondoClaro
 import com.santamaria.saludpluscitas.ui.theme.TextoSecundario
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 
 // Día del calendario: etiqueta corta, número y fecha ISO que viaja en la ruta.
 private data class DiaCalendario(
@@ -55,15 +60,26 @@ private data class DiaCalendario(
     val fecha: String
 )
 
-// Fase 1: semana fija de lunes a viernes. En la Fase 2 se generan con LocalDate.
 private const val MES = "Octubre 2026"
-private val dias = listOf(
-    DiaCalendario("Lun", "12", "2026-10-12"),
-    DiaCalendario("Mar", "13", "2026-10-13"),
-    DiaCalendario("Mié", "14", "2026-10-14"),
-    DiaCalendario("Jue", "15", "2026-10-15"),
-    DiaCalendario("Vie", "16", "2026-10-16")
-)
+
+private val localePeru: Locale = Locale.forLanguageTag("es-PE")
+private val finDeSemana = setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
+
+// Fase 2: los próximos 5 días hábiles desde "desde" (incluido), sin sábados ni domingos.
+private fun diasHabiles(desde: LocalDate): List<LocalDate> {
+    return generateSequence(desde) { it.plusDays(1) }
+        .filter { it.dayOfWeek !in finDeSemana }
+        .take(5)
+        .toList()
+}
+
+// LocalDate → "Mié", "8" y "2026-10-08" (ISO, igual que en la Fase 1).
+private fun LocalDate.aDiaCalendario(): DiaCalendario {
+    val etiqueta = dayOfWeek.getDisplayName(TextStyle.SHORT, localePeru)
+        .removeSuffix(".")
+        .replaceFirstChar { it.uppercase() }
+    return DiaCalendario(etiqueta, dayOfMonth.toString(), toString())
+}
 
 @Composable
 fun FechaHoraScreen(
@@ -71,6 +87,10 @@ fun FechaHoraScreen(
     medicoId: Int
 ) {
     val medico = Repositorio.obtenerMedico(medicoId)
+
+    // Hoy no cambia mientras la pantalla está abierta.
+    val hoy = remember { LocalDate.now() }
+    val dias = diasHabiles(hoy).map { it.aDiaCalendario() }
 
     // rememberSaveable: al volver de Confirmar se mantiene lo elegido.
     var fecha by rememberSaveable { mutableStateOf<String?>(null) }
