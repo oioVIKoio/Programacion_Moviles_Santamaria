@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import com.santamaria.saludpluscitas.data.model.Cita
 import com.santamaria.saludpluscitas.data.model.Especialidad
 import com.santamaria.saludpluscitas.data.model.Medico
+import com.santamaria.saludpluscitas.data.model.Resultado
 import com.santamaria.saludpluscitas.data.model.Usuario
 
 // Todos los datos viven en memoria (sin Room, SQLite ni Firebase).
@@ -76,6 +77,15 @@ object Repositorio {
     )
 
     val citas = mutableStateListOf<Cita>()
+
+    // Reto 13: lista fija de resultados de exámenes (no cambia en la app).
+    val resultados = listOf(
+        Resultado(1, "Hemograma completo", 1, "2026-09-18", true, "Valores dentro del rango normal"),
+        Resultado(2, "Perfil lipídico", 9, "2026-09-25", true, "Colesterol LDL ligeramente elevado"),
+        Resultado(3, "Glucosa en ayunas", 1, "2026-10-02", true, "92 mg/dL, dentro del rango normal"),
+        Resultado(4, "Electrocardiograma", 10, "2026-10-05", false, "Pendiente de lectura del especialista"),
+        Resultado(5, "Examen de vista", 15, "2026-10-06", false, "Resultados disponibles en 48 horas")
+    )
 
     // ---------------------------------------------------------------
     // Usuarios y sesión

@@ -3,6 +3,7 @@ package com.santamaria.saludpluscitas.ui.components
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.SearchOff
@@ -70,6 +71,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.santamaria.saludpluscitas.data.model.Cita
 import com.santamaria.saludpluscitas.data.model.Especialidad
+import com.santamaria.saludpluscitas.data.model.Resultado
 import com.santamaria.saludpluscitas.data.repository.Repositorio
 import com.santamaria.saludpluscitas.navigation.Rutas
 import com.santamaria.saludpluscitas.ui.theme.AzulClaro
@@ -732,6 +734,61 @@ fun TarjetaCita(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
                 tint = TextoSecundario
+            )
+        }
+    }
+}
+
+// Reto 13: un examen con su médico, fecha y estado (Listo / En proceso).
+@Composable
+fun TarjetaResultado(resultado: Resultado) {
+    val medico = Repositorio.obtenerMedico(resultado.medicoId)
+    val fondoEstado = if (resultado.listo) VerdePastel else NaranjaPastel
+    val textoEstado = if (resultado.listo) VerdeTexto else NaranjaTexto
+
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = SuperficieBlanca),
+        border = BorderStroke(1.dp, BordeSuave),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(modifier = Modifier.padding(14.dp)) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(AzulClaro),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(imageVector = Icons.Default.Science, contentDescription = null, tint = AzulPrimario)
+            }
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = resultado.examen,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(text = medico?.nombre ?: "", fontSize = 13.sp, color = TextoSecundario)
+                Text(text = formatearFecha(resultado.fecha), fontSize = 13.sp, color = TextoSecundario)
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = resultado.detalle,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = if (resultado.listo) "Listo" else "En proceso",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = textoEstado,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(fondoEstado)
+                    .padding(horizontal = 10.dp, vertical = 4.dp)
             )
         }
     }
