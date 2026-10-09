@@ -1,5 +1,9 @@
 package com.santamaria.saludpluscitas.ui.components
 
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.santamaria.saludpluscitas.R
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.LocalHospital
@@ -510,8 +514,29 @@ fun AvatarIniciales(
     }
 }
 
-// Avatar del médico: no hay fotos, así que se arma con sus iniciales sobre el
-// degradado de su especialidad y una insignia blanca con el ícono de la especialidad.
+// Foto de cada médico según su id (res/drawable/medico_N.jpg).
+private fun fotoMedico(id: Int): Int? = when (id) {
+    1 -> R.drawable.medico_1
+    2 -> R.drawable.medico_2
+    3 -> R.drawable.medico_3
+    4 -> R.drawable.medico_4
+    5 -> R.drawable.medico_5
+    6 -> R.drawable.medico_6
+    7 -> R.drawable.medico_7
+    8 -> R.drawable.medico_8
+    9 -> R.drawable.medico_9
+    10 -> R.drawable.medico_10
+    11 -> R.drawable.medico_11
+    12 -> R.drawable.medico_12
+    13 -> R.drawable.medico_13
+    14 -> R.drawable.medico_14
+    15 -> R.drawable.medico_15
+    16 -> R.drawable.medico_16
+    else -> null
+}
+
+// Avatar del médico: su foto en círculo (o sus iniciales sobre el degradado de su
+// especialidad si no tiene foto) y una insignia blanca con el ícono de la especialidad.
 @Composable
 fun AvatarMedico(
     medico: Medico,
@@ -520,12 +545,24 @@ fun AvatarMedico(
 ) {
     val estilo = estiloEspecialidad(medico.especialidadId)
     val insignia = (tamano * 0.4f).dp
+    val foto = fotoMedico(medico.id)
     Box(modifier = modifier.size(tamano.dp)) {
-        AvatarIniciales(
-            nombre = medico.nombre,
-            colores = degradadoEspecialidad(medico.especialidadId),
-            tamano = tamano
-        )
+        if (foto != null) {
+            Image(
+                painter = painterResource(id = foto),
+                contentDescription = medico.nombre,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(tamano.dp)
+                    .clip(CircleShape)
+            )
+        } else {
+            AvatarIniciales(
+                nombre = medico.nombre,
+                colores = degradadoEspecialidad(medico.especialidadId),
+                tamano = tamano
+            )
+        }
         Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
