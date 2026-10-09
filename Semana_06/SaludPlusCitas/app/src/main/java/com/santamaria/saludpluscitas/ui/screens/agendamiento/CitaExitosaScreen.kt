@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Card
@@ -59,6 +60,7 @@ fun CitaExitosaScreen(
 ) {
     val cita = Repositorio.obtenerCita(citaId)
     val medico = cita?.let { Repositorio.obtenerMedico(it.medicoId) }
+    val sede = medico?.let { Repositorio.obtenerSede(it.sedeId) }
 
     Column(
         modifier = Modifier
@@ -114,7 +116,8 @@ fun CitaExitosaScreen(
                     FilaDato(Icons.Default.Person, medico?.profesion ?: "Médico", medico?.nombre ?: "")
                     FilaDato(Icons.Default.CalendarMonth, "Fecha", formatearFecha(cita.fecha))
                     FilaDato(Icons.Default.Schedule, "Hora", rangoHora(cita.hora))
-                    FilaDato(Icons.Default.LocationOn, "Dirección", medico?.direccion ?: "")
+                    FilaDato(Icons.Default.LocationOn, sede?.nombre ?: "Sede", sede?.direccion ?: "")
+                    FilaDato(Icons.Default.Phone, "Teléfono de la sede", sede?.telefono ?: "")
                 }
             }
         }

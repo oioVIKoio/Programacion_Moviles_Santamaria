@@ -5,13 +5,26 @@ sealed class Rutas(val ruta: String) {
     // auth
     object Splash : Rutas("splash")
     object Registro : Rutas("registro")
-    object Login : Rutas("login")
+    // telefono es opcional: llega lleno después del registro.
+    object Login : Rutas("login?telefono={telefono}") {
+        fun crearRuta(telefono: String = ""): String {
+            return if (telefono.isBlank()) "login" else "login?telefono=$telefono"
+        }
+    }
     object Terminos : Rutas("terminos")
 
     // home
     object Home : Rutas("home")
 
-    // agendamiento
+    // agendamiento: sede → médico → fecha y hora → confirmación
+    object Sedes : Rutas("sedes")
+
+    object MedicosSede : Rutas("medicos_sede/{sedeId}") {
+        fun crearRuta(sedeId: Int): String {
+            return "medicos_sede/$sedeId"
+        }
+    }
+
     object Especialidades : Rutas("especialidades")
 
     object Medicos : Rutas("medicos/{especialidadId}") {
@@ -46,6 +59,9 @@ sealed class Rutas(val ruta: String) {
             return "detalle_cita/$citaId"
         }
     }
+
+    // menú lateral: todos los médicos por especialidad
+    object Doctores : Rutas("doctores")
 
     // perfil, resultados y notificaciones
     object Perfil : Rutas("perfil")

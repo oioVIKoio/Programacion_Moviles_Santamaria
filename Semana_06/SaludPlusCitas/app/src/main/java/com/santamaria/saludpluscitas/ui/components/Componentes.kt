@@ -1,6 +1,15 @@
 package com.santamaria.saludpluscitas.ui.components
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.LocalHospital
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.ui.graphics.Brush
+import com.santamaria.saludpluscitas.data.model.Sede
+import com.santamaria.saludpluscitas.ui.theme.MoradoMedio
+import com.santamaria.saludpluscitas.ui.theme.MoradoOscuro
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Science
@@ -455,34 +464,133 @@ fun TarjetaEspecialidad(
     }
 }
 
-// Avatar del médico: no hay fotos, se usa un ícono en un círculo.
+// Dos colores por especialidad para el degradado del avatar del médico.
+fun degradadoEspecialidad(especialidadId: Int): List<Color> {
+    return when (especialidadId) {
+        1 -> listOf(Color(0xFF8B5CF6), Color(0xFF6D28D9))
+        2 -> listOf(Color(0xFFFB923C), Color(0xFFEC4899))
+        3 -> listOf(Color(0xFFF472B6), Color(0xFFA855F7))
+        4 -> listOf(Color(0xFFF87171), Color(0xFFBE185D))
+        5 -> listOf(Color(0xFFFBBF24), Color(0xFFF97316))
+        6 -> listOf(Color(0xFF60A5FA), Color(0xFF7C3AED))
+        7 -> listOf(Color(0xFF2DD4BF), Color(0xFF6366F1))
+        else -> listOf(MoradoMedio, MoradoPrimario)
+    }
+}
+
+// "Dr. Luis Ramírez" → "LR" (sin el título Dr./Dra.).
+fun iniciales(nombre: String): String {
+    return nombre.split(" ")
+        .filter { it.isNotBlank() && !it.endsWith(".") }
+        .take(2)
+        .joinToString("") { it.first().uppercase() }
+}
+
+// Círculo con degradado y las iniciales en blanco.
 @Composable
-fun AvatarMedico(
+fun AvatarIniciales(
+    nombre: String,
+    colores: List<Color>,
     modifier: Modifier = Modifier,
     tamano: Int = 64
 ) {
     Box(
         modifier = modifier
             .size(tamano.dp)
-            .clip(RoundedCornerShape(50))
-            .background(MoradoClaro),
+            .clip(CircleShape)
+            .background(Brush.linearGradient(colores)),
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = null,
-            tint = MoradoPrimario,
-            modifier = Modifier.size((tamano * 0.6f).dp)
+        Text(
+            text = iniciales(nombre),
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            fontSize = (tamano * 0.34f).sp
         )
     }
 }
 
-// Tarjeta del médico: avatar, nombre, profesión, calificación y chip de disponibilidad.
+// Avatar del médico: no hay fotos, así que se arma con sus iniciales sobre el
+// degradado de su especialidad y una insignia blanca con el ícono de la especialidad.
+@Composable
+fun AvatarMedico(
+    medico: Medico,
+    modifier: Modifier = Modifier,
+    tamano: Int = 64
+) {
+    val estilo = estiloEspecialidad(medico.especialidadId)
+    val insignia = (tamano * 0.4f).dp
+    Box(modifier = modifier.size(tamano.dp)) {
+        AvatarIniciales(
+            nombre = medico.nombre,
+            colores = degradadoEspecialidad(medico.especialidadId),
+            tamano = tamano
+        )
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .size(insignia)
+                .clip(CircleShape)
+                .background(Color.White)
+                .padding(2.dp)
+                .clip(CircleShape)
+                .background(estilo.colorFondo),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = estilo.icono,
+                contentDescription = null,
+                tint = estilo.colorIcono,
+                modifier = Modifier.size(insignia * 0.6f)
+            )
+        }
+    }
+}
+
+// Avatar del paciente (Perfil y menú lateral): iniciales sobre degradado morado.
+@Composable
+fun AvatarPaciente(
+    nombre: String,
+    modifier: Modifier = Modifier,
+    tamano: Int = 64
+) {
+    AvatarIniciales(
+        nombre = nombre,
+        colores = listOf(MoradoMedio, MoradoOscuro),
+        modifier = modifier,
+        tamano = tamano
+    )
+}
+
+// Ícono pequeño + texto en una línea (sede y teléfono del médico).
+@Composable
+fun DatoChico(
+    icono: ImageVector,
+    texto: String,
+    color: Color = TextoSecundario
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            imageVector = icono,
+            contentDescription = null,
+            tint = color,
+            modifier = Modifier.size(14.dp)
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(text = texto, fontSize = 12.sp, color = color)
+    }
+}
+
+// Tarjeta del médico: avatar, nombre, especialidad, calificación, sede, teléfono
+// y chip de disponibilidad.
 @Composable
 fun TarjetaMedico(
     medico: Medico,
     onClick: () -> Unit
 ) {
+    val especialidad = Repositorio.obtenerEspecialidad(medico.especialidadId)
+    val sede = Repositorio.obtenerSede(medico.sedeId)
+
     Card(
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
@@ -494,7 +602,7 @@ fun TarjetaMedico(
             modifier = Modifier.padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AvatarMedico()
+            AvatarMedico(medico = medico)
             Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -503,7 +611,11 @@ fun TarjetaMedico(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                Text(text = medico.profesion, fontSize = 13.sp, color = TextoSecundario)
+                Text(
+                    text = "${medico.profesion} · ${especialidad?.nombre ?: ""}",
+                    fontSize = 13.sp,
+                    color = TextoSecundario
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -519,6 +631,9 @@ fun TarjetaMedico(
                         color = TextoSecundario
                     )
                 }
+                Spacer(modifier = Modifier.height(4.dp))
+                DatoChico(Icons.Default.LocationOn, sede?.nombre ?: "")
+                DatoChico(Icons.Default.Phone, medico.telefono)
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = medico.disponibilidad,
@@ -533,6 +648,107 @@ fun TarjetaMedico(
                 )
             }
         }
+    }
+}
+
+// Tarjeta de la sede: franja con degradado morado e ícono de clínica,
+// y debajo dirección, teléfono, horario y cuántos médicos atienden.
+@Composable
+fun TarjetaSede(
+    sede: Sede,
+    onClick: () -> Unit
+) {
+    val totalMedicos = Repositorio.medicosPorSede(sede.id).size
+
+    Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = SuperficieBlanca),
+        border = BorderStroke(1.dp, BordeSuave),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(88.dp)
+                .background(Brush.linearGradient(listOf(MoradoMedio, MoradoPrimario, MoradoOscuro)))
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(Color.White.copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocalHospital,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(14.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = sede.nombre,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Text(
+                        text = sede.distrito,
+                        fontSize = 13.sp,
+                        color = Color.White.copy(alpha = 0.85f)
+                    )
+                }
+                Text(
+                    text = if (totalMedicos == 1) "1 médico" else "$totalMedicos médicos",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MoradoPrimario,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(Color.White)
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                )
+            }
+        }
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+            DatoChico(Icons.Default.LocationOn, sede.direccion)
+            Spacer(modifier = Modifier.height(4.dp))
+            DatoChico(Icons.Default.Phone, sede.telefono)
+            Spacer(modifier = Modifier.height(4.dp))
+            DatoChico(Icons.Default.Schedule, sede.horario)
+        }
+    }
+}
+
+// Título de un grupo de médicos: ícono y nombre de la especialidad.
+@Composable
+fun EncabezadoEspecialidad(
+    especialidad: Especialidad,
+    total: Int
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(top = 12.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconoEspecialidad(especialidadId = especialidad.id, tamano = 32)
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = especialidad.nombre,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+        Text(text = "$total", fontSize = 13.sp, color = TextoSecundario)
     }
 }
 
@@ -565,13 +781,14 @@ fun EstadoVacio(
     }
 }
 
-// Tarjeta del médico arriba de Fecha y hora y Confirmar cita.
-// Con mostrarCmp se agrega el CMP debajo de la profesión.
+// Tarjeta del médico arriba de Fecha y hora y del detalle de la cita:
+// incluye sede y teléfono. Con mostrarCmp se agrega el CMP.
 @Composable
 fun ResumenMedico(
     medico: Medico,
     mostrarCmp: Boolean = false
 ) {
+    val sede = Repositorio.obtenerSede(medico.sedeId)
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -580,7 +797,7 @@ fun ResumenMedico(
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AvatarMedico()
+        AvatarMedico(medico = medico)
         Spacer(modifier = Modifier.width(14.dp))
         Column {
             Text(
@@ -593,6 +810,9 @@ fun ResumenMedico(
             if (mostrarCmp) {
                 Text(text = "CMP: ${medico.cmp}", fontSize = 13.sp, color = TextoSecundario)
             }
+            Spacer(modifier = Modifier.height(4.dp))
+            DatoChico(Icons.Default.LocationOn, sede?.nombre ?: "")
+            DatoChico(Icons.Default.Phone, medico.telefono)
         }
     }
 }

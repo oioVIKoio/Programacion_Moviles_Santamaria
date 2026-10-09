@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.santamaria.saludpluscitas.data.repository.Repositorio
 import com.santamaria.saludpluscitas.navigation.Rutas
-import com.santamaria.saludpluscitas.ui.components.AvatarMedico
+import com.santamaria.saludpluscitas.ui.components.AvatarPaciente
 import com.santamaria.saludpluscitas.ui.components.BarraNavegacion
 import com.santamaria.saludpluscitas.ui.components.BarraSuperior
 import com.santamaria.saludpluscitas.ui.components.FilaDato
@@ -71,7 +71,7 @@ fun PerfilScreen(
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AvatarMedico(tamano = 96)
+            AvatarPaciente(nombre = usuario?.nombre ?: "", tamano = 96)
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = usuario?.nombre ?: "",

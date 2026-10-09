@@ -64,6 +64,9 @@ private data class DiaCalendario(
 private val localePeru: Locale = Locale.forLanguageTag("es-PE")
 private val finDeSemana = setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
 
+// Se puede agendar hasta 8 semanas hacia adelante.
+private const val MAX_SEMANAS = 8
+
 // Fase 2: los próximos 5 días hábiles desde "desde" (incluido), sin sábados ni domingos.
 private fun diasHabiles(desde: LocalDate): List<LocalDate> {
     return generateSequence(desde) { it.plusDays(1) }
@@ -133,7 +136,12 @@ fun FechaHoraScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 20.dp, vertical = 8.dp)
         ) {
-            medico?.let { ResumenMedico(medico = it) }
+            if (medico == null) {
+                EstadoVacio(mensaje = "No se encontró al médico")
+                return@Column
+            }
+
+            ResumenMedico(medico = medico)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -165,7 +173,8 @@ fun FechaHoraScreen(
                         semana++
                         fecha = null
                         hora = null
-                    }
+                    },
+                    enabled = semana < MAX_SEMANAS
                 ) {
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Semana siguiente")
                 }
@@ -219,18 +228,27 @@ fun FechaHoraScreen(
                     mensaje = "No hay horarios disponibles este día",
                     modifier = Modifier.weight(1f)
                 )
-                else -> LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    items(horarios, key = { it }) { h ->
-                        ChipHorario(
-                            hora = h,
-                            seleccionado = h == hora,
-                            onClick = { hora = h }
-                        )
+                else -> Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = if (horarios.size == 1) "1 horario disponible" else "${horarios.size} horarios disponibles",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MoradoPrimario
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        items(horarios, key = { it }) { h ->
+                            ChipHorario(
+                                hora = h,
+                                seleccionado = h == hora,
+                                onClick = { hora = h }
+                            )
+                        }
                     }
                 }
             }

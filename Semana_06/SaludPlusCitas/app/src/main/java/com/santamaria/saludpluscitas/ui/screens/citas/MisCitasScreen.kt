@@ -61,7 +61,7 @@ fun MisCitasScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 BotonPrimario(
                     texto = "Agendar una cita",
-                    onClick = { navController.navigate(Rutas.Especialidades.ruta) }
+                    onClick = { navController.navigate(Rutas.Sedes.ruta) }
                 )
             }
         } else {

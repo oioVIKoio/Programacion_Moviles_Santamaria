@@ -48,20 +48,38 @@ fun RegistroScreen(
     var telefono by rememberSaveable { mutableStateOf("") }
     var correo by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+    var confirmar by rememberSaveable { mutableStateOf("") }
 
     // Los errores se muestran recién después de intentar registrarse.
     var intentado by remember { mutableStateOf(false) }
     var errorRegistro by remember { mutableStateOf<String?>(null) }
 
-    val errorNombre = if (nombre.isBlank()) "Ingresa tu nombre completo" else null
-    val errorTelefono = if (telefono.length != 9) "El teléfono debe tener 9 dígitos" else null
+    val nombreLimpio = nombre.trim()
+    val errorNombre = when {
+        nombreLimpio.isBlank() -> "Ingresa tu nombre completo"
+        nombreLimpio.length < 3 -> "El nombre es muy corto"
+        !nombreLimpio.all { it.isLetter() || it == ' ' } -> "Solo letras y espacios"
+        nombreLimpio.split(" ").filter { it.isNotBlank() }.size < 2 -> "Ingresa nombre y apellido"
+        else -> null
+    }
+    val errorTelefono = when {
+        telefono.length != 9 -> "El teléfono debe tener 9 dígitos"
+        !telefono.startsWith("9") -> "El celular debe empezar con 9"
+        else -> null
+    }
     val errorCorreo = if (correo.isNotBlank() && !Patterns.EMAIL_ADDRESS.matcher(correo.trim()).matches()) {
         "Correo no válido"
     } else {
         null
     }
-    val errorPassword = if (password.length < 6) "Mínimo 6 caracteres" else null
-    val formularioValido = listOf(errorNombre, errorTelefono, errorCorreo, errorPassword).all { it == null }
+    val errorPassword = when {
+        password.length < 6 -> "Mínimo 6 caracteres"
+        password.length > 20 -> "Máximo 20 caracteres"
+        password.contains(' ') -> "Sin espacios"
+        else -> null
+    }
+    val errorConfirmar = if (confirmar != password) "Las contraseñas no coinciden" else null
+    val formularioValido = listOf(errorNombre, errorTelefono, errorCorreo, errorPassword, errorConfirmar).all { it == null }
 
     Column(
         modifier = Modifier
@@ -123,6 +141,15 @@ fun RegistroScreen(
             esPassword = true,
             error = if (intentado) errorPassword else null
         )
+        Spacer(modifier = Modifier.height(8.dp))
+        CampoTexto(
+            etiqueta = "Confirmar contraseña",
+            valor = confirmar,
+            onValorChange = { confirmar = it },
+            icono = Icons.Default.Lock,
+            esPassword = true,
+            error = if (intentado) errorConfirmar else null
+        )
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -144,9 +171,10 @@ fun RegistroScreen(
                 if (formularioValido) {
                     val registrado = Repositorio.registrarUsuario(nombre, telefono, correo, password)
                     if (registrado) {
-                        // Al entrar al Inicio, Atrás ya no vuelve al registro.
-                        navController.navigate(Rutas.Home.ruta) {
-                            popUpTo(Rutas.Splash.ruta) { inclusive = true }
+                        // El registro no inicia sesión: vuelve al Login con el teléfono
+                        // lleno y un mensaje de confirmación. Atrás no regresa al registro.
+                        navController.navigate(Rutas.Login.crearRuta(telefono)) {
+                            popUpTo(Rutas.Registro.ruta) { inclusive = true }
                         }
                     } else {
                         errorRegistro = "Ese teléfono o correo ya está registrado"
@@ -178,7 +206,7 @@ fun RegistroScreen(
             texto = "¿Ya tienes cuenta? ",
             enlace = "Iniciar sesión",
             onClick = {
-                navController.navigate(Rutas.Login.ruta) {
+                navController.navigate(Rutas.Login.crearRuta()) {
                     popUpTo(Rutas.Registro.ruta) { inclusive = true }
                 }
             }

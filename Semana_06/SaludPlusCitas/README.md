@@ -23,9 +23,9 @@ Todos probados en el emulador (ver [Cómo probar](#cómo-probar-cada-criterio-de
 
 | ID | Requerimiento | Criterio de aceptación |
 |---|---|---|
-| RF-01 | Registro e inicio de sesión | El paciente se registra con nombre, teléfono (9 dígitos), correo opcional y contraseña (mín. 6), o entra con teléfono o correo. Los errores se muestran bajo cada campo y no se permite un teléfono repetido. |
+| RF-01 | Registro e inicio de sesión | El paciente se registra con nombre y apellido, celular (9 dígitos, empieza con 9), correo opcional y contraseña (6 a 20, sin espacios, confirmada). Al registrarse vuelve al Login con un mensaje de confirmación y el teléfono lleno, y entra con teléfono o correo. Los errores se muestran bajo cada campo y no se permite un teléfono repetido. |
 | RF-02 | Búsqueda de especialidades y médicos | La lista de especialidades se filtra mientras se escribe; los médicos de una especialidad salen ordenados por calificación y también se pueden buscar por nombre. |
-| RF-03 | Agendar una cita | El paciente elige médico, día y hora; Continuar solo se habilita con día y hora elegidos. Al confirmar se crea la cita y Atrás ya no vuelve al flujo de agendamiento. |
+| RF-03 | Agendar una cita | El paciente elige sede, médico, día y hora; Continuar solo se habilita con día y hora elegidos. Al confirmar se crea la cita y Atrás ya no vuelve al flujo de agendamiento. |
 | RF-04 | Evitar reservas duplicadas | Un horario reservado desaparece para ese médico y fecha, pero sigue libre para los demás médicos y días. |
 | RF-05 | Consultar y cancelar citas | Mis citas lista las del paciente ordenadas por fecha y hora (o un mensaje si no hay). El detalle muestra todos los datos y cancelar pide confirmación y libera el horario. |
 | RF-06 | Sesión y perfil | El Inicio saluda con el nombre del paciente; Perfil muestra sus datos y número de citas; cerrar sesión vuelve al Splash y limpia el historial. |
@@ -69,15 +69,32 @@ La rama parte del código de la Fase 1 (`git checkout sin-ia -- Semana_06/SaludP
 
 **Fase 2 completa.**
 
+## Cambios pedidos en clase (09/10)
+| Pedido | Qué se hizo | Dónde |
+|---|---|---|
+| Registro → Login | El registro ya no inicia sesión: vuelve al Login con "¡Cuenta creada con éxito!" y el teléfono lleno | `RegistroScreen`, `LoginScreen`, `Rutas.Login` (`telefono` opcional) |
+| Menú lateral | `ModalNavigationDrawer` en el Inicio (☰): Sede, Doctores, Agenda y Cerrar sesión (con confirmación) | `HomeScreen` |
+| Flujo por sede | Agendar cita → Sedes → médicos de la sede (agrupados por especialidad, con chips y buscador) → Fecha y hora → Confirmación | `SedesScreen`, `MedicosSedeScreen` |
+| Sede y teléfono del médico | Modelo `Sede` (dirección, teléfono, horario); `Medico` con `sedeId` y `telefono`, visibles en tarjetas, resumen, confirmación y detalle | `Sede.kt`, `Medico.kt`, `Repositorio` |
+| Doctores por especialidad | Todos los médicos agrupados por especialidad, con buscador; tocar uno abre su agenda | `DoctoresScreen` |
+| Solo horas disponibles | Al elegir el día salen solo las horas libres (mañana y tarde). Si el Dr. Ramírez tiene cita el lunes 15:00, esa hora ya no aparece para él, pero sí para los demás médicos | `horariosDisponibles` |
+| Nueva confirmación | Diseño de ticket: cabecera morada con médico, fecha y hora; abajo paciente, sede y teléfonos | `ConfirmarCitaScreen` |
+| Color morado | Paleta del tema en morado; avatares de los médicos con iniciales sobre el degradado de su especialidad e insignia con el ícono | `Color.kt`, `Componentes.kt` |
+
+**Validaciones agregadas**
+- Agendar (`validarCita`): sesión activa, médico existente, fecha válida, no pasada ni sábado/domingo, hora dentro de los turnos, hora ya pasada si es hoy, horario del médico libre, el paciente sin otra cita a la misma hora y motivo de máx. 200 caracteres (con contador).
+- Fecha y hora: hasta 8 semanas hacia adelante; hoy no muestra horas que ya pasaron; contador de horarios disponibles.
+- Login: si son solo dígitos, debe ser un teléfono de 9; si no, un correo válido.
+
 ## Cómo probar cada criterio de la rúbrica
 Entrar con el usuario de prueba y seguir cada fila.
 
 | Criterio (pts) | Prueba | Resultado esperado |
 |---|---|---|
-| Registro, login y sesión (1) | Registrar un usuario con campos vacíos; luego uno válido. Cerrar sesión desde Perfil. | Errores bajo cada campo; el registro entra al Inicio con "¡Hola, <nombre>!"; cerrar sesión vuelve al Splash y Atrás sale de la app. |
+| Registro, login y sesión (1) | Registrar un usuario con campos vacíos; luego uno válido. Cerrar sesión desde Perfil. | Errores bajo cada campo; el registro vuelve al Login con "¡Cuenta creada con éxito!" y al ingresar sale "¡Hola, <nombre>!"; cerrar sesión vuelve al Splash y Atrás sale de la app. |
 | NavigationBar (2) | En Inicio tocar Citas, Resultados y Perfil; luego Atrás. | Cada pestaña abre su pantalla; Atrás vuelve al Inicio. |
 | LazyRow / LazyColumn (2) | Inicio → destacadas. Especialidades → escribir "car" y luego "carxyz". Mis citas sin citas. | 3 destacadas en fila; "car" deja solo Cardiología; "carxyz" muestra mensaje; Mis citas vacía muestra "Aún no tienes citas agendadas". |
-| Flujo de agendamiento (3) | Agendar cita → Ginecología → Dra. Ana Torres → un día → 09:30 → Continuar → Agendar cita → Atrás. | Cada pantalla recibe su parámetro (`especialidadId`, `medicoId`, `fecha`, `hora`); Confirmar muestra la fecha en texto (en `sin-ia`, "Martes 13 de octubre de 2026"; en `con-ia`, p. ej. "Martes 13 de octubre 2026") y "09:30 a 10:00"; Atrás desde Cita agendada vuelve al Inicio, no a Confirmar. |
+| Flujo de agendamiento (3) | Agendar cita → SaludPlus Los Olivos → Dra. Ana Torres → un día → 09:30 → Continuar → Confirmar cita → Atrás. | Cada pantalla recibe su parámetro (`sedeId`, `medicoId`, `fecha`, `hora`); Confirmar muestra la fecha en texto (en `sin-ia`, "Martes 13 de octubre de 2026"; en `con-ia`, p. ej. "Martes 13 de octubre 2026") y "09:30 a 10:00"; Atrás desde Cita agendada vuelve al Inicio, no a Confirmar. |
 | Horarios reactivos (2) | Volver a Ana Torres, mismo día. Luego Dra. Claudia Rojas, mismo día. Probar Continuar sin elegir. | 09:30 ya no aparece para Ana ese día pero sí para Claudia; Continuar deshabilitado sin día y hora; al cambiar de día se borra la hora. |
 | Repositorio (2) | Mis citas con 2 citas agendadas en desorden. | Salen ordenadas por fecha y hora. |
 | Calendario IA (1) — `con-ia` | Abrir Fecha y hora; tocar `>` varias veces y luego `<`. | Salen los 5 días hábiles desde hoy; `<` está deshabilitada en la semana actual; el mes cambia (p. ej. "Octubre / Noviembre 2026" y luego "Noviembre 2026"); al cambiar de semana o de día se borra la hora. |

@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material.icons.filled.LocalHospital
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.MedicalServices
 
 import androidx.compose.material.icons.filled.Schedule
@@ -59,6 +60,7 @@ fun DetalleCitaScreen(
 ) {
     val cita = Repositorio.obtenerCita(citaId)
     val medico = cita?.let { Repositorio.obtenerMedico(it.medicoId) }
+    val sede = medico?.let { Repositorio.obtenerSede(it.sedeId) }
     val especialidad = medico?.let { Repositorio.obtenerEspecialidad(it.especialidadId) }
 
     var mostrarDialogo by remember { mutableStateOf(false) }
@@ -104,7 +106,8 @@ fun DetalleCitaScreen(
                     FilaDato(Icons.Default.CalendarMonth, "Fecha", formatearFecha(cita.fecha))
                     FilaDato(Icons.Default.Schedule, "Hora", rangoHora(cita.hora))
                     FilaDato(Icons.Default.MedicalServices, "Tipo de atención", cita.tipo)
-                    FilaDato(Icons.Default.LocationOn, "Dirección", medico?.direccion ?: "")
+                    FilaDato(Icons.Default.LocationOn, sede?.nombre ?: "Sede", sede?.direccion ?: "")
+                    FilaDato(Icons.Default.Phone, "Teléfono de la sede", sede?.telefono ?: "")
                     FilaDato(
                         Icons.AutoMirrored.Filled.Notes,
                         "Motivo de consulta",

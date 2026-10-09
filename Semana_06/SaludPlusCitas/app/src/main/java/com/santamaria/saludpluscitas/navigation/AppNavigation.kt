@@ -11,6 +11,8 @@ import com.santamaria.saludpluscitas.ui.screens.agendamiento.ConfirmarCitaScreen
 import com.santamaria.saludpluscitas.ui.screens.agendamiento.EspecialidadesScreen
 import com.santamaria.saludpluscitas.ui.screens.agendamiento.FechaHoraScreen
 import com.santamaria.saludpluscitas.ui.screens.agendamiento.MedicosScreen
+import com.santamaria.saludpluscitas.ui.screens.agendamiento.MedicosSedeScreen
+import com.santamaria.saludpluscitas.ui.screens.agendamiento.SedesScreen
 import com.santamaria.saludpluscitas.ui.screens.auth.LoginScreen
 import com.santamaria.saludpluscitas.ui.screens.auth.RegistroScreen
 import com.santamaria.saludpluscitas.ui.screens.auth.SplashScreen
@@ -18,6 +20,7 @@ import com.santamaria.saludpluscitas.ui.screens.auth.TerminosScreen
 import com.santamaria.saludpluscitas.ui.screens.citas.DetalleCitaScreen
 import com.santamaria.saludpluscitas.ui.screens.citas.MisCitasScreen
 import com.santamaria.saludpluscitas.ui.screens.home.HomeScreen
+import com.santamaria.saludpluscitas.ui.screens.medicos.DoctoresScreen
 import com.santamaria.saludpluscitas.ui.screens.notificaciones.NotificacionesScreen
 import com.santamaria.saludpluscitas.ui.screens.perfil.PerfilScreen
 import com.santamaria.saludpluscitas.ui.screens.resultados.ResultadosScreen
@@ -41,8 +44,20 @@ fun AppNavigation() {
             RegistroScreen(navController)
         }
 
-        composable(Rutas.Login.ruta) {
-            LoginScreen(navController)
+        composable(
+            route = Rutas.Login.ruta,
+            arguments = listOf(
+                navArgument("telefono") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) { backStackEntry ->
+            val telefono = backStackEntry.arguments?.getString("telefono") ?: ""
+            LoginScreen(
+                navController = navController,
+                telefonoRegistrado = telefono
+            )
         }
 
         composable(Rutas.Terminos.ruta) {
@@ -55,6 +70,23 @@ fun AppNavigation() {
         }
 
         // agendamiento
+        composable(Rutas.Sedes.ruta) {
+            SedesScreen(navController)
+        }
+
+        composable(
+            route = Rutas.MedicosSede.ruta,
+            arguments = listOf(
+                navArgument("sedeId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val sedeId = backStackEntry.arguments?.getInt("sedeId") ?: 0
+            MedicosSedeScreen(
+                navController = navController,
+                sedeId = sedeId
+            )
+        }
+
         composable(Rutas.Especialidades.ruta) {
             EspecialidadesScreen(navController)
         }
@@ -133,6 +165,11 @@ fun AppNavigation() {
                 navController = navController,
                 citaId = citaId
             )
+        }
+
+        // menú lateral
+        composable(Rutas.Doctores.ruta) {
+            DoctoresScreen(navController)
         }
 
         // perfil, resultados y notificaciones
