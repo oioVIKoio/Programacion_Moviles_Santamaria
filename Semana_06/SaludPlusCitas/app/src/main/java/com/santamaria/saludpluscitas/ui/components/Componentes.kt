@@ -78,9 +78,9 @@ import com.santamaria.saludpluscitas.data.model.Especialidad
 import com.santamaria.saludpluscitas.data.model.Resultado
 import com.santamaria.saludpluscitas.data.repository.Repositorio
 import com.santamaria.saludpluscitas.navigation.Rutas
-import com.santamaria.saludpluscitas.ui.theme.AzulClaro
-import com.santamaria.saludpluscitas.ui.theme.AzulPrimario
-import com.santamaria.saludpluscitas.ui.theme.AzulPastel
+import com.santamaria.saludpluscitas.ui.theme.MoradoClaro
+import com.santamaria.saludpluscitas.ui.theme.MoradoPrimario
+import com.santamaria.saludpluscitas.ui.theme.MoradoPastel
 import com.santamaria.saludpluscitas.ui.theme.BordeSuave
 import com.santamaria.saludpluscitas.ui.theme.NaranjaPastel
 import com.santamaria.saludpluscitas.ui.theme.NaranjaTexto
@@ -93,7 +93,7 @@ import com.santamaria.saludpluscitas.ui.theme.TextoSecundario
 // Pendientes (se crean junto con la pantalla que los usa):
 //
 
-// Botón azul redondeado de ancho completo ("Comenzar", "Registrarme", "Continuar"...).
+// Botón morado redondeado de ancho completo ("Comenzar", "Registrarme", "Continuar"...).
 @Composable
 fun BotonPrimario(
     texto: String,
@@ -105,7 +105,7 @@ fun BotonPrimario(
         onClick = onClick,
         enabled = enabled,
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = AzulPrimario),
+        colors = ButtonDefaults.buttonColors(containerColor = MoradoPrimario),
         modifier = modifier
             .fillMaxWidth()
             .height(52.dp)
@@ -135,13 +135,13 @@ fun CampoTexto(
                 .padding(top = 8.dp)
                 .size(48.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(AzulClaro),
+                .background(MoradoClaro),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icono,
                 contentDescription = null,
-                tint = AzulPrimario
+                tint = MoradoPrimario
             )
         }
 
@@ -160,16 +160,16 @@ fun CampoTexto(
             ),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = AzulPrimario,
+                focusedBorderColor = MoradoPrimario,
                 unfocusedBorderColor = BordeSuave,
-                focusedLabelColor = AzulPrimario
+                focusedLabelColor = MoradoPrimario
             ),
             modifier = Modifier.weight(1f)
         )
     }
 }
 
-// Texto normal seguido de un enlace azul ("¿Ya tienes cuenta? Iniciar sesión").
+// Texto normal seguido de un enlace morado ("¿Ya tienes cuenta? Iniciar sesión").
 @Composable
 fun TextoConEnlace(
     texto: String,
@@ -187,7 +187,7 @@ fun TextoConEnlace(
             text = enlace,
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
-            color = AzulPrimario,
+            color = MoradoPrimario,
             modifier = Modifier
                 .clip(RoundedCornerShape(4.dp))
                 .clickable(onClick = onClick)
@@ -247,14 +247,14 @@ data class EstiloEspecialidad(
 
 fun estiloEspecialidad(especialidadId: Int): EstiloEspecialidad {
     return when (especialidadId) {
-        1 -> EstiloEspecialidad(Icons.Default.Person, AzulPastel, AzulPrimario)
+        1 -> EstiloEspecialidad(Icons.Default.Person, MoradoPastel, MoradoPrimario)
         2 -> EstiloEspecialidad(Icons.Default.ChildCare, NaranjaPastel, NaranjaTexto)
         3 -> EstiloEspecialidad(Icons.Default.Female, RojoPastel, RojoTexto)
         4 -> EstiloEspecialidad(Icons.Default.Favorite, RojoPastel, RojoTexto)
         5 -> EstiloEspecialidad(Icons.Default.Spa, NaranjaPastel, NaranjaTexto)
-        6 -> EstiloEspecialidad(Icons.Default.Healing, AzulPastel, AzulPrimario)
-        7 -> EstiloEspecialidad(Icons.Default.Visibility, AzulPastel, AzulPrimario)
-        else -> EstiloEspecialidad(Icons.Default.Person, AzulPastel, AzulPrimario)
+        6 -> EstiloEspecialidad(Icons.Default.Healing, MoradoPastel, MoradoPrimario)
+        7 -> EstiloEspecialidad(Icons.Default.Visibility, MoradoPastel, MoradoPrimario)
+        else -> EstiloEspecialidad(Icons.Default.Person, MoradoPastel, MoradoPrimario)
     }
 }
 
@@ -353,9 +353,9 @@ fun BarraNavegacion(
                 icon = { Icon(imageVector = destino.icono, contentDescription = null) },
                 label = { Text(text = destino.titulo, fontSize = 12.sp) },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = AzulPrimario,
-                    selectedTextColor = AzulPrimario,
-                    indicatorColor = AzulClaro,
+                    selectedIconColor = MoradoPrimario,
+                    selectedTextColor = MoradoPrimario,
+                    indicatorColor = MoradoClaro,
                     unselectedIconColor = TextoSecundario,
                     unselectedTextColor = TextoSecundario
                 )
@@ -409,7 +409,7 @@ fun CampoBusqueda(
         singleLine = true,
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = AzulPrimario,
+            focusedBorderColor = MoradoPrimario,
             unfocusedBorderColor = BordeSuave,
             focusedContainerColor = FondoClaro,
             unfocusedContainerColor = FondoClaro
@@ -465,13 +465,13 @@ fun AvatarMedico(
         modifier = modifier
             .size(tamano.dp)
             .clip(RoundedCornerShape(50))
-            .background(AzulClaro),
+            .background(MoradoClaro),
         contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = Icons.Default.Person,
             contentDescription = null,
-            tint = AzulPrimario,
+            tint = MoradoPrimario,
             modifier = Modifier.size((tamano * 0.6f).dp)
         )
     }
@@ -597,7 +597,7 @@ fun ResumenMedico(
     }
 }
 
-// Celda del grid de horarios: azul si está seleccionada.
+// Celda del grid de horarios: morada si está seleccionada.
 @Composable
 fun ChipHorario(
     hora: String,
@@ -609,7 +609,7 @@ fun ChipHorario(
             .fillMaxWidth()
             .height(48.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(if (seleccionado) AzulPrimario else FondoClaro)
+            .background(if (seleccionado) MoradoPrimario else FondoClaro)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -639,10 +639,10 @@ fun FilaDato(
             modifier = Modifier
                 .size(44.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(AzulClaro),
+                .background(MoradoClaro),
             contentAlignment = Alignment.Center
         ) {
-            Icon(imageVector = icono, contentDescription = null, tint = AzulPrimario)
+            Icon(imageVector = icono, contentDescription = null, tint = MoradoPrimario)
         }
         Spacer(modifier = Modifier.width(14.dp))
         Column {
@@ -720,7 +720,7 @@ fun TarjetaCita(
                     text = rangoHora(cita.hora),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = AzulPrimario
+                    color = MoradoPrimario
                 )
             }
             Icon(
@@ -750,10 +750,10 @@ fun TarjetaResultado(resultado: Resultado) {
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(AzulClaro),
+                    .background(MoradoClaro),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(imageVector = Icons.Default.Science, contentDescription = null, tint = AzulPrimario)
+                Icon(imageVector = Icons.Default.Science, contentDescription = null, tint = MoradoPrimario)
             }
             Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {

@@ -38,8 +38,8 @@ import com.santamaria.saludpluscitas.navigation.Rutas
 import com.santamaria.saludpluscitas.ui.components.BarraSuperior
 import com.santamaria.saludpluscitas.ui.components.EstadoVacio
 import com.santamaria.saludpluscitas.ui.components.formatearFecha
-import com.santamaria.saludpluscitas.ui.theme.AzulClaro
-import com.santamaria.saludpluscitas.ui.theme.AzulPrimario
+import com.santamaria.saludpluscitas.ui.theme.MoradoClaro
+import com.santamaria.saludpluscitas.ui.theme.MoradoPrimario
 import com.santamaria.saludpluscitas.ui.theme.BordeSuave
 import com.santamaria.saludpluscitas.ui.theme.SuperficieBlanca
 import com.santamaria.saludpluscitas.ui.theme.TextoSecundario
@@ -120,10 +120,10 @@ private fun TarjetaRecordatorio(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(AzulClaro),
+                    .background(MoradoClaro),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(imageVector = Icons.Default.NotificationsActive, contentDescription = null, tint = AzulPrimario)
+                Icon(imageVector = Icons.Default.NotificationsActive, contentDescription = null, tint = MoradoPrimario)
             }
             Spacer(modifier = Modifier.width(14.dp))
             Column {

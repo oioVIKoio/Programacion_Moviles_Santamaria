@@ -7,10 +7,10 @@ import androidx.compose.ui.graphics.Color
 
 // El diseño de referencia es claro: se usa siempre el esquema claro.
 private val LightColorScheme = lightColorScheme(
-    primary = AzulPrimario,
+    primary = MoradoPrimario,
     onPrimary = Color.White,
-    primaryContainer = AzulClaro,
-    onPrimaryContainer = AzulOscuro,
+    primaryContainer = MoradoClaro,
+    onPrimaryContainer = MoradoOscuro,
     secondary = VerdeTexto,
     onSecondary = Color.White,
     background = FondoClaro,

@@ -43,7 +43,7 @@ import com.santamaria.saludpluscitas.ui.components.BotonPrimario
 import com.santamaria.saludpluscitas.ui.components.FilaDato
 import com.santamaria.saludpluscitas.ui.components.formatearFecha
 import com.santamaria.saludpluscitas.ui.components.rangoHora
-import com.santamaria.saludpluscitas.ui.theme.AzulPrimario
+import com.santamaria.saludpluscitas.ui.theme.MoradoPrimario
 import com.santamaria.saludpluscitas.ui.theme.BordeSuave
 import com.santamaria.saludpluscitas.ui.theme.SuperficieBlanca
 import com.santamaria.saludpluscitas.ui.theme.TextoSecundario
@@ -133,12 +133,12 @@ fun CitaExitosaScreen(
             OutlinedButton(
                 onClick = { navController.popBackStack(Rutas.Home.ruta, inclusive = false) },
                 shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, AzulPrimario),
+                border = BorderStroke(1.dp, MoradoPrimario),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp)
             ) {
-                Text(text = "Ir al inicio", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = AzulPrimario)
+                Text(text = "Ir al inicio", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MoradoPrimario)
             }
         }
     }

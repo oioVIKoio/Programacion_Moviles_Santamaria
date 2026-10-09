@@ -46,7 +46,7 @@ import com.santamaria.saludpluscitas.ui.components.BotonPrimario
 import com.santamaria.saludpluscitas.ui.components.ChipHorario
 import com.santamaria.saludpluscitas.ui.components.EstadoVacio
 import com.santamaria.saludpluscitas.ui.components.ResumenMedico
-import com.santamaria.saludpluscitas.ui.theme.AzulPrimario
+import com.santamaria.saludpluscitas.ui.theme.MoradoPrimario
 import com.santamaria.saludpluscitas.ui.theme.FondoClaro
 import com.santamaria.saludpluscitas.ui.theme.TextoSecundario
 import java.time.DayOfWeek
@@ -183,7 +183,7 @@ fun FechaHoraScreen(
                         modifier = Modifier
                             .weight(1f)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(if (seleccionado) AzulPrimario else FondoClaro)
+                            .background(if (seleccionado) MoradoPrimario else FondoClaro)
                             .clickable {
                                 fecha = dia.fecha
                                 // La hora elegida puede no existir en el nuevo día.

@@ -32,14 +32,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.santamaria.saludpluscitas.navigation.Rutas
 import com.santamaria.saludpluscitas.ui.components.BotonPrimario
-import com.santamaria.saludpluscitas.ui.theme.AzulClaro
-import com.santamaria.saludpluscitas.ui.theme.AzulOscuro
-import com.santamaria.saludpluscitas.ui.theme.AzulPrimario
+import com.santamaria.saludpluscitas.ui.theme.MoradoClaro
+import com.santamaria.saludpluscitas.ui.theme.MoradoOscuro
+import com.santamaria.saludpluscitas.ui.theme.MoradoPrimario
 import com.santamaria.saludpluscitas.ui.theme.TextoSecundario
 
-private val FondoSplash = Color(0xFFF5F6FA)
+private val FondoSplash = Color(0xFFF7F5FC)
 private val HojaVerde = Color(0xFF5BA889)
-private val HojaAzul = Color(0xFF7FB3D5)
+private val HojaLila = Color(0xFFC4B5FD)
 
 @Composable
 fun SplashScreen(
@@ -63,13 +63,13 @@ fun SplashScreen(
             text = "Clínica",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = AzulOscuro
+            color = MoradoOscuro
         )
         Text(
             text = "SaludPlus",
             fontSize = 36.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = AzulOscuro
+            color = MoradoOscuro
         )
         Text(
             text = "Tu salud, nuestra prioridad",
@@ -94,7 +94,7 @@ fun SplashScreen(
         TextButton(onClick = { navController.navigate(Rutas.Login.ruta) }) {
             Text(
                 text = "Ya tengo una cuenta",
-                color = AzulPrimario,
+                color = MoradoPrimario,
                 fontWeight = FontWeight.SemiBold
             )
         }
@@ -113,19 +113,19 @@ private fun IlustracionDoctor() {
             modifier = Modifier
                 .size(230.dp)
                 .clip(CircleShape)
-                .background(AzulClaro.copy(alpha = 0.6f))
+                .background(MoradoClaro.copy(alpha = 0.6f))
         )
         Box(
             modifier = Modifier
                 .size(170.dp)
                 .clip(CircleShape)
-                .background(AzulClaro),
+                .background(MoradoClaro),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = "Doctor",
-                tint = AzulPrimario,
+                tint = MoradoPrimario,
                 modifier = Modifier.size(130.dp)
             )
         }
@@ -140,7 +140,7 @@ private fun IlustracionDoctor() {
         Icon(
             imageVector = Icons.Default.Spa,
             contentDescription = null,
-            tint = HojaAzul,
+            tint = HojaLila,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .size(56.dp)
@@ -157,14 +157,14 @@ private fun IlustracionDoctor() {
             Icon(
                 imageVector = Icons.Default.MedicalServices,
                 contentDescription = null,
-                tint = AzulPrimario,
+                tint = MoradoPrimario,
                 modifier = Modifier.size(30.dp)
             )
         }
     }
 }
 
-// Cruz azul con un corazón blanco al centro.
+// Cruz morada con un corazón blanco al centro.
 @Composable
 private fun LogoSaludPlus() {
     Box(
@@ -176,14 +176,14 @@ private fun LogoSaludPlus() {
                 .width(36.dp)
                 .height(96.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(AzulPrimario)
+                .background(MoradoPrimario)
         )
         Box(
             modifier = Modifier
                 .width(96.dp)
                 .height(36.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(AzulPrimario)
+                .background(MoradoPrimario)
         )
         Icon(
             imageVector = Icons.Default.Favorite,

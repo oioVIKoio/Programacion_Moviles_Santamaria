@@ -37,7 +37,7 @@ import com.santamaria.saludpluscitas.navigation.Rutas
 import com.santamaria.saludpluscitas.ui.components.BotonPrimario
 import com.santamaria.saludpluscitas.ui.components.CampoTexto
 import com.santamaria.saludpluscitas.ui.components.TextoConEnlace
-import com.santamaria.saludpluscitas.ui.theme.AzulPrimario
+import com.santamaria.saludpluscitas.ui.theme.MoradoPrimario
 import com.santamaria.saludpluscitas.ui.theme.TextoSecundario
 
 @Composable
@@ -166,7 +166,7 @@ fun RegistroScreen(
             text = "Términos y Condiciones",
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
-            color = AzulPrimario,
+            color = MoradoPrimario,
             modifier = Modifier
                 .clickable { navController.navigate(Rutas.Terminos.ruta) }
                 .padding(4.dp)

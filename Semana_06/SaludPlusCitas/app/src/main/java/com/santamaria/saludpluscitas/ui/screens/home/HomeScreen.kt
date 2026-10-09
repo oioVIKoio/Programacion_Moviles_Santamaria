@@ -37,10 +37,10 @@ import com.santamaria.saludpluscitas.navigation.Rutas
 import com.santamaria.saludpluscitas.ui.components.BarraNavegacion
 import com.santamaria.saludpluscitas.ui.components.TarjetaAccion
 import com.santamaria.saludpluscitas.ui.components.TarjetaEspecialidadDestacada
-import com.santamaria.saludpluscitas.ui.theme.AzulPastel
-import com.santamaria.saludpluscitas.ui.theme.AzulPrimario
-import com.santamaria.saludpluscitas.ui.theme.LilaPastel
-import com.santamaria.saludpluscitas.ui.theme.LilaTexto
+import com.santamaria.saludpluscitas.ui.theme.MoradoPastel
+import com.santamaria.saludpluscitas.ui.theme.MoradoPrimario
+import com.santamaria.saludpluscitas.ui.theme.RosaPastel
+import com.santamaria.saludpluscitas.ui.theme.RosaTexto
 import com.santamaria.saludpluscitas.ui.theme.NaranjaPastel
 import com.santamaria.saludpluscitas.ui.theme.NaranjaTexto
 import com.santamaria.saludpluscitas.ui.theme.TextoSecundario
@@ -104,8 +104,8 @@ fun HomeScreen(
                 TarjetaAccion(
                     titulo = "Agendar cita",
                     icono = Icons.Default.CalendarMonth,
-                    colorFondo = AzulPastel,
-                    colorContenido = AzulPrimario,
+                    colorFondo = MoradoPastel,
+                    colorContenido = MoradoPrimario,
                     onClick = { navController.navigate(Rutas.Especialidades.ruta) },
                     modifier = Modifier.weight(1f)
                 )
@@ -123,8 +123,8 @@ fun HomeScreen(
                 TarjetaAccion(
                     titulo = "Mis datos",
                     icono = Icons.Default.Person,
-                    colorFondo = LilaPastel,
-                    colorContenido = LilaTexto,
+                    colorFondo = RosaPastel,
+                    colorContenido = RosaTexto,
                     onClick = { navController.navigate(Rutas.Perfil.ruta) },
                     modifier = Modifier.weight(1f)
                 )
@@ -152,7 +152,7 @@ fun HomeScreen(
                     modifier = Modifier.weight(1f)
                 )
                 TextButton(onClick = { navController.navigate(Rutas.Especialidades.ruta) }) {
-                    Text(text = "Ver todas", color = AzulPrimario)
+                    Text(text = "Ver todas", color = MoradoPrimario)
                 }
             }
 

@@ -38,7 +38,7 @@ import com.santamaria.saludpluscitas.ui.components.FilaDato
 import com.santamaria.saludpluscitas.ui.components.ResumenMedico
 import com.santamaria.saludpluscitas.ui.components.formatearFecha
 import com.santamaria.saludpluscitas.ui.components.rangoHora
-import com.santamaria.saludpluscitas.ui.theme.AzulPrimario
+import com.santamaria.saludpluscitas.ui.theme.MoradoPrimario
 import com.santamaria.saludpluscitas.ui.theme.BordeSuave
 import com.santamaria.saludpluscitas.ui.theme.TextoSecundario
 
@@ -103,7 +103,7 @@ fun ConfirmarCitaScreen(
                     minLines = 3,
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = AzulPrimario,
+                        focusedBorderColor = MoradoPrimario,
                         unfocusedBorderColor = BordeSuave
                     ),
                     modifier = Modifier.fillMaxWidth()
