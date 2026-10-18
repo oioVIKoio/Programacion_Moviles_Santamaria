@@ -32,10 +32,12 @@ import tecsup.santamaria.lavacampus.model.Rol
 import tecsup.santamaria.lavacampus.ui.administrador.ServiciosScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.InicioScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.LoginScreen
+import tecsup.santamaria.lavacampus.ui.estudiante.NuevoPedidoScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.SplashScreen
 import tecsup.santamaria.lavacampus.ui.theme.LavaTheme
 import tecsup.santamaria.lavacampus.viewmodel.InicioViewModel
 import tecsup.santamaria.lavacampus.viewmodel.LavaViewModelFactory
+import tecsup.santamaria.lavacampus.viewmodel.NuevoPedidoViewModel
 import tecsup.santamaria.lavacampus.viewmodel.ServiciosViewModel
 import tecsup.santamaria.lavacampus.viewmodel.SesionViewModel
 
@@ -87,7 +89,27 @@ fun NavLava() {
                 }
             }
             // Pantallas que llegan en los siguientes pasos
-            composable(Rutas.NUEVO_PEDIDO) { Pendiente("Nuevo pedido") }
+            composable(Rutas.NUEVO_PEDIDO) {
+                val estudiante = usuario
+                if (estudiante == null) {
+                    Cargando()
+                } else {
+                    val vm: NuevoPedidoViewModel = viewModel(
+                        factory = LavaViewModelFactory { NuevoPedidoViewModel(app.repository, estudiante.id) }
+                    )
+                    NuevoPedidoScreen(
+                        vm = vm,
+                        onAtras = { nav.volver() },
+                        // Al confirmar vuelve a Mis pedidos
+                        onCreado = {
+                            nav.navigate(Rutas.MIS_PEDIDOS) {
+                                popUpTo(Rutas.INICIO)
+                                launchSingleTop = true
+                            }
+                        }
+                    )
+                }
+            }
             composable(Rutas.DETALLE_PEDIDO) { Pendiente("Detalle del pedido") }
             composable(Rutas.MIS_PEDIDOS) { Pendiente("Mis pedidos") }
             composable(Rutas.TARIFAS) { Pendiente("Tarifas") }
@@ -106,6 +128,11 @@ fun NavLava() {
 private fun NavHostController.irAPrincipal(rol: Rol, desde: String) {
     val destino = if (rol == Rol.ADMIN) Rutas.PANEL else Rutas.INICIO
     navigate(destino) { popUpTo(desde) { inclusive = true } }
+}
+
+// Atrás seguro: con dos toques rápidos no deja la pila vacía (pantalla en blanco)
+private fun NavHostController.volver() {
+    if (previousBackStackEntry != null) popBackStack()
 }
 
 // Cambia de pestaña sin apilar pantallas

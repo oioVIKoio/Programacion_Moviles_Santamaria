@@ -19,14 +19,18 @@ fun fechaTarjeta(iso: String): String = fechaCorta(iso).replaceFirstChar { it.up
 fun cantidadTexto(cantidad: Double, unidad: Unidad): String =
     if (unidad == Unidad.KG) "%.1f".format(Locale.US, cantidad) else cantidad.toInt().toString()
 
+// "3.5 kg", "1 prenda", "5 prendas"
+fun cantidadConUnidad(cantidad: Double, unidad: Unidad): String {
+    val texto = cantidadTexto(cantidad, unidad)
+    return when {
+        unidad == Unidad.KG -> "$texto kg"
+        cantidad == 1.0 -> "$texto ${unidad.etiqueta}"
+        else -> "$texto ${unidad.etiqueta}s"
+    }
+}
+
 // "3.5 kg + 5 prendas"
 fun resumenLineas(detalles: List<DetalleConServicio>): String =
     detalles.joinToString(" + ") { d ->
-        val unidad = Unidad.valueOf(d.servicio.unidad)
-        val texto = cantidadTexto(d.detalle.cantidad, unidad)
-        when {
-            unidad == Unidad.KG -> "$texto kg"
-            d.detalle.cantidad == 1.0 -> "$texto ${unidad.etiqueta}"
-            else -> "$texto ${unidad.etiqueta}s"
-        }
+        cantidadConUnidad(d.detalle.cantidad, Unidad.valueOf(d.servicio.unidad))
     }
