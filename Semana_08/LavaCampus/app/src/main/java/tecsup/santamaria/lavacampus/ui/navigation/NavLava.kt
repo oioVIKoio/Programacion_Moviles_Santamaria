@@ -34,6 +34,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import tecsup.santamaria.lavacampus.LavaApp
 import tecsup.santamaria.lavacampus.model.Rol
+import tecsup.santamaria.lavacampus.ui.administrador.BandejaScreen
+import tecsup.santamaria.lavacampus.ui.administrador.GestionPedidoScreen
 import tecsup.santamaria.lavacampus.ui.administrador.PanelScreen
 import tecsup.santamaria.lavacampus.ui.administrador.ServiciosScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.DetallePedidoScreen
@@ -44,7 +46,9 @@ import tecsup.santamaria.lavacampus.ui.estudiante.NuevoPedidoScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.SplashScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.TarifasScreen
 import tecsup.santamaria.lavacampus.ui.theme.LavaTheme
+import tecsup.santamaria.lavacampus.viewmodel.BandejaViewModel
 import tecsup.santamaria.lavacampus.viewmodel.DetallePedidoViewModel
+import tecsup.santamaria.lavacampus.viewmodel.GestionPedidoViewModel
 import tecsup.santamaria.lavacampus.viewmodel.InicioViewModel
 import tecsup.santamaria.lavacampus.viewmodel.LavaViewModelFactory
 import tecsup.santamaria.lavacampus.viewmodel.MisPedidosViewModel
@@ -168,7 +172,25 @@ fun NavLava() {
                 )
             }
             // Pantallas del administrador que llegan en los siguientes pasos
-            composable(Rutas.BANDEJA) { Pendiente("Pedidos") }
+            composable(Rutas.BANDEJA) {
+                val vm: BandejaViewModel = viewModel(factory = LavaViewModelFactory { BandejaViewModel(app.repository) })
+                BandejaScreen(
+                    vm = vm,
+                    barraInferior = { BarraAdmin(nav, Rutas.BANDEJA) },
+                    onAtras = { nav.irAPestana(Rutas.PANEL, inicio = Rutas.PANEL) },
+                    onGestionar = { id -> nav.navigate(Rutas.gestionPedido(id)) }
+                )
+            }
+            composable(
+                Rutas.GESTION_PEDIDO,
+                arguments = listOf(navArgument("id") { type = NavType.IntType })
+            ) { entrada ->
+                val id = entrada.arguments?.getInt("id") ?: 0
+                val vm: GestionPedidoViewModel = viewModel(
+                    factory = LavaViewModelFactory { GestionPedidoViewModel(app.repository, id) }
+                )
+                GestionPedidoScreen(vm = vm, onAtras = { nav.volver() })
+            }
             composable(Rutas.CLIENTES) { Pendiente("Clientes") }
             composable(Rutas.AJUSTES) { Pendiente("Ajustes") }
             composable(Rutas.SERVICIOS) {
