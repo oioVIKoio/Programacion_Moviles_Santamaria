@@ -2,13 +2,25 @@ package tecsup.santamaria.lavacampus.ui.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Sell
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -18,9 +30,11 @@ import androidx.navigation.compose.rememberNavController
 import tecsup.santamaria.lavacampus.LavaApp
 import tecsup.santamaria.lavacampus.model.Rol
 import tecsup.santamaria.lavacampus.ui.administrador.ServiciosScreen
+import tecsup.santamaria.lavacampus.ui.estudiante.InicioScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.LoginScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.SplashScreen
 import tecsup.santamaria.lavacampus.ui.theme.LavaTheme
+import tecsup.santamaria.lavacampus.viewmodel.InicioViewModel
 import tecsup.santamaria.lavacampus.viewmodel.LavaViewModelFactory
 import tecsup.santamaria.lavacampus.viewmodel.ServiciosViewModel
 import tecsup.santamaria.lavacampus.viewmodel.SesionViewModel
@@ -36,6 +50,7 @@ fun NavLava() {
     )
     val perfil by sesion.perfilActivo.collectAsState()
     val oscuro by sesion.modoOscuro.collectAsState()
+    val usuario by sesion.usuarioActual.collectAsState()
 
     // El tema depende del perfil activo y del modo oscuro guardado en DataStore
     LavaTheme(rol = if (perfil == Rol.ADMIN.name) Rol.ADMIN else Rol.CLIENTE, oscuro = oscuro) {
@@ -52,8 +67,31 @@ fun NavLava() {
             composable(Rutas.LOGIN) {
                 LoginScreen(vm = sesion, onIngresar = { rol -> nav.irAPrincipal(rol, desde = Rutas.LOGIN) })
             }
-            // Pantallas principales: se reemplazan en el Paso 7 (Inicio) y el Paso 11 (Panel)
-            composable(Rutas.INICIO) { Pendiente("Inicio del estudiante") }
+            composable(Rutas.INICIO) {
+                val estudiante = usuario
+                if (estudiante == null) {
+                    Cargando()
+                } else {
+                    val vm: InicioViewModel = viewModel(
+                        key = "inicio_${estudiante.id}",
+                        factory = LavaViewModelFactory { InicioViewModel(app.repository, estudiante) }
+                    )
+                    InicioScreen(
+                        vm = vm,
+                        barraInferior = { BarraEstudiante(nav, Rutas.INICIO) },
+                        onNuevoPedido = { nav.navigate(Rutas.NUEVO_PEDIDO) },
+                        onMisPedidos = { nav.irAPestana(Rutas.MIS_PEDIDOS) },
+                        onTarifas = { nav.irAPestana(Rutas.TARIFAS) },
+                        onPedido = { id -> nav.navigate(Rutas.detallePedido(id)) }
+                    )
+                }
+            }
+            // Pantallas que llegan en los siguientes pasos
+            composable(Rutas.NUEVO_PEDIDO) { Pendiente("Nuevo pedido") }
+            composable(Rutas.DETALLE_PEDIDO) { Pendiente("Detalle del pedido") }
+            composable(Rutas.MIS_PEDIDOS) { Pendiente("Mis pedidos") }
+            composable(Rutas.TARIFAS) { Pendiente("Tarifas") }
+            composable(Rutas.PERFIL) { Pendiente("Perfil") }
             composable(Rutas.PANEL) { Pendiente("Panel de la lavandería") }
             composable(Rutas.SERVICIOS) {
                 val vm: ServiciosViewModel = viewModel(factory = LavaViewModelFactory { ServiciosViewModel(app.repository) })
@@ -68,6 +106,52 @@ fun NavLava() {
 private fun NavHostController.irAPrincipal(rol: Rol, desde: String) {
     val destino = if (rol == Rol.ADMIN) Rutas.PANEL else Rutas.INICIO
     navigate(destino) { popUpTo(desde) { inclusive = true } }
+}
+
+// Cambia de pestaña sin apilar pantallas
+private fun NavHostController.irAPestana(ruta: String) {
+    navigate(ruta) {
+        popUpTo(Rutas.INICIO) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
+}
+
+private class Pestana(val ruta: String, val texto: String, val icono: ImageVector, val iconoActivo: ImageVector = icono)
+
+private val pestanasEstudiante = listOf(
+    Pestana(Rutas.INICIO, "Inicio", Icons.Outlined.Home, Icons.Filled.Home),
+    Pestana(Rutas.MIS_PEDIDOS, "Pedidos", Icons.Outlined.Menu),
+    Pestana(Rutas.TARIFAS, "Tarifas", Icons.Outlined.Sell),
+    Pestana(Rutas.PERFIL, "Perfil", Icons.Outlined.Person)
+)
+
+// NavigationBar del estudiante: Inicio, Pedidos, Tarifas, Perfil
+@Composable
+private fun BarraEstudiante(nav: NavHostController, actual: String) {
+    NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+        pestanasEstudiante.forEach { p ->
+            val activa = p.ruta == actual
+            NavigationBarItem(
+                selected = activa,
+                onClick = { if (!activa) nav.irAPestana(p.ruta) },
+                icon = { Icon(if (activa) p.iconoActivo else p.icono, contentDescription = p.texto) },
+                label = { Text(p.texto) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = MaterialTheme.colorScheme.surface,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun Cargando() {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
 }
 
 @Composable

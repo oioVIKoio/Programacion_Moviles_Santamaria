@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import tecsup.santamaria.lavacampus.data.local.entity.Usuario
@@ -30,6 +31,16 @@ class SesionViewModel(
     // Perfil guardado en DataStore: null mientras carga, "" si no hay sesión
     val perfilActivo: StateFlow<String?> = prefs.perfilActivo
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    init {
+        // Sesión guardada: se recupera el usuario para no pedir login otra vez
+        viewModelScope.launch {
+            val id = prefs.usuarioId.first()
+            if (id > 0 && prefs.perfilActivo.first().isNotEmpty()) {
+                _usuarioActual.value = repo.obtenerUsuario(id)
+            }
+        }
+    }
 
     fun login(correo: String, clave: String, rolSeleccionado: Rol) {
         if (correo.isBlank() || clave.isBlank()) {

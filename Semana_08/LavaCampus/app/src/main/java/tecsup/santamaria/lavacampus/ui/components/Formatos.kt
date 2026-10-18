@@ -1,0 +1,32 @@
+package tecsup.santamaria.lavacampus.ui.components
+
+import tecsup.santamaria.lavacampus.data.local.relation.DetalleConServicio
+import tecsup.santamaria.lavacampus.model.Unidad
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+
+private val es = Locale.forLanguageTag("es-PE")
+private val formatoCorto = DateTimeFormatter.ofPattern("EEE d MMM", es)
+
+// "2026-10-19" -> "lun 19 oct"
+fun fechaCorta(iso: String): String = LocalDate.parse(iso).format(formatoCorto).replace(".", "")
+
+// "Lun 19 oct", como en las tarjetas de pedido
+fun fechaTarjeta(iso: String): String = fechaCorta(iso).replaceFirstChar { it.uppercase() }
+
+// 3.5 -> "3.5", 5.0 -> "5"
+fun cantidadTexto(cantidad: Double, unidad: Unidad): String =
+    if (unidad == Unidad.KG) "%.1f".format(Locale.US, cantidad) else cantidad.toInt().toString()
+
+// "3.5 kg + 5 prendas"
+fun resumenLineas(detalles: List<DetalleConServicio>): String =
+    detalles.joinToString(" + ") { d ->
+        val unidad = Unidad.valueOf(d.servicio.unidad)
+        val texto = cantidadTexto(d.detalle.cantidad, unidad)
+        when {
+            unidad == Unidad.KG -> "$texto kg"
+            d.detalle.cantidad == 1.0 -> "$texto ${unidad.etiqueta}"
+            else -> "$texto ${unidad.etiqueta}s"
+        }
+    }
