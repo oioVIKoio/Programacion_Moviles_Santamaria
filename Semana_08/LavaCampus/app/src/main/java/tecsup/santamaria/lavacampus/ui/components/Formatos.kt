@@ -2,15 +2,22 @@ package tecsup.santamaria.lavacampus.ui.components
 
 import tecsup.santamaria.lavacampus.data.local.relation.DetalleConServicio
 import tecsup.santamaria.lavacampus.model.Unidad
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 private val es = Locale.forLanguageTag("es-PE")
 private val formatoCorto = DateTimeFormatter.ofPattern("EEE d MMM", es)
+private val formatoHora = DateTimeFormatter.ofPattern("d MMM HH:mm", es)
 
 // "2026-10-19" -> "lun 19 oct"
 fun fechaCorta(iso: String): String = LocalDate.parse(iso).format(formatoCorto).replace(".", "")
+
+// milisegundos -> "20 oct 10:15"
+fun fechaHora(millis: Long): String =
+    Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).format(formatoHora).replace(".", "")
 
 // "Lun 19 oct", como en las tarjetas de pedido
 fun fechaTarjeta(iso: String): String = fechaCorta(iso).replaceFirstChar { it.uppercase() }

@@ -24,17 +24,21 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import tecsup.santamaria.lavacampus.LavaApp
 import tecsup.santamaria.lavacampus.model.Rol
 import tecsup.santamaria.lavacampus.ui.administrador.ServiciosScreen
+import tecsup.santamaria.lavacampus.ui.estudiante.DetallePedidoScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.InicioScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.LoginScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.NuevoPedidoScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.SplashScreen
 import tecsup.santamaria.lavacampus.ui.theme.LavaTheme
+import tecsup.santamaria.lavacampus.viewmodel.DetallePedidoViewModel
 import tecsup.santamaria.lavacampus.viewmodel.InicioViewModel
 import tecsup.santamaria.lavacampus.viewmodel.LavaViewModelFactory
 import tecsup.santamaria.lavacampus.viewmodel.NuevoPedidoViewModel
@@ -110,7 +114,16 @@ fun NavLava() {
                     )
                 }
             }
-            composable(Rutas.DETALLE_PEDIDO) { Pendiente("Detalle del pedido") }
+            composable(
+                Rutas.DETALLE_PEDIDO,
+                arguments = listOf(navArgument("id") { type = NavType.IntType })
+            ) { entrada ->
+                val id = entrada.arguments?.getInt("id") ?: 0
+                val vm: DetallePedidoViewModel = viewModel(
+                    factory = LavaViewModelFactory { DetallePedidoViewModel(app.repository, id) }
+                )
+                DetallePedidoScreen(vm = vm, onAtras = { nav.volver() })
+            }
             composable(Rutas.MIS_PEDIDOS) { Pendiente("Mis pedidos") }
             composable(Rutas.TARIFAS) { Pendiente("Tarifas") }
             composable(Rutas.PERFIL) { Pendiente("Perfil") }

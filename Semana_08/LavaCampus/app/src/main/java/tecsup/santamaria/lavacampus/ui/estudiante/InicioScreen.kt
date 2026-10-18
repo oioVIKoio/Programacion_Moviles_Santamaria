@@ -86,7 +86,7 @@ fun InicioScreen(
                     }
                 }
             }
-            item { TarjetaActivo(activo) }
+            item { TarjetaActivo(activo, onPedido) }
             item { LavaButton(texto = "Nuevo pedido", onClick = onNuevoPedido) }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -123,14 +123,16 @@ fun InicioScreen(
 
 // Tarjeta turquesa con el seguimiento del pedido activo
 @Composable
-private fun TarjetaActivo(p: PedidoConDetalle?) {
+private fun TarjetaActivo(p: PedidoConDetalle?, onPedido: (Int) -> Unit) {
     Card(
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary
         ),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = p != null) { p?.let { onPedido(it.pedido.id) } }
     ) {
         Column(Modifier.padding(16.dp)) {
             if (p == null) {
