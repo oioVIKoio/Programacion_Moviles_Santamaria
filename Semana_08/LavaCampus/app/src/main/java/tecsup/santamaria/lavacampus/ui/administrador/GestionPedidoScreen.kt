@@ -27,7 +27,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,8 +45,10 @@ import tecsup.santamaria.lavacampus.model.EstadoPedido
 import tecsup.santamaria.lavacampus.ui.components.AppTopBar
 import tecsup.santamaria.lavacampus.ui.components.EstadoPedidoChip
 import tecsup.santamaria.lavacampus.ui.components.LavaButton
+import tecsup.santamaria.lavacampus.ui.components.LavaSwitch
 import tecsup.santamaria.lavacampus.ui.components.StepperEstado
 import tecsup.santamaria.lavacampus.ui.components.fechaHora
+import tecsup.santamaria.lavacampus.ui.components.iniciales
 import tecsup.santamaria.lavacampus.viewmodel.GestionPedidoViewModel
 
 @Composable
@@ -149,7 +150,7 @@ fun GestionPedidoScreen(vm: GestionPedidoViewModel, onAtras: () -> Unit) {
                     }
                     Text("Cobrado", style = MaterialTheme.typography.labelLarge)
                     Spacer(Modifier.width(8.dp))
-                    Switch(
+                    LavaSwitch(
                         checked = pedido.pedido.pagado,
                         onCheckedChange = vm::marcarPagado,
                         enabled = !estado.esFinal
@@ -192,10 +193,6 @@ fun GestionPedidoScreen(vm: GestionPedidoViewModel, onAtras: () -> Unit) {
         }
     }
 }
-
-// "Victor Santamaria" -> "VS"
-private fun iniciales(nombre: String) =
-    nombre.split(" ").filter { it.isNotBlank() }.take(2).joinToString("") { it.first().uppercase() }
 
 @Composable
 private fun Tarjeta(contenido: @Composable () -> Unit) {

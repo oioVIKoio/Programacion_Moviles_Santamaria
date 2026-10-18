@@ -2,6 +2,7 @@ package tecsup.santamaria.lavacampus.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,8 +19,13 @@ import java.time.LocalDate
 
 class NuevoPedidoViewModel(
     private val repo: LavaRepository,
-    private val usuarioId: Int
+    private val usuarioId: Int,
+    recibiendo: Flow<Boolean>
 ) : ViewModel() {
+
+    // Ajustes del admin: si está apagado, no se pueden crear pedidos
+    val recibePedidos: StateFlow<Boolean> = recibiendo
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     // Solo los activos se pueden pedir
     val servicios: StateFlow<List<Servicio>> = repo.observarServiciosActivos()
@@ -71,6 +77,10 @@ class NuevoPedidoViewModel(
         val lineas = _cantidades.value.filter { it.value > 0 }.map { LineaPedido(it.key, it.value) }
         val fecha = fechaEntrega.value
         if (lineas.isEmpty() || fecha == null) return
+        if (!recibePedidos.value) {
+            _error.value = "La lavandería no está recibiendo pedidos"
+            return
+        }
         viewModelScope.launch {
             if (repo.contarActivos(usuarioId) >= LIMITE_ACTIVOS) {
                 _error.value = "Ya tienes 3 pedidos activos"

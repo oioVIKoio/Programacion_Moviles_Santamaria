@@ -8,12 +8,14 @@ import tecsup.santamaria.lavacampus.model.ClienteResumen
 import tecsup.santamaria.lavacampus.model.EstadoPedido
 import tecsup.santamaria.lavacampus.model.IngresoServicio
 import tecsup.santamaria.lavacampus.model.LineaPedido
+import tecsup.santamaria.lavacampus.model.Rol
 
 // El contrato: los ViewModels solo conocen esta interface
 interface LavaRepository {
     // Usuarios
     suspend fun login(correo: String, clave: String): Usuario?
     suspend fun obtenerUsuario(id: Int): Usuario?
+    suspend fun primerUsuarioDeRol(rol: Rol): Usuario?
     fun observarClientes(): Flow<List<ClienteResumen>>
 
     // Servicios (ejemplo resuelto)

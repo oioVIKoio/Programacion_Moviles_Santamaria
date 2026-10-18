@@ -12,6 +12,7 @@ import tecsup.santamaria.lavacampus.model.ClienteResumen
 import tecsup.santamaria.lavacampus.model.EstadoPedido
 import tecsup.santamaria.lavacampus.model.IngresoServicio
 import tecsup.santamaria.lavacampus.model.LineaPedido
+import tecsup.santamaria.lavacampus.model.Rol
 import java.time.LocalDate
 
 class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
@@ -25,6 +26,8 @@ class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
     override suspend fun login(correo: String, clave: String): Usuario? = usuarioDao.login(correo, clave)
 
     override suspend fun obtenerUsuario(id: Int): Usuario? = usuarioDao.obtener(id)
+
+    override suspend fun primerUsuarioDeRol(rol: Rol): Usuario? = usuarioDao.primeroDeRol(rol.name)
 
     override fun observarClientes(): Flow<List<ClienteResumen>> = usuarioDao.observarClientes()
 

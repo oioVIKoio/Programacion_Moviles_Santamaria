@@ -1,6 +1,7 @@
 package tecsup.santamaria.lavacampus.ui.estudiante
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -51,6 +53,7 @@ fun NuevoPedidoScreen(vm: NuevoPedidoViewModel, onAtras: () -> Unit, onCreado: (
     val fecha by vm.fechaEntrega.collectAsState()
     val error by vm.error.collectAsState()
     val creado by vm.creado.collectAsState()
+    val recibe by vm.recibePedidos.collectAsState()
 
     LaunchedEffect(creado) { if (creado) onCreado() }
 
@@ -65,6 +68,20 @@ fun NuevoPedidoScreen(vm: NuevoPedidoViewModel, onAtras: () -> Unit, onCreado: (
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            // Ajustes del admin: recepción cerrada
+            if (!recibe) item {
+                Text(
+                    "La lavandería no está recibiendo pedidos",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.1f))
+                        .padding(12.dp)
+                )
+            }
             item { Text("¿Qué necesitas?", style = MaterialTheme.typography.titleMedium) }
             items(servicios, key = { it.id }) { s ->
                 val unidad = Unidad.valueOf(s.unidad)
@@ -110,7 +127,7 @@ fun NuevoPedidoScreen(vm: NuevoPedidoViewModel, onAtras: () -> Unit, onCreado: (
                     LavaButton(
                         texto = "Confirmar pedido",
                         onClick = vm::confirmar,
-                        enabled = elegidos.isNotEmpty()
+                        enabled = elegidos.isNotEmpty() && recibe
                     )
                     Spacer(Modifier.height(8.dp))
                 }

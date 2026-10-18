@@ -57,7 +57,7 @@ fun SplashScreen(perfilGuardado: String?, onComenzar: () -> Unit, onSesionGuarda
             IconoServicio(
                 "wash",
                 tamano = 96.dp,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 fondo = MaterialTheme.colorScheme.primary
             )
             Spacer(Modifier.height(28.dp))

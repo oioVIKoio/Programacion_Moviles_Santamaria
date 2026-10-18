@@ -46,6 +46,10 @@ fun resumenLineas(detalles: List<DetalleConServicio>): String =
 // KG, PRENDA, UNIDAD -> "por kg", "por prenda", "por unidad"
 fun Servicio.textoPrecio(): String = "por ${Unidad.valueOf(unidad).etiqueta}"
 
+// "Victor Santamaria" -> "VS"
+fun iniciales(nombre: String): String =
+    nombre.split(" ").filter { it.isNotBlank() }.take(2).joinToString("") { it.first().uppercase() }
+
 // "Victor Santamaria" -> "Victor S."
 fun nombreCorto(nombre: String): String {
     val partes = nombre.trim().split(" ")

@@ -28,6 +28,12 @@ class SesionViewModel(
     val modoOscuro: StateFlow<Boolean> = prefs.modoOscuro
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    val notificaciones: StateFlow<Boolean> = prefs.notificaciones
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    val recibirPedidos: StateFlow<Boolean> = prefs.recibirPedidos
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
     // Perfil guardado en DataStore: null mientras carga, "" si no hay sesión
     val perfilActivo: StateFlow<String?> = prefs.perfilActivo
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
@@ -69,6 +75,39 @@ class SesionViewModel(
 
     fun limpiarError() {
         _error.value = null
+    }
+
+    // Preferencias: se guardan en DataStore y el tema se entera solo
+    fun cambiarModoOscuro(b: Boolean) {
+        viewModelScope.launch { prefs.guardarModoOscuro(b) }
+    }
+
+    fun cambiarNotificaciones(b: Boolean) {
+        viewModelScope.launch { prefs.guardarNotificaciones(b) }
+    }
+
+    fun cambiarRecibirPedidos(b: Boolean) {
+        viewModelScope.launch { prefs.guardarRecibirPedidos(b) }
+    }
+
+    // Modo práctica: pasa al otro rol con su primer usuario, sin login
+    fun cambiarPerfil(alTerminar: (Rol) -> Unit) {
+        val actual = _usuarioActual.value ?: return
+        val otro = if (actual.rol == Rol.ADMIN.name) Rol.CLIENTE else Rol.ADMIN
+        viewModelScope.launch {
+            val usuario = repo.primerUsuarioDeRol(otro) ?: return@launch
+            prefs.guardarSesion(usuario.rol, usuario.id)
+            _usuarioActual.value = usuario
+            alTerminar(otro)
+        }
+    }
+
+    fun cerrarSesion(alTerminar: () -> Unit) {
+        viewModelScope.launch {
+            prefs.cerrarSesion()
+            _usuarioActual.value = null
+            alTerminar()
+        }
     }
 
     companion object {

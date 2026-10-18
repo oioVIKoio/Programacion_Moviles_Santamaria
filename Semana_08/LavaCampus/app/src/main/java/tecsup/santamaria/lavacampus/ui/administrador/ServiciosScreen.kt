@@ -23,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -32,16 +31,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import tecsup.santamaria.lavacampus.data.local.entity.Servicio
-import tecsup.santamaria.lavacampus.model.Unidad
 import tecsup.santamaria.lavacampus.ui.components.AppTopBar
 import tecsup.santamaria.lavacampus.ui.components.IconoServicio
+import tecsup.santamaria.lavacampus.ui.components.LavaSwitch
+import tecsup.santamaria.lavacampus.ui.components.textoPrecio
 import tecsup.santamaria.lavacampus.viewmodel.ServiciosViewModel
 
 @Composable
-fun ServiciosScreen(vm: ServiciosViewModel, onEditar: (Int) -> Unit) {
+fun ServiciosScreen(
+    vm: ServiciosViewModel,
+    onEditar: (Int) -> Unit,
+    barraInferior: @Composable () -> Unit = {},
+    onAtras: (() -> Unit)? = null
+) {
     val servicios by vm.servicios.collectAsState()
     Scaffold(
-        topBar = { AppTopBar("Servicios y tarifas") },
+        topBar = { AppTopBar("Servicios y tarifas", onAtras = onAtras) },
+        bottomBar = barraInferior,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { onEditar(0) },
@@ -65,7 +71,6 @@ fun ServiciosScreen(vm: ServiciosViewModel, onEditar: (Int) -> Unit) {
 
 @Composable
 fun ServicioItem(s: Servicio, onToggle: () -> Unit, onEditar: () -> Unit) {
-    val unidad = Unidad.valueOf(s.unidad).etiqueta
     Card(
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -78,12 +83,12 @@ fun ServicioItem(s: Servicio, onToggle: () -> Unit, onEditar: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 Text(s.nombre, style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "S/ %.2f por %s · %d h".format(s.precio, unidad, s.horasEntrega),
+                    "S/ %.2f %s · %d h".format(s.precio, s.textoPrecio(), s.horasEntrega),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Switch(checked = s.activo, onCheckedChange = { onToggle() })
+            LavaSwitch(checked = s.activo, onCheckedChange = { onToggle() })
             IconButton(onClick = onEditar) {
                 Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary)
             }
