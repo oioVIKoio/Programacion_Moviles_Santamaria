@@ -35,12 +35,15 @@ import tecsup.santamaria.lavacampus.ui.administrador.ServiciosScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.DetallePedidoScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.InicioScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.LoginScreen
+import tecsup.santamaria.lavacampus.ui.estudiante.MisPedidosScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.NuevoPedidoScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.SplashScreen
+import tecsup.santamaria.lavacampus.ui.estudiante.TarifasScreen
 import tecsup.santamaria.lavacampus.ui.theme.LavaTheme
 import tecsup.santamaria.lavacampus.viewmodel.DetallePedidoViewModel
 import tecsup.santamaria.lavacampus.viewmodel.InicioViewModel
 import tecsup.santamaria.lavacampus.viewmodel.LavaViewModelFactory
+import tecsup.santamaria.lavacampus.viewmodel.MisPedidosViewModel
 import tecsup.santamaria.lavacampus.viewmodel.NuevoPedidoViewModel
 import tecsup.santamaria.lavacampus.viewmodel.ServiciosViewModel
 import tecsup.santamaria.lavacampus.viewmodel.SesionViewModel
@@ -124,8 +127,32 @@ fun NavLava() {
                 )
                 DetallePedidoScreen(vm = vm, onAtras = { nav.volver() })
             }
-            composable(Rutas.MIS_PEDIDOS) { Pendiente("Mis pedidos") }
-            composable(Rutas.TARIFAS) { Pendiente("Tarifas") }
+            composable(Rutas.MIS_PEDIDOS) {
+                val estudiante = usuario
+                if (estudiante == null) {
+                    Cargando()
+                } else {
+                    val vm: MisPedidosViewModel = viewModel(
+                        key = "mis_pedidos_${estudiante.id}",
+                        factory = LavaViewModelFactory { MisPedidosViewModel(app.repository, estudiante.id) }
+                    )
+                    MisPedidosScreen(
+                        vm = vm,
+                        barraInferior = { BarraEstudiante(nav, Rutas.MIS_PEDIDOS) },
+                        onAtras = { nav.irAPestana(Rutas.INICIO) },
+                        onNuevoPedido = { nav.navigate(Rutas.NUEVO_PEDIDO) },
+                        onPedido = { id -> nav.navigate(Rutas.detallePedido(id)) }
+                    )
+                }
+            }
+            composable(Rutas.TARIFAS) {
+                val vm: ServiciosViewModel = viewModel(factory = LavaViewModelFactory { ServiciosViewModel(app.repository) })
+                TarifasScreen(
+                    vm = vm,
+                    barraInferior = { BarraEstudiante(nav, Rutas.TARIFAS) },
+                    onAtras = { nav.irAPestana(Rutas.INICIO) }
+                )
+            }
             composable(Rutas.PERFIL) { Pendiente("Perfil") }
             composable(Rutas.PANEL) { Pendiente("Panel de la lavandería") }
             composable(Rutas.SERVICIOS) {

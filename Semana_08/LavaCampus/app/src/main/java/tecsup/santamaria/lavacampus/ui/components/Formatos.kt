@@ -1,5 +1,6 @@
 package tecsup.santamaria.lavacampus.ui.components
 
+import tecsup.santamaria.lavacampus.data.local.entity.Servicio
 import tecsup.santamaria.lavacampus.data.local.relation.DetalleConServicio
 import tecsup.santamaria.lavacampus.model.Unidad
 import java.time.Instant
@@ -41,3 +42,12 @@ fun resumenLineas(detalles: List<DetalleConServicio>): String =
     detalles.joinToString(" + ") { d ->
         cantidadConUnidad(d.detalle.cantidad, Unidad.valueOf(d.servicio.unidad))
     }
+
+// KG, PRENDA, UNIDAD -> "por kg", "por prenda", "por unidad"
+fun Servicio.textoPrecio(): String = "por ${Unidad.valueOf(unidad).etiqueta}"
+
+// "Victor Santamaria" -> "Victor S."
+fun nombreCorto(nombre: String): String {
+    val partes = nombre.trim().split(" ")
+    return if (partes.size > 1) "${partes[0]} ${partes[1].first()}." else nombre
+}

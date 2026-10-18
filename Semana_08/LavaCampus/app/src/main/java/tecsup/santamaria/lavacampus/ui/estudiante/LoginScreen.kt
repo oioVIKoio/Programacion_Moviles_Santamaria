@@ -1,9 +1,7 @@
 package tecsup.santamaria.lavacampus.ui.estudiante
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import tecsup.santamaria.lavacampus.model.Rol
 import tecsup.santamaria.lavacampus.ui.components.LavaButton
 import tecsup.santamaria.lavacampus.ui.components.LavaTextField
+import tecsup.santamaria.lavacampus.ui.components.SelectorSegmentado
 import tecsup.santamaria.lavacampus.ui.theme.LavaTheme
 import tecsup.santamaria.lavacampus.viewmodel.SesionViewModel
 
@@ -73,10 +71,14 @@ fun LoginScreen(vm: SesionViewModel, onIngresar: (Rol) -> Unit) {
                 )
                 Spacer(Modifier.height(24.dp))
 
-                SelectorRol(seleccionado = rol, onCambio = {
-                    rol = it
-                    vm.limpiarError()
-                })
+                SelectorSegmentado(
+                    opciones = Rol.entries.map { it.etiqueta },
+                    seleccionada = rol.ordinal,
+                    onCambio = {
+                        rol = Rol.entries[it]
+                        vm.limpiarError()
+                    }
+                )
                 Spacer(Modifier.height(24.dp))
 
                 LavaTextField(
@@ -152,36 +154,6 @@ fun LoginScreen(vm: SesionViewModel, onIngresar: (Rol) -> Unit) {
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SelectorRol(seleccionado: Rol, onCambio: (Rol) -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(4.dp)
-    ) {
-        Rol.entries.forEach { rol ->
-            val activo = rol == seleccionado
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(40.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(if (activo) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
-                    .clickable { onCambio(rol) }
-            ) {
-                Text(
-                    rol.etiqueta,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = if (activo) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
         }
     }

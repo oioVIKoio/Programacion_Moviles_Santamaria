@@ -39,6 +39,7 @@ import tecsup.santamaria.lavacampus.ui.components.LavaTextField
 import tecsup.santamaria.lavacampus.ui.components.SelectorCantidad
 import tecsup.santamaria.lavacampus.ui.components.cantidadConUnidad
 import tecsup.santamaria.lavacampus.ui.components.fechaCorta
+import tecsup.santamaria.lavacampus.ui.components.textoPrecio
 import tecsup.santamaria.lavacampus.viewmodel.NuevoPedidoViewModel
 
 @Composable
@@ -148,7 +149,7 @@ private fun TarjetaServicio(
                 Column(Modifier.weight(1f)) {
                     Text(servicio.nombre, style = MaterialTheme.typography.titleMedium)
                     Text(
-                        "S/ %.2f por %s · %d h".format(servicio.precio, unidad.etiqueta, servicio.horasEntrega),
+                        "S/ %.2f %s · %d h".format(servicio.precio, servicio.textoPrecio(), servicio.horasEntrega),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
