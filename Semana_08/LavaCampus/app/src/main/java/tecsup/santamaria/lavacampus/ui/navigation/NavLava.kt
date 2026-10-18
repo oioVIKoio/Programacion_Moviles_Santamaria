@@ -3,11 +3,14 @@ package tecsup.santamaria.lavacampus.ui.navigation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Sell
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +34,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import tecsup.santamaria.lavacampus.LavaApp
 import tecsup.santamaria.lavacampus.model.Rol
+import tecsup.santamaria.lavacampus.ui.administrador.PanelScreen
 import tecsup.santamaria.lavacampus.ui.administrador.ServiciosScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.DetallePedidoScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.InicioScreen
@@ -44,6 +48,7 @@ import tecsup.santamaria.lavacampus.viewmodel.DetallePedidoViewModel
 import tecsup.santamaria.lavacampus.viewmodel.InicioViewModel
 import tecsup.santamaria.lavacampus.viewmodel.LavaViewModelFactory
 import tecsup.santamaria.lavacampus.viewmodel.MisPedidosViewModel
+import tecsup.santamaria.lavacampus.viewmodel.PanelViewModel
 import tecsup.santamaria.lavacampus.viewmodel.NuevoPedidoViewModel
 import tecsup.santamaria.lavacampus.viewmodel.ServiciosViewModel
 import tecsup.santamaria.lavacampus.viewmodel.SesionViewModel
@@ -154,7 +159,18 @@ fun NavLava() {
                 )
             }
             composable(Rutas.PERFIL) { Pendiente("Perfil") }
-            composable(Rutas.PANEL) { Pendiente("Panel de la lavandería") }
+            composable(Rutas.PANEL) {
+                val vm: PanelViewModel = viewModel(factory = LavaViewModelFactory { PanelViewModel(app.repository) })
+                PanelScreen(
+                    vm = vm,
+                    barraInferior = { BarraAdmin(nav, Rutas.PANEL) },
+                    onVerListos = { nav.irAPestana(Rutas.BANDEJA, inicio = Rutas.PANEL) }
+                )
+            }
+            // Pantallas del administrador que llegan en los siguientes pasos
+            composable(Rutas.BANDEJA) { Pendiente("Pedidos") }
+            composable(Rutas.CLIENTES) { Pendiente("Clientes") }
+            composable(Rutas.AJUSTES) { Pendiente("Ajustes") }
             composable(Rutas.SERVICIOS) {
                 val vm: ServiciosViewModel = viewModel(factory = LavaViewModelFactory { ServiciosViewModel(app.repository) })
                 ServiciosScreen(vm = vm, onEditar = { /* TODO (Paso 13): abrir FormularioServicio */ })
@@ -175,10 +191,10 @@ private fun NavHostController.volver() {
     if (previousBackStackEntry != null) popBackStack()
 }
 
-// Cambia de pestaña sin apilar pantallas
-private fun NavHostController.irAPestana(ruta: String) {
+// Cambia de pestaña sin apilar pantallas (inicio: Inicio del estudiante o Panel del admin)
+private fun NavHostController.irAPestana(ruta: String, inicio: String = Rutas.INICIO) {
     navigate(ruta) {
-        popUpTo(Rutas.INICIO) { saveState = true }
+        popUpTo(inicio) { saveState = true }
         launchSingleTop = true
         restoreState = true
     }
@@ -193,15 +209,32 @@ private val pestanasEstudiante = listOf(
     Pestana(Rutas.PERFIL, "Perfil", Icons.Outlined.Person)
 )
 
+private val pestanasAdmin = listOf(
+    Pestana(Rutas.PANEL, "Panel", Icons.Outlined.BarChart, Icons.Filled.BarChart),
+    Pestana(Rutas.BANDEJA, "Pedidos", Icons.Outlined.Menu),
+    Pestana(Rutas.SERVICIOS, "Servicios", Icons.Outlined.Sell),
+    Pestana(Rutas.CLIENTES, "Clientes", Icons.Outlined.Person),
+    Pestana(Rutas.AJUSTES, "Ajustes", Icons.Outlined.Settings)
+)
+
 // NavigationBar del estudiante: Inicio, Pedidos, Tarifas, Perfil
 @Composable
-private fun BarraEstudiante(nav: NavHostController, actual: String) {
+private fun BarraEstudiante(nav: NavHostController, actual: String) =
+    BarraNavegacion(nav, actual, pestanasEstudiante, Rutas.INICIO)
+
+// NavigationBar del administrador: Panel, Pedidos, Servicios, Clientes, Ajustes
+@Composable
+private fun BarraAdmin(nav: NavHostController, actual: String) =
+    BarraNavegacion(nav, actual, pestanasAdmin, Rutas.PANEL)
+
+@Composable
+private fun BarraNavegacion(nav: NavHostController, actual: String, pestanas: List<Pestana>, inicio: String) {
     NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-        pestanasEstudiante.forEach { p ->
+        pestanas.forEach { p ->
             val activa = p.ruta == actual
             NavigationBarItem(
                 selected = activa,
-                onClick = { if (!activa) nav.irAPestana(p.ruta) },
+                onClick = { if (!activa) nav.irAPestana(p.ruta, inicio) },
                 icon = { Icon(if (activa) p.iconoActivo else p.icono, contentDescription = p.texto) },
                 label = { Text(p.texto) },
                 colors = NavigationBarItemDefaults.colors(
