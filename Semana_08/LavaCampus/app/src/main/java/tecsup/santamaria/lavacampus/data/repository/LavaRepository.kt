@@ -2,11 +2,18 @@ package tecsup.santamaria.lavacampus.data.repository
 
 import kotlinx.coroutines.flow.Flow
 import tecsup.santamaria.lavacampus.data.local.entity.Servicio
+import tecsup.santamaria.lavacampus.data.local.entity.Usuario
+import tecsup.santamaria.lavacampus.data.local.relation.PedidoConDetalle
+import tecsup.santamaria.lavacampus.model.ClienteResumen
+import tecsup.santamaria.lavacampus.model.EstadoPedido
+import tecsup.santamaria.lavacampus.model.IngresoServicio
+import tecsup.santamaria.lavacampus.model.LineaPedido
 
 // El contrato: los ViewModels solo conocen esta interface
 interface LavaRepository {
     // Usuarios
-    // TODO (Paso 4): login(correo, clave) y observarClientes()
+    suspend fun login(correo: String, clave: String): Usuario?
+    fun observarClientes(): Flow<List<ClienteResumen>>
 
     // Servicios (ejemplo resuelto)
     fun observarServicios(): Flow<List<Servicio>>
@@ -14,10 +21,24 @@ interface LavaRepository {
     suspend fun guardarServicio(s: Servicio)
     suspend fun eliminarServicio(s: Servicio)
     suspend fun cambiarActivo(id: Int, activo: Boolean)
+    suspend fun servicioTieneDetalles(id: Int): Boolean
 
     // Pedidos
-    // TODO (Paso 4): crearPedido, contarActivos, observarPedidos..., cambiarEstado, marcarPagado
+    suspend fun crearPedido(
+        usuarioId: Int, lineas: List<LineaPedido>,
+        fechaEntrega: String, nota: String
+    ): Long
+    suspend fun contarActivos(usuarioId: Int): Int
+    fun observarPedidosDeUsuario(usuarioId: Int): Flow<List<PedidoConDetalle>>
+    fun observarPedidos(): Flow<List<PedidoConDetalle>>
+    fun observarPedido(id: Int): Flow<PedidoConDetalle?>
+    suspend fun cambiarEstado(id: Int, estado: EstadoPedido, casillero: String?)
+    suspend fun marcarPagado(id: Int, pagado: Boolean)
+    fun observarCasillerosOcupados(): Flow<List<String>>
 
     // Panel
-    // TODO (Paso 4): observarPedidosDeFecha, observarCantidadPorEstado, observarIngresos...
+    fun observarPedidosDeFecha(fecha: String): Flow<Int>
+    fun observarCantidadPorEstado(estado: EstadoPedido): Flow<Int>
+    fun observarIngresosDesde(fechaInicio: String): Flow<Double>
+    fun observarIngresosPorServicio(fechaInicio: String): Flow<List<IngresoServicio>>
 }
