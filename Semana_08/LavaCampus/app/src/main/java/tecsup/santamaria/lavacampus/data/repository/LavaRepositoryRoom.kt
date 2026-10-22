@@ -50,7 +50,8 @@ class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
     // Pedido y detalles en una sola transacción: si falla un detalle, no queda el pedido
     override suspend fun crearPedido(
         usuarioId: Int, lineas: List<LineaPedido>,
-        fechaEntrega: String, nota: String
+        fechaEntrega: String, nota: String,
+        porcentajeDescuento: Double
     ): Long = db.withTransaction {
         // el precio se copia del servicio (queda congelado en el detalle)
         val detalles = lineas.map { linea ->
@@ -64,13 +65,16 @@ class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
                 subtotal = linea.cantidad * servicio.precio
             )
         }
+        val subtotal = detalles.sumOf { it.subtotal }
+        val descuento = Math.round(subtotal * porcentajeDescuento * 100) / 100.0
         val pedidoId = pedidoDao.insertar(
             Pedido(
                 usuarioId = usuarioId,
                 fechaRegistro = LocalDate.now().toString(),
                 fechaEntrega = fechaEntrega,
                 estado = EstadoPedido.RECIBIDO.name,
-                total = detalles.sumOf { it.subtotal },
+                total = subtotal - descuento,
+                descuento = descuento,
                 pagado = false,
                 nota = nota
             )

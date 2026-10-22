@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import tecsup.santamaria.lavacampus.data.local.entity.Servicio
+import tecsup.santamaria.lavacampus.model.EstadoPedido
 import tecsup.santamaria.lavacampus.model.Unidad
 import tecsup.santamaria.lavacampus.ui.components.AppTopBar
 import tecsup.santamaria.lavacampus.ui.components.IconoServicio
@@ -50,6 +51,8 @@ fun NuevoPedidoScreen(vm: NuevoPedidoViewModel, onAtras: () -> Unit, onCreado: (
     val cantidades by vm.cantidades.collectAsState()
     val nota by vm.nota.collectAsState()
     val total by vm.total.collectAsState()
+    val subtotal by vm.subtotal.collectAsState()
+    val descuento by vm.descuento.collectAsState()
     val fecha by vm.fechaEntrega.collectAsState()
     val error by vm.error.collectAsState()
     val creado by vm.creado.collectAsState()
@@ -102,7 +105,7 @@ fun NuevoPedidoScreen(vm: NuevoPedidoViewModel, onAtras: () -> Unit, onCreado: (
                 )
             }
             item {
-                Resumen(elegidos, cantidades, total)
+                Resumen(elegidos, cantidades, subtotal, descuento, total)
             }
             item {
                 Column(
@@ -186,9 +189,9 @@ private fun TarjetaServicio(
     }
 }
 
-// Una línea por servicio elegido y el total
+// Una línea por servicio elegido, el descuento (si aplica) y el total
 @Composable
-private fun Resumen(elegidos: List<Servicio>, cantidades: Map<Int, Double>, total: Double) {
+private fun Resumen(elegidos: List<Servicio>, cantidades: Map<Int, Double>, subtotal: Double, descuento: Double, total: Double) {
     Card(
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)),
@@ -214,6 +217,16 @@ private fun Resumen(elegidos: List<Servicio>, cantidades: Map<Int, Double>, tota
                 }
             }
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+            if (descuento > 0) {
+                Row {
+                    Text("Subtotal", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                    Text("S/ %.2f".format(subtotal), style = MaterialTheme.typography.bodySmall)
+                }
+                Row {
+                    Text("Descuento por volumen (10 %)", style = MaterialTheme.typography.bodySmall, color = EstadoPedido.LISTO.color, modifier = Modifier.weight(1f))
+                    Text("- S/ %.2f".format(descuento), style = MaterialTheme.typography.bodySmall, color = EstadoPedido.LISTO.color, fontWeight = FontWeight.SemiBold)
+                }
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Total", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                 Text(

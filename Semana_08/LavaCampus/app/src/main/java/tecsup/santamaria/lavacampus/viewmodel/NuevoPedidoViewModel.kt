@@ -46,9 +46,22 @@ class NuevoPedidoViewModel(
     val creado: StateFlow<Boolean> = _creado.asStateFlow()
 
     // Se recalcula en cada cambio: suma de cantidad × precio
-    val total: StateFlow<Double> = combine(servicios, _cantidades) { lista, cant ->
+    val subtotal: StateFlow<Double> = combine(servicios, _cantidades) { lista, cant ->
         lista.sumOf { s -> (cant[s.id] ?: 0.0) * s.precio }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    // Kilos de lavado: solo los servicios que se cobran por kg
+    private val kilos: StateFlow<Double> = combine(servicios, _cantidades) { lista, cant ->
+        lista.filter { it.unidad == Unidad.KG.name }.sumOf { cant[it.id] ?: 0.0 }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    // Descuento por volumen: 10 % si el lavado supera 5 kg
+    val descuento: StateFlow<Double> = combine(subtotal, kilos) { sub, kg ->
+        if (kg > KILOS_DESCUENTO) Math.round(sub * PORCENTAJE_DESCUENTO * 100) / 100.0 else 0.0
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    val total: StateFlow<Double> = combine(subtotal, descuento) { sub, desc -> sub - desc }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     // Hoy + el mayor horasEntrega de lo elegido; null si no hay nada elegido
     val fechaEntrega: StateFlow<String?> = combine(servicios, _cantidades) { lista, cant ->
@@ -86,7 +99,8 @@ class NuevoPedidoViewModel(
                 _error.value = "Ya tienes 3 pedidos activos"
                 return@launch
             }
-            repo.crearPedido(usuarioId, lineas, fecha, _nota.value.trim())
+            val porcentaje = if (kilos.value > KILOS_DESCUENTO) PORCENTAJE_DESCUENTO else 0.0
+            repo.crearPedido(usuarioId, lineas, fecha, _nota.value.trim(), porcentaje)
             _creado.value = true
         }
     }
@@ -100,5 +114,7 @@ class NuevoPedidoViewModel(
 
     companion object {
         const val LIMITE_ACTIVOS = 3
+        const val KILOS_DESCUENTO = 5.0
+        const val PORCENTAJE_DESCUENTO = 0.10
     }
 }

@@ -1,5 +1,6 @@
 package tecsup.santamaria.lavacampus.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -23,7 +24,9 @@ data class Pedido(
     val fechaRegistro: String,   // aaaa-MM-dd
     val fechaEntrega: String,    // aaaa-MM-dd
     val estado: String,          // EstadoPedido.name
-    val total: Double,
+    val total: Double,           // ya con el descuento restado
+    @ColumnInfo(defaultValue = "0")
+    val descuento: Double = 0.0, // monto descontado por volumen
     val casillero: String? = null, // se asigna al pasar a LISTO
     val pagado: Boolean = false,
     val nota: String = "",

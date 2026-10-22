@@ -102,6 +102,12 @@ fun DetallePedidoScreen(vm: DetallePedidoViewModel, onAtras: () -> Unit) {
                         }
                     }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+                    if (pedido.pedido.descuento > 0) {
+                        Row {
+                            Text("Descuento por volumen (10 %)", style = MaterialTheme.typography.bodySmall, color = EstadoPedido.LISTO.color, modifier = Modifier.weight(1f))
+                            Text("- S/ %.2f".format(pedido.pedido.descuento), style = MaterialTheme.typography.bodySmall, color = EstadoPedido.LISTO.color, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("Total", style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
                         Text(
