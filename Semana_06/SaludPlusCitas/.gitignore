@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Fotos originales (las usadas están en res/drawable)
+/images/
