@@ -29,6 +29,15 @@ Los datos se cargan la primera vez que se abre la app: 4 servicios (uno inactivo
 | **RF-05 · Gestión del pedido con casillero y cobro**<br>El pedido avanza un estado a la vez y nunca retrocede. Para pasar a Listo exige un casillero libre (C-01 a C-30; los ocupados salen en gris) y para Entregado exige que esté cobrado. Se cancela solo desde Recibido o En proceso. Si una regla no se cumple, se muestra el motivo. | [Captura 5 · Gestionar pedido](#capturas) |
 | **RF-06 · Ajustes, servicios y cambio de perfil**<br>Modo oscuro, notificaciones y "Recibir pedidos" se guardan con DataStore y se mantienen al cerrar la app. "Cambiar de perfil" pasa a la vista del otro rol sin volver a iniciar sesión. El administrador crea y edita servicios; un servicio que ya está en pedidos no se elimina, solo se desactiva. | [Captura 6 · Ajustes](#capturas) |
 
+## Mejoras con IA (Fase 2, rama `con-ia`)
+Las 3 mejoras mínimas de la guía, hechas con IA sin romper MVVM + Repository. Los prompts, lo que se corrigió y la reflexión están en [`PROMPTS.md`](PROMPTS.md).
+
+| Mejora | Capas que cambian | Captura |
+|---|---|---|
+| **A · Pedidos atrasados**<br>Un pedido está atrasado si su fecha de entrega ya pasó y no está Entregado ni Cancelado. En la bandeja sale con borde rojo y el texto "Atrasado"; el panel muestra cuántos hay. | DAO + Repository + ViewModel + View | [Captura 7 · Bandeja con atrasados](#capturas) |
+| **B · Descuento por volumen**<br>Si el lavado (servicios por kg) supera 5 kg, se descuenta el 10 % del total. Se ve en el resumen de Nuevo pedido y en el detalle, y se guarda en la columna `descuento` del pedido. | Entidad + Repository + ViewModel + View | [Captura 8 · Descuento por volumen](#capturas) |
+| **C · Repetir un pedido**<br>En el historial, "Pedir de nuevo" abre Nuevo pedido con las mismas líneas y cantidades, pero con los precios actuales. Si un servicio ya no está activo, no se carga y se avisa. | ViewModel + View | [Captura 9 · Pedir de nuevo](#capturas) |
+
 ## Capturas
 Tomadas en el emulador (Pixel 8) con los datos de prueba, en modo claro.
 
@@ -43,6 +52,12 @@ Tomadas en el emulador (Pixel 8) con los datos de prueba, en modo claro.
 | <img src="capturas/04_panel.png" width="230"> | <img src="capturas/05_gestionar-pedido.png" width="230"> | <img src="capturas/06_ajustes.png" width="230"> |
 |:---:|:---:|:---:|
 | **Captura 4 · Panel de la lavandería**<br>RF-04 | **Captura 5 · Gestionar pedido**<br>RF-05 | **Captura 6 · Ajustes**<br>RF-06 |
+
+**Mejoras con IA**
+
+| <img src="capturas/07_bandeja-atrasados.png" width="230"> | <img src="capturas/08_descuento-volumen.png" width="230"> | <img src="capturas/09_pedir-de-nuevo.png" width="230"> |
+|:---:|:---:|:---:|
+| **Captura 7 · Bandeja con atrasados**<br>Mejora A | **Captura 8 · Descuento por volumen**<br>Mejora B | **Captura 9 · Pedir de nuevo**<br>Mejora C |
 
 ## Arquitectura (MVVM + Repository)
 ```mermaid
@@ -103,7 +118,7 @@ tecsup.santamaria.lavacampus
 | Rama | Fase |
 |---|---|
 | `sin-ia` | Fase 1: desarrollo sin asistente de IA (la guía la llama `main`) |
-| `con-ia` | Fase 2: mejoras con IA + `PROMPTS.md` (la guía la llama `mejora-ia`) |
+| `con-ia` | Fase 2: mejoras con IA + [`PROMPTS.md`](PROMPTS.md) (la guía la llama `mejora-ia`) |
 
 ## Diferencias con la guía
 - **Room 2.7.2** en vez de 2.6.1: la 2.6.1 no compila con Kotlin 2.2 y KSP2. Proyecto con AGP 9.4.1, Kotlin 2.2.10 y minSdk 26 (`java.time`).
@@ -113,3 +128,5 @@ tecsup.santamaria.lavacampus
   - `primerUsuarioDeRol(rol)`: "Cambiar de perfil" pasa al primer usuario del otro rol.
 - **Seguimiento:** la tabla `pedidos` solo guarda la hora de registro, así que solo la etapa Recibido muestra hora.
 - **Los servicios se listan por nombre**, como en el `ServicioDao` de la guía.
+- **Base de datos en versión 2** (Fase 2): el descuento agrega la columna `descuento` a `pedidos` con una migración, así no se pierden los pedidos guardados.
+- **Descuento por volumen:** la guía no dice sobre qué monto se aplica el 10 %; se aplica al total del pedido. "Supera 5 kg" se toma literal: 5.0 kg no tiene descuento, 5.5 kg sí.
