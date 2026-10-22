@@ -9,16 +9,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -53,7 +58,8 @@ fun MisPedidosScreen(
     barraInferior: @Composable () -> Unit,
     onAtras: () -> Unit,
     onNuevoPedido: () -> Unit,
-    onPedido: (Int) -> Unit
+    onPedido: (Int) -> Unit,
+    onRepetir: (Int) -> Unit
 ) {
     val activos by vm.activos.collectAsState()
     val historial by vm.historial.collectAsState()
@@ -102,7 +108,8 @@ fun MisPedidosScreen(
                     p = p,
                     puedeCancelar = vm.puedeCancelar(p),
                     onClick = { onPedido(p.pedido.id) },
-                    onCancelar = { aCancelar = p }
+                    onCancelar = { aCancelar = p },
+                    onRepetir = { onRepetir(p.pedido.id) }
                 )
             }
             // Aviso cuando hay un pedido por recoger
@@ -147,7 +154,8 @@ private fun TarjetaPedido(
     p: PedidoConDetalle,
     puedeCancelar: Boolean,
     onClick: () -> Unit,
-    onCancelar: () -> Unit
+    onCancelar: () -> Unit,
+    onRepetir: () -> Unit
 ) {
     val estado = EstadoPedido.valueOf(p.pedido.estado)
     val esListo = estado == EstadoPedido.LISTO
@@ -182,6 +190,17 @@ private fun TarjetaPedido(
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.clickable(onClick = onCancelar)
                 )
+                // Historial: vuelve a pedir lo mismo
+                estado.esFinal -> OutlinedButton(
+                    onClick = onRepetir,
+                    shape = RoundedCornerShape(50),
+                    contentPadding = PaddingValues(horizontal = 14.dp),
+                    modifier = Modifier.height(34.dp)
+                ) {
+                    Icon(Icons.Filled.Replay, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Pedir de nuevo", style = MaterialTheme.typography.labelLarge)
+                }
                 estado == EstadoPedido.EN_PROCESO -> Text(
                     "Entrega ${fechaCorta(p.pedido.fechaEntrega).substringBeforeLast(" ")}",
                     style = MaterialTheme.typography.bodySmall,

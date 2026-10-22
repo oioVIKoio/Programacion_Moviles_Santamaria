@@ -130,11 +130,15 @@ fun NavLava() {
                         )
                     }
                 }
-                composable(Rutas.NUEVO_PEDIDO) {
+                composable(
+                    Rutas.NUEVO_PEDIDO_REPETIR,
+                    arguments = listOf(navArgument("repetir") { type = NavType.IntType; defaultValue = 0 })
+                ) { entrada ->
+                    val repetir = entrada.arguments?.getInt("repetir") ?: 0
                     ConUsuario(usuario) { estudiante ->
                         val vm: NuevoPedidoViewModel = viewModel(
                             factory = LavaViewModelFactory {
-                                NuevoPedidoViewModel(app.repository, estudiante.id, app.preferencias.recibirPedidos)
+                                NuevoPedidoViewModel(app.repository, estudiante.id, app.preferencias.recibirPedidos, repetir)
                             }
                         )
                         NuevoPedidoScreen(
@@ -167,7 +171,8 @@ fun NavLava() {
                             barraInferior = { BarraEstudiante(nav, Rutas.MIS_PEDIDOS) },
                             onAtras = { nav.irAPestana(Rutas.INICIO) },
                             onNuevoPedido = { nav.navigate(Rutas.NUEVO_PEDIDO) },
-                            onPedido = { id -> nav.navigate(Rutas.detallePedido(id)) }
+                            onPedido = { id -> nav.navigate(Rutas.detallePedido(id)) },
+                            onRepetir = { id -> nav.navigate(Rutas.repetirPedido(id)) }
                         )
                     }
                 }

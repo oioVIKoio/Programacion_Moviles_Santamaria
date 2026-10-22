@@ -7,6 +7,7 @@ object Rutas {
     // Estudiante
     const val INICIO = "inicio"
     const val NUEVO_PEDIDO = "nuevo_pedido"
+    const val NUEVO_PEDIDO_REPETIR = "nuevo_pedido?repetir={repetir}"  // repetir = 0: pedido en blanco
     const val MIS_PEDIDOS = "mis_pedidos"
     const val DETALLE_PEDIDO = "detalle_pedido/{id}"
     const val TARIFAS = "tarifas"
@@ -26,6 +27,7 @@ object Rutas {
     const val GRAFO_ADMIN = "grafo_admin"
 
     fun detallePedido(id: Int) = "detalle_pedido/$id"
+    fun repetirPedido(id: Int) = "nuevo_pedido?repetir=$id"
     fun gestionPedido(id: Int) = "gestion_pedido/$id"
     fun formularioServicio(id: Int) = "formulario_servicio/$id"   // 0 = nuevo
 }

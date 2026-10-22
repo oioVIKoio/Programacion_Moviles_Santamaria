@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import tecsup.santamaria.lavacampus.data.local.entity.Servicio
@@ -20,7 +21,8 @@ import java.time.LocalDate
 class NuevoPedidoViewModel(
     private val repo: LavaRepository,
     private val usuarioId: Int,
-    recibiendo: Flow<Boolean>
+    recibiendo: Flow<Boolean>,
+    repetirId: Int = 0  // > 0: carga las líneas de ese pedido
 ) : ViewModel() {
 
     // Ajustes del admin: si está apagado, no se pueden crear pedidos
@@ -68,6 +70,23 @@ class NuevoPedidoViewModel(
         val horas = lista.filter { (cant[it.id] ?: 0.0) > 0 }.maxOfOrNull { it.horasEntrega }
         horas?.let { calcularEntrega(it).toString() }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    init {
+        if (repetirId > 0) cargarPedido(repetirId)
+    }
+
+    // Pedir de nuevo: mismas líneas y cantidades, con los precios actuales de cada servicio
+    private fun cargarPedido(id: Int) {
+        viewModelScope.launch {
+            val anterior = repo.observarPedido(id).first() ?: return@launch
+            val activos = repo.observarServiciosActivos().first().map { it.id }.toSet()
+            val (disponibles, retirados) = anterior.detalles.partition { it.servicio.id in activos }
+            _cantidades.value = disponibles.associate { it.servicio.id to it.detalle.cantidad }
+            if (retirados.isNotEmpty()) {
+                _error.value = "Ya no está disponible: " + retirados.joinToString { it.servicio.nombre }
+            }
+        }
+    }
 
     fun cambiarCantidad(servicioId: Int, delta: Double) {
         val servicio = servicios.value.firstOrNull { it.id == servicioId } ?: return
