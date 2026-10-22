@@ -7,11 +7,13 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import tecsup.santamaria.lavacampus.data.local.relation.PedidoConDetalle
 import tecsup.santamaria.lavacampus.data.repository.LavaRepository
 import tecsup.santamaria.lavacampus.model.EstadoPedido
+import java.time.LocalDate
 
 class BandejaViewModel(private val repo: LavaRepository) : ViewModel() {
 
@@ -34,6 +36,11 @@ class BandejaViewModel(private val repo: LavaRepository) : ViewModel() {
                     p.pedido.id.toString() == q.trimStart('0').ifEmpty { "0" })
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // Números de los pedidos atrasados (entrega vencida y sin entregar ni cancelar)
+    val atrasados: StateFlow<Set<Int>> = repo.observarAtrasados(LocalDate.now().toString())
+        .map { it.toSet() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
     fun elegirFiltro(e: EstadoPedido?) {
         _filtro.value = e

@@ -34,12 +34,15 @@ fun PedidoCard(
     modifier: Modifier = Modifier,
     titulo: String = "Pedido #%03d".format(numero),
     casillero: String? = null,
+    atrasado: Boolean = false,
     extra: @Composable ColumnScope.() -> Unit = {}
 ) {
     Card(
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        // Atrasado: borde rojo para que resalte en la bandeja
+        border = if (atrasado) BorderStroke(2.dp, MaterialTheme.colorScheme.error)
+        else BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = modifier.fillMaxWidth().clickable(onClick = onClick)
     ) {
         Column(Modifier.padding(12.dp)) {
@@ -54,6 +57,14 @@ fun PedidoCard(
                 Column(Modifier.weight(1f)) {
                     Text(titulo, style = MaterialTheme.typography.titleMedium)
                     Text(resumen, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (atrasado) {
+                        Text(
+                            "Atrasado",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                     Spacer(Modifier.height(6.dp))
                     EstadoPedidoChip(estado)
                 }

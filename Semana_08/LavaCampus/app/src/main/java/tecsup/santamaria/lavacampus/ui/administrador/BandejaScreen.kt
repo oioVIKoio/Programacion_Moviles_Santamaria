@@ -52,6 +52,7 @@ fun BandejaScreen(
     val filtro by vm.filtro.collectAsState()
     val busqueda by vm.busqueda.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
+    val atrasados by vm.atrasados.collectAsState()
     val avisos = remember { SnackbarHostState() }
 
     LaunchedEffect(mensaje) {
@@ -113,6 +114,7 @@ fun BandejaScreen(
                     total = p.pedido.total,
                     estado = estado,
                     icono = p.detalles.firstOrNull()?.servicio?.icono ?: "wash",
+                    atrasado = p.pedido.id in atrasados,
                     onClick = { onGestionar(p.pedido.id) }
                 ) {
                     // Acción según el estado: Iniciar, Marcar listo, Entregar

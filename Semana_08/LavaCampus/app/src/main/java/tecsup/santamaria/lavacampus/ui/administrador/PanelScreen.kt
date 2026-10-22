@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -49,6 +50,7 @@ fun PanelScreen(vm: PanelViewModel, barraInferior: @Composable () -> Unit, onVer
     val porRecoger by vm.porRecoger.collectAsState()
     val ingresos by vm.ingresosSemana.collectAsState()
     val pagados by vm.pagadosSemana.collectAsState()
+    val atrasados by vm.atrasados.collectAsState()
     val porEstado by vm.porEstado.collectAsState()
     val porServicio by vm.porServicio.collectAsState()
 
@@ -126,6 +128,24 @@ fun PanelScreen(vm: PanelViewModel, barraInferior: @Composable () -> Unit, onVer
                         )
                     } else {
                         GraficoBarras(barras)
+                    }
+                }
+            }
+            // Alerta si hay pedidos con la entrega vencida
+            if (atrasados > 0) item {
+                val rojo = MaterialTheme.colorScheme.error
+                Surface(color = rojo.copy(alpha = 0.12f), shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) {
+                    Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Outlined.Schedule, contentDescription = null, tint = rojo, modifier = Modifier.size(24.dp))
+                        Spacer(Modifier.width(12.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                if (atrasados == 1) "1 pedido atrasado" else "$atrasados pedidos atrasados",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = rojo
+                            )
+                            Text("Su fecha de entrega ya pasó", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
                 }
             }
