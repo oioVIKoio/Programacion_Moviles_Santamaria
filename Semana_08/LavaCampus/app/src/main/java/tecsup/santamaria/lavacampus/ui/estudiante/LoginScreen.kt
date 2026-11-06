@@ -1,6 +1,7 @@
 package tecsup.santamaria.lavacampus.ui.estudiante
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,16 +40,18 @@ import tecsup.santamaria.lavacampus.ui.components.SelectorSegmentado
 import tecsup.santamaria.lavacampus.ui.theme.LavaTheme
 import tecsup.santamaria.lavacampus.viewmodel.SesionViewModel
 
-// Un solo login para los dos roles: el color cambia con la pestaña elegida
+// Un solo login para los tres roles: el color cambia con la pestaña elegida
 @Composable
-fun LoginScreen(vm: SesionViewModel, onIngresar: (Rol) -> Unit) {
+fun LoginScreen(vm: SesionViewModel, onIngresar: (Rol) -> Unit, onRegistrarSoporte: () -> Unit) {
     val usuario by vm.usuarioActual.collectAsState()
     val error by vm.error.collectAsState()
+    val aviso by vm.aviso.collectAsState()
     val oscuro by vm.modoOscuro.collectAsState()
 
     var rol by rememberSaveable { mutableStateOf(Rol.CLIENTE) }
     var correo by rememberSaveable { mutableStateOf("") }
     var clave by rememberSaveable { mutableStateOf("") }
+    var confirmacion by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(usuario) {
         usuario?.let { onIngresar(Rol.valueOf(it.rol)) }
@@ -96,6 +99,20 @@ fun LoginScreen(vm: SesionViewModel, onIngresar: (Rol) -> Unit) {
                     icono = Icons.Outlined.Lock,
                     esClave = true
                 )
+
+
+                if (rol == Rol.SOPORTE) {
+                    Spacer(Modifier.height(12.dp))
+                    LavaTextField(
+                        valor = confirmacion,
+                        onCambio = { confirmacion = it; vm.limpiarError() },
+                        etiqueta = "Confirmar contraseña",
+                        icono = Icons.Outlined.Lock,
+                        esClave = true
+                    )
+                }
+
+
                 Text(
                     "¿Olvidaste tu contraseña?",
                     style = MaterialTheme.typography.bodySmall,
@@ -114,8 +131,17 @@ fun LoginScreen(vm: SesionViewModel, onIngresar: (Rol) -> Unit) {
                     )
                 }
 
+                aviso?.let {
+                    Text(
+                        it,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                }
+
                 Spacer(Modifier.height(24.dp))
-                LavaButton(texto = "Ingresar", onClick = { vm.login(correo, clave, rol) })
+                LavaButton(texto = "Ingresar", onClick = { vm.login(correo, clave, rol, confirmacion) })
                 Spacer(Modifier.height(20.dp))
 
                 if (rol == Rol.CLIENTE) {
@@ -130,6 +156,24 @@ fun LoginScreen(vm: SesionViewModel, onIngresar: (Rol) -> Unit) {
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                } else if (rol == Rol.SOPORTE) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                        Text(
+                            "¿No tienes cuenta? ",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            "Regístrate",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.clickable {
+                                vm.limpiarError()
+                                onRegistrarSoporte()
+                            }
                         )
                     }
                 } else {

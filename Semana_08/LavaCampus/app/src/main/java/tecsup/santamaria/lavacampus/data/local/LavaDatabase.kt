@@ -17,7 +17,7 @@ import tecsup.santamaria.lavacampus.data.local.entity.Usuario
 
 @Database(
     entities = [Servicio::class, Usuario::class, Pedido::class, DetallePedido::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class LavaDatabase : RoomDatabase() {
@@ -34,13 +34,27 @@ abstract class LavaDatabase : RoomDatabase() {
                 context.applicationContext,
                 LavaDatabase::class.java,
                 "lavacampus.db"
-            ).addMigrations(MIGRACION_1_2).build().also { INSTANCE = it }
+            ).addMigrations(MIGRACION_1_2, MIGRACION_2_3).build().also { INSTANCE = it }
         }
 
         // v2: descuento por volumen en pedidos
         private val MIGRACION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE pedidos ADD COLUMN descuento REAL NOT NULL DEFAULT 0")
+            }
+        }
+
+
+        // v3: apellido del usuario (rol soporte) y el servicio "Otros servicios"
+        private val MIGRACION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE usuarios ADD COLUMN apellido TEXT NOT NULL DEFAULT ''")
+                db.execSQL(
+                    """
+                    INSERT INTO servicios (nombre, descripcion, unidad, precio, horasEntrega, activo, icono)
+                    VALUES ('Otros servicios', 'Lavado, planchado y en seco', 'UNIDAD', 10.0, 48, 1, 'wash')
+                    """
+                )
             }
         }
     }

@@ -25,6 +25,13 @@ class SesionViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+
+
+    private val _aviso = MutableStateFlow<String?>(null)
+    val aviso: StateFlow<String?> = _aviso.asStateFlow()
+
+
+
     val modoOscuro: StateFlow<Boolean> = prefs.modoOscuro
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
@@ -48,7 +55,7 @@ class SesionViewModel(
         }
     }
 
-    fun login(correo: String, clave: String, rolSeleccionado: Rol) {
+    fun login(correo: String, clave: String, rolSeleccionado: Rol, confirmacion: String = clave) {
         if (correo.isBlank() || clave.isBlank()) {
             _error.value = "Ingresa tu correo y tu contraseña"
             return
@@ -56,6 +63,11 @@ class SesionViewModel(
         // Solo se aceptan correos institucionales
         if (!correo.trim().lowercase().endsWith(DOMINIO)) {
             _error.value = "Usa tu correo $DOMINIO"
+            return
+        }
+        // Soporte confirma su contraseña al iniciar sesión
+        if (rolSeleccionado == Rol.SOPORTE && clave != confirmacion) {
+            _error.value = "Las contraseñas no coinciden"
             return
         }
         viewModelScope.launch {
@@ -73,8 +85,51 @@ class SesionViewModel(
         }
     }
 
+    // Registro de soporte: valida, guarda en Room y vuelve al login
+    fun registrarSoporte(
+        codigo: String, nombre: String, apellido: String,
+        correo: String, clave: String, confirmacion: String,
+        alTerminar: () -> Unit
+    ) {
+        val correoLimpio = correo.trim()
+        when {
+            listOf(codigo, nombre, apellido, correoLimpio, clave, confirmacion).any { it.isBlank() } -> {
+                _error.value = "Completa todos los campos"
+                return
+            }
+            !correoLimpio.lowercase().endsWith(DOMINIO) -> {
+                _error.value = "Usa tu correo $DOMINIO"
+                return
+            }
+            clave != confirmacion -> {
+                _error.value = "Las contraseñas no coinciden"
+                return
+            }
+        }
+        viewModelScope.launch {
+            if (repo.correoRegistrado(correoLimpio)) {
+                _error.value = "Ese correo ya está registrado"
+                return@launch
+            }
+            repo.registrarUsuario(
+                Usuario(
+                    nombre = nombre.trim(),
+                    apellido = apellido.trim(),
+                    codigo = codigo.trim(),
+                    correo = correoLimpio,
+                    clave = clave,
+                    rol = Rol.SOPORTE.name
+                )
+            )
+            _error.value = null
+            _aviso.value = "Cuenta creada. Ingresa con tu correo y contraseña"
+            alTerminar()
+        }
+    }
+
     fun limpiarError() {
         _error.value = null
+        _aviso.value = null
     }
 
     // Preferencias: se guardan en DataStore y el tema se entera solo

@@ -71,12 +71,45 @@ private val AdminOscuro = darkColorScheme(
     error = Color(0xFFF87171)
 )
 
+private val SoporteClaro = lightColorScheme(
+    primary = Verde,
+    onPrimary = Color.White,
+    primaryContainer = VerdeContenedor,
+    onPrimaryContainer = Color(0xFF065F46),
+    secondary = Verde,
+    background = VerdeFondo,
+    surface = Color.White,
+    surfaceVariant = Color(0xFFF1F5F4),
+    onBackground = TextoPrincipal,
+    onSurface = TextoPrincipal,
+    onSurfaceVariant = TextoSecundario,
+    outline = Borde,
+    error = Error
+)
+
+private val SoporteOscuro = darkColorScheme(
+    primary = VerdeOscuro,
+    onPrimary = Color(0xFF022C22),
+    primaryContainer = Color(0xFF065F46),
+    onPrimaryContainer = VerdeContenedor,
+    secondary = VerdeOscuro,
+    background = FondoOscuro,
+    surface = SuperficieOscura,
+    surfaceVariant = Color(0xFF1E293B),
+    onBackground = Color(0xFFE2E8F0),
+    onSurface = Color(0xFFE2E8F0),
+    onSurfaceVariant = Color(0xFF94A3B8),
+    outline = Color(0xFF334155),
+    error = Color(0xFFF87171)
+)
+
 // Un ColorScheme según el perfil. En las pantallas se usa MaterialTheme.colorScheme, nunca un color fijo
 @Composable
 fun LavaTheme(rol: Rol, oscuro: Boolean = false, content: @Composable () -> Unit) {
     val colores = when (rol) {
         Rol.CLIENTE -> if (oscuro) EstudianteOscuro else EstudianteClaro
         Rol.ADMIN -> if (oscuro) AdminOscuro else AdminClaro
+        Rol.SOPORTE -> if (oscuro) SoporteOscuro else SoporteClaro
     }
     MaterialTheme(colorScheme = colores, typography = Typography, content = content)
 }

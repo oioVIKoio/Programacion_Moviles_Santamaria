@@ -55,6 +55,7 @@ import tecsup.santamaria.lavacampus.ui.estudiante.NuevoPedidoScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.PerfilScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.SplashScreen
 import tecsup.santamaria.lavacampus.ui.estudiante.TarifasScreen
+import tecsup.santamaria.lavacampus.ui.soporte.RegistroSoporteScreen
 import tecsup.santamaria.lavacampus.ui.theme.LavaTheme
 import tecsup.santamaria.lavacampus.viewmodel.BandejaViewModel
 import tecsup.santamaria.lavacampus.viewmodel.ClientesViewModel
@@ -97,7 +98,7 @@ fun NavLava() {
     }
 
     // El tema depende del perfil activo y del modo oscuro guardado en DataStore
-    LavaTheme(rol = if (perfil == Rol.ADMIN.name) Rol.ADMIN else Rol.CLIENTE, oscuro = oscuro) {
+    LavaTheme(rol = Rol.entries.find { it.name == perfil } ?: Rol.CLIENTE, oscuro = oscuro) {
         NavHost(navController = nav, startDestination = Rutas.SPLASH) {
             composable(Rutas.SPLASH) {
                 SplashScreen(
@@ -109,7 +110,17 @@ fun NavLava() {
                 )
             }
             composable(Rutas.LOGIN) {
-                LoginScreen(vm = sesion, onIngresar = { rol -> nav.irAGrafo(rol) })
+                LoginScreen(
+                    vm = sesion,
+                    onIngresar = { rol -> nav.irAGrafo(rol) },
+                    onRegistrarSoporte = { nav.navigate(Rutas.REGISTRO_SOPORTE) }
+                )
+            }
+            composable(Rutas.REGISTRO_SOPORTE) {
+                RegistroSoporteScreen(
+                    vm = sesion,
+                    onAtras = { nav.volver() },
+                    onRegistrado = { nav.volver() })
             }
 
             // Grafo del estudiante
@@ -118,7 +129,12 @@ fun NavLava() {
                     ConUsuario(usuario) { estudiante ->
                         val vm: InicioViewModel = viewModel(
                             key = "inicio_${estudiante.id}",
-                            factory = LavaViewModelFactory { InicioViewModel(app.repository, estudiante) }
+                            factory = LavaViewModelFactory {
+                                InicioViewModel(
+                                    app.repository,
+                                    estudiante
+                                )
+                            }
                         )
                         InicioScreen(
                             vm = vm,
@@ -132,13 +148,20 @@ fun NavLava() {
                 }
                 composable(
                     Rutas.NUEVO_PEDIDO_REPETIR,
-                    arguments = listOf(navArgument("repetir") { type = NavType.IntType; defaultValue = 0 })
+                    arguments = listOf(navArgument("repetir") {
+                        type = NavType.IntType; defaultValue = 0
+                    })
                 ) { entrada ->
                     val repetir = entrada.arguments?.getInt("repetir") ?: 0
                     ConUsuario(usuario) { estudiante ->
                         val vm: NuevoPedidoViewModel = viewModel(
                             factory = LavaViewModelFactory {
-                                NuevoPedidoViewModel(app.repository, estudiante.id, app.preferencias.recibirPedidos, repetir)
+                                NuevoPedidoViewModel(
+                                    app.repository,
+                                    estudiante.id,
+                                    app.preferencias.recibirPedidos,
+                                    repetir
+                                )
                             }
                         )
                         NuevoPedidoScreen(
@@ -160,7 +183,12 @@ fun NavLava() {
                 ) { entrada ->
                     val id = entrada.arguments?.getInt("id") ?: 0
                     val vm: DetallePedidoViewModel = viewModel(
-                        factory = LavaViewModelFactory { DetallePedidoViewModel(app.repository, id) }
+                        factory = LavaViewModelFactory {
+                            DetallePedidoViewModel(
+                                app.repository,
+                                id
+                            )
+                        }
                     )
                     DetallePedidoScreen(vm = vm, onAtras = { nav.volver() })
                 }
@@ -177,7 +205,8 @@ fun NavLava() {
                     }
                 }
                 composable(Rutas.TARIFAS) {
-                    val vm: ServiciosViewModel = viewModel(factory = LavaViewModelFactory { ServiciosViewModel(app.repository) })
+                    val vm: ServiciosViewModel =
+                        viewModel(factory = LavaViewModelFactory { ServiciosViewModel(app.repository) })
                     TarifasScreen(
                         vm = vm,
                         barraInferior = { BarraEstudiante(nav, Rutas.TARIFAS) },
@@ -201,7 +230,8 @@ fun NavLava() {
             // Grafo del administrador
             navigation(startDestination = Rutas.PANEL, route = Rutas.GRAFO_ADMIN) {
                 composable(Rutas.PANEL) {
-                    val vm: PanelViewModel = viewModel(factory = LavaViewModelFactory { PanelViewModel(app.repository) })
+                    val vm: PanelViewModel =
+                        viewModel(factory = LavaViewModelFactory { PanelViewModel(app.repository) })
                     PanelScreen(
                         vm = vm,
                         barraInferior = { BarraAdmin(nav, Rutas.PANEL) },
@@ -209,7 +239,8 @@ fun NavLava() {
                     )
                 }
                 composable(Rutas.BANDEJA) {
-                    val vm: BandejaViewModel = viewModel(factory = LavaViewModelFactory { BandejaViewModel(app.repository) })
+                    val vm: BandejaViewModel =
+                        viewModel(factory = LavaViewModelFactory { BandejaViewModel(app.repository) })
                     BandejaScreen(
                         vm = vm,
                         barraInferior = { BarraAdmin(nav, Rutas.BANDEJA) },
@@ -223,12 +254,18 @@ fun NavLava() {
                 ) { entrada ->
                     val id = entrada.arguments?.getInt("id") ?: 0
                     val vm: GestionPedidoViewModel = viewModel(
-                        factory = LavaViewModelFactory { GestionPedidoViewModel(app.repository, id) }
+                        factory = LavaViewModelFactory {
+                            GestionPedidoViewModel(
+                                app.repository,
+                                id
+                            )
+                        }
                     )
                     GestionPedidoScreen(vm = vm, onAtras = { nav.volver() })
                 }
                 composable(Rutas.SERVICIOS) {
-                    val vm: ServiciosViewModel = viewModel(factory = LavaViewModelFactory { ServiciosViewModel(app.repository) })
+                    val vm: ServiciosViewModel =
+                        viewModel(factory = LavaViewModelFactory { ServiciosViewModel(app.repository) })
                     ServiciosScreen(
                         vm = vm,
                         onEditar = { id -> nav.navigate(Rutas.formularioServicio(id)) },
@@ -241,11 +278,13 @@ fun NavLava() {
                     arguments = listOf(navArgument("id") { type = NavType.IntType })
                 ) { entrada ->
                     val id = entrada.arguments?.getInt("id") ?: 0
-                    val vm: ServiciosViewModel = viewModel(factory = LavaViewModelFactory { ServiciosViewModel(app.repository) })
+                    val vm: ServiciosViewModel =
+                        viewModel(factory = LavaViewModelFactory { ServiciosViewModel(app.repository) })
                     FormularioServicioScreen(vm = vm, id = id, onListo = { nav.volver() })
                 }
                 composable(Rutas.CLIENTES) {
-                    val vm: ClientesViewModel = viewModel(factory = LavaViewModelFactory { ClientesViewModel(app.repository) })
+                    val vm: ClientesViewModel =
+                        viewModel(factory = LavaViewModelFactory { ClientesViewModel(app.repository) })
                     ClientesScreen(
                         vm = vm,
                         barraInferior = { BarraAdmin(nav, Rutas.CLIENTES) },
@@ -262,9 +301,52 @@ fun NavLava() {
                     )
                 }
             }
+
+
+            // Grafo de soporte: atiende pedidos y clientes, sin ingresos ni precios
+            navigation(startDestination = Rutas.SOPORTE_PEDIDOS, route = Rutas.GRAFO_SOPORTE) {
+                composable(Rutas.SOPORTE_PEDIDOS) {
+                    val vm: BandejaViewModel = viewModel(factory = LavaViewModelFactory { BandejaViewModel(app.repository) })
+                    BandejaScreen(
+                        vm = vm,
+                        barraInferior = { BarraSoporte(nav, Rutas.SOPORTE_PEDIDOS) },
+                        onAtras = null,
+                        onGestionar = { id -> nav.navigate(Rutas.soporteGestion(id)) }
+                    )
+                }
+                composable(
+                    Rutas.SOPORTE_GESTION,
+                    arguments = listOf(navArgument("id") { type = NavType.IntType })
+                ) { entrada ->
+                    val id = entrada.arguments?.getInt("id") ?: 0
+                    val vm: GestionPedidoViewModel = viewModel(
+                        factory = LavaViewModelFactory { GestionPedidoViewModel(app.repository, id) }
+                    )
+                    GestionPedidoScreen(vm = vm, onAtras = { nav.volver() })
+                }
+                composable(Rutas.SOPORTE_CLIENTES) {
+                    val vm: ClientesViewModel = viewModel(factory = LavaViewModelFactory { ClientesViewModel(app.repository) })
+                    ClientesScreen(
+                        vm = vm,
+                        barraInferior = { BarraSoporte(nav, Rutas.SOPORTE_CLIENTES) },
+                        onAtras = { nav.irAPestana(Rutas.SOPORTE_PEDIDOS, inicio = Rutas.SOPORTE_PEDIDOS) }
+                    )
+                }
+                composable(Rutas.SOPORTE_CUENTA) {
+                    AjustesScreen(
+                        sesion = sesion,
+                        barraInferior = { BarraSoporte(nav, Rutas.SOPORTE_CUENTA) },
+                        onAtras = { nav.irAPestana(Rutas.SOPORTE_PEDIDOS, inicio = Rutas.SOPORTE_PEDIDOS) },
+                        onCambiarPerfil = {},
+                        onCerrarSesion = cerrarSesion,
+                        esSoporte = true
+                    )
+                }
+            }
         }
     }
 }
+
 
 // Mis pedidos y Perfil comparten el ViewModel de los pedidos del estudiante
 @Composable
@@ -283,9 +365,13 @@ private fun ConUsuario(usuario: Usuario?, contenido: @Composable (Usuario) -> Un
     }
 }
 
-// Grafo del perfil: Inicio para el estudiante, Panel para el administrador. Limpia la pila
+// Grafo del perfil: Inicio para el estudiante, Panel para el administrador, Pedidos para soporte. Limpia la pila
 private fun NavHostController.irAGrafo(rol: Rol) {
-    val grafo = if (rol == Rol.ADMIN) Rutas.GRAFO_ADMIN else Rutas.GRAFO_ESTUDIANTE
+    val grafo = when (rol) {
+        Rol.CLIENTE -> Rutas.GRAFO_ESTUDIANTE
+        Rol.ADMIN -> Rutas.GRAFO_ADMIN
+        Rol.SOPORTE -> Rutas.GRAFO_SOPORTE
+    }
     navigate(grafo) { popUpTo(graph.id) { inclusive = true } }
 }
 
@@ -320,6 +406,12 @@ private val pestanasAdmin = listOf(
     Pestana(Rutas.AJUSTES, "Ajustes", Icons.Outlined.Settings)
 )
 
+private val pestanasSoporte = listOf(
+    Pestana(Rutas.SOPORTE_PEDIDOS, "Pedidos", Icons.Outlined.Menu),
+    Pestana(Rutas.SOPORTE_CLIENTES, "Clientes", Icons.Outlined.Person),
+    Pestana(Rutas.SOPORTE_CUENTA, "Ajustes", Icons.Outlined.Settings)
+)
+
 // NavigationBar del estudiante: Inicio, Pedidos, Tarifas, Perfil
 @Composable
 private fun BarraEstudiante(nav: NavHostController, actual: String) =
@@ -329,6 +421,11 @@ private fun BarraEstudiante(nav: NavHostController, actual: String) =
 @Composable
 private fun BarraAdmin(nav: NavHostController, actual: String) =
     BarraNavegacion(nav, actual, pestanasAdmin, Rutas.PANEL)
+
+// NavigationBar de soporte: Pedidos, Clientes, Ajustes
+@Composable
+private fun BarraSoporte(nav: NavHostController, actual: String) =
+    BarraNavegacion(nav, actual, pestanasSoporte, Rutas.SOPORTE_PEDIDOS)
 
 @Composable
 private fun BarraNavegacion(nav: NavHostController, actual: String, pestanas: List<Pestana>, inicio: String) {

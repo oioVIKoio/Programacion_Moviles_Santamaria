@@ -14,6 +14,16 @@ val VioletaContenedor = Color(0xFFEDE9FE)
 val VioletaFondo = Color(0xFFFAF8FF)
 val VioletaOscuro = Color(0xFFA78BFA)
 
+
+
+// Soporte (verde)
+val Verde = Color(0xFF047857)
+val VerdeContenedor = Color(0xFFD1FAE5)
+val VerdeFondo = Color(0xFFF2FDF8)
+val VerdeOscuro = Color(0xFF34D399)
+
+
+
 // Comunes
 val TextoPrincipal = Color(0xFF0F172A)
 val TextoSecundario = Color(0xFF64748B)

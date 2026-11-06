@@ -16,7 +16,8 @@ object DatosIniciales {
         Servicio(nombre = "Lavado y secado", descripcion = "Ropa del día a día, lavada y secada", unidad = "KG", precio = 8.00, horasEntrega = 24, icono = "wash"),
         Servicio(nombre = "Planchado", descripcion = "Camisas, pantalones y polos", unidad = "PRENDA", precio = 2.50, horasEntrega = 48, icono = "iron"),
         Servicio(nombre = "Lavado en seco", descripcion = "Ternos, sacos y prendas delicadas", unidad = "PRENDA", precio = 12.00, horasEntrega = 48, icono = "shirt"),
-        Servicio(nombre = "Edredón / frazada", descripcion = "Edredones, frazadas y cobertores", unidad = "UNIDAD", precio = 20.00, horasEntrega = 48, activo = false, icono = "wash")
+        Servicio(nombre = "Edredón / frazada", descripcion = "Edredones, frazadas y cobertores", unidad = "UNIDAD", precio = 20.00, horasEntrega = 48, activo = false, icono = "wash"),
+        Servicio(nombre = "Otros servicios", descripcion = "Lavado, planchado y en seco", unidad = "UNIDAD", precio = 10.00, horasEntrega = 48, icono = "wash")
     )
 
     // Solo correos de Tecsup. Victor con sus datos; el resto ficticios (Ley 29733), nombres y códigos del mockup

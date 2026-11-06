@@ -81,9 +81,11 @@ fun InicioScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+                    /*
                     IconButton(onClick = { }) {
                         Icon(Icons.Filled.Notifications, contentDescription = "Avisos")
                     }
+                    */
                 }
             }
             item { TarjetaActivo(activo, onPedido) }

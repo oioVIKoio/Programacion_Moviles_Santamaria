@@ -4,6 +4,11 @@ object Rutas {
     const val SPLASH = "splash"
     const val LOGIN = "login"
 
+
+    const val REGISTRO_SOPORTE = "registro_soporte"
+
+
+
     // Estudiante
     const val INICIO = "inicio"
     const val NUEVO_PEDIDO = "nuevo_pedido"
@@ -22,12 +27,23 @@ object Rutas {
     const val CLIENTES = "clientes"
     const val AJUSTES = "ajustes"
 
+
+    // Soporte
+    const val SOPORTE_PEDIDOS = "soporte_pedidos"
+    const val SOPORTE_GESTION = "soporte_gestion/{id}"
+    const val SOPORTE_CLIENTES = "soporte_clientes"
+    const val SOPORTE_CUENTA = "soporte_cuenta"
+
+
+
     // Grafos de cada perfil
     const val GRAFO_ESTUDIANTE = "grafo_estudiante"
     const val GRAFO_ADMIN = "grafo_admin"
+    const val GRAFO_SOPORTE = "grafo_soporte"
 
     fun detallePedido(id: Int) = "detalle_pedido/$id"
     fun repetirPedido(id: Int) = "nuevo_pedido?repetir=$id"
     fun gestionPedido(id: Int) = "gestion_pedido/$id"
+    fun soporteGestion(id: Int) = "soporte_gestion/$id"
     fun formularioServicio(id: Int) = "formulario_servicio/$id"   // 0 = nuevo
 }

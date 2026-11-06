@@ -32,7 +32,8 @@ fun AjustesScreen(
     barraInferior: @Composable () -> Unit,
     onAtras: () -> Unit,
     onCambiarPerfil: () -> Unit,
-    onCerrarSesion: () -> Unit
+    onCerrarSesion: () -> Unit,
+    esSoporte: Boolean = false
 ) {
     val usuario by sesion.usuarioActual.collectAsState()
     val oscuro by sesion.modoOscuro.collectAsState()
@@ -52,13 +53,21 @@ fun AjustesScreen(
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            usuario?.let { TarjetaUsuario(it.nombre, it.correo, "Perfil activo") }
-            BotonCambiarPerfil(destino = Rol.CLIENTE.etiqueta, onClick = onCambiarPerfil)
+            usuario?.let { TarjetaUsuario("${it.nombre} ${it.apellido}".trim(), it.correo, "Perfil activo") }
+
+
+            // Soporte no cambia de perfil ni abre o cierra la recepción
+            if (!esSoporte) {
+                BotonCambiarPerfil(destino = Rol.CLIENTE.etiqueta, onClick = onCambiarPerfil)
+            }
+
+
             Text("Preferencias", style = MaterialTheme.typography.titleMedium)
             ListaPreferencias(
                 listOf(
                     Preferencia("Modo oscuro", "Cambia el tema de la app", oscuro, sesion::cambiarModoOscuro),
-                    Preferencia("Notificaciones", "Avisar pedidos nuevos", notificaciones, sesion::cambiarNotificaciones),
+                    Preferencia("Notificaciones", "Avisar pedidos nuevos", notificaciones, sesion::cambiarNotificaciones)
+                ) + if (esSoporte) emptyList() else listOf(
                     Preferencia("Recibir pedidos", "Abrir o cerrar la recepción", recibir, sesion::cambiarRecibirPedidos)
                 )
             )

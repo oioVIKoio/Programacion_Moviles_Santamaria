@@ -45,7 +45,7 @@ private val filtros = listOf(null, EstadoPedido.RECIBIDO, EstadoPedido.EN_PROCES
 fun BandejaScreen(
     vm: BandejaViewModel,
     barraInferior: @Composable () -> Unit,
-    onAtras: () -> Unit,
+    onAtras: (() -> Unit)?,
     onGestionar: (Int) -> Unit
 ) {
     val pedidos by vm.pedidos.collectAsState()
