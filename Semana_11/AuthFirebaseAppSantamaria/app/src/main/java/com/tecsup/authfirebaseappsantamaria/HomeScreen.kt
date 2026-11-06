@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun HomeScreen(
+    onVerCursos: () -> Unit,
     onLogout: () -> Unit
 ) {
     val auth = FirebaseAuth.getInstance()
@@ -25,6 +26,13 @@ fun HomeScreen(
             Spacer(Modifier.height(8.dp))
             Text("Sesión iniciada como: $email")
             Spacer(Modifier.height(24.dp))
+            Button(
+                onClick = onVerCursos,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Mis cursos 📚")
+            }
+            Spacer(Modifier.height(8.dp))
             Button(
                 onClick = {
                     auth.signOut()
