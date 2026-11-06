@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "682616089905",
+    "project_id": "fir-android-studio-37f9c",
+    "storage_bucket": "fir-android-studio-37f9c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:682616089905:android:ddd76caeab05c283655410",
+        "android_client_info": {
+          "package_name": "com.tecsup.FirebaseAndroidStudio"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKqs1CDIZlsynQ-oYE0WpdfsaxkJUN8pk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:682616089905:android:106a553b82feebf2655410",
+        "android_client_info": {
+          "package_name": "com.tecsup.authfirebaseappsantamaria"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKqs1CDIZlsynQ-oYE0WpdfsaxkJUN8pk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
