@@ -1,10 +1,16 @@
 package com.tecsup.pokemon.ui.navigation
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -18,15 +24,20 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.pokemon.AppContainer
+import com.tecsup.pokemon.domain.model.Rol
+import com.tecsup.pokemon.domain.model.Sesion
 import com.tecsup.pokemon.ui.AppViewModelFactory
 import com.tecsup.pokemon.ui.admin.AdminScreen
 import com.tecsup.pokemon.ui.admin.AdminViewModel
+import com.tecsup.pokemon.ui.components.Cargando
 import com.tecsup.pokemon.ui.detalle.DetalleScreen
 import com.tecsup.pokemon.ui.detalle.DetalleViewModel
 import com.tecsup.pokemon.ui.favoritos.FavoritosScreen
 import com.tecsup.pokemon.ui.favoritos.FavoritosViewModel
 import com.tecsup.pokemon.ui.lista.ListaScreen
 import com.tecsup.pokemon.ui.lista.ListaViewModel
+import com.tecsup.pokemon.ui.login.LoginScreen
+import com.tecsup.pokemon.ui.login.LoginViewModel
 
 object Rutas {
     const val LISTA = "lista"
@@ -36,14 +47,46 @@ object Rutas {
     fun detalle(id: String) = "detalle/$id"
 }
 
-/** [esAdmin] sale del rol de la sesión (Firestore); el panel solo existe para el administrador. */
+/** Sin sesión muestra el login; con sesión, el catálogo. El rol de la sesión llega aquí desde Firestore. */
 @Composable
-fun AppNav(container: AppContainer, esAdmin: Boolean = false) {
+fun AppNav(container: AppContainer) {
+    val loginVm: LoginViewModel = viewModel(factory = AppViewModelFactory(container))
+    val login by loginVm.estado.collectAsStateWithLifecycle()
+    val sesion = login.sesion
+
+    when {
+        login.revisandoSesion -> Cargando()
+        sesion == null -> LoginScreen(
+            estado = login,
+            onIngresar = loginVm::iniciarSesion,
+            onEscribir = loginVm::limpiarError,
+            modifier = Modifier.safeDrawingPadding()
+        )
+        else -> Catalogo(container, sesion, onCerrarSesion = loginVm::cerrarSesion)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun Catalogo(container: AppContainer, sesion: Sesion, onCerrarSesion: () -> Unit) {
+    // El panel Admin solo existe para la sesión con rol ADMIN (el rol viene de Firestore)
+    val esAdmin = sesion.rol == Rol.ADMIN
     val nav = rememberNavController()
     val entrada by nav.currentBackStackEntryAsState()
     val rutaActual = entrada?.destination?.route
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Column {
+                        Text("Pokédex de fuego")
+                        Text(sesion.correo, style = MaterialTheme.typography.bodySmall)
+                    }
+                },
+                actions = { TextButton(onClick = onCerrarSesion) { Text("Cerrar sesión") } }
+            )
+        },
         bottomBar = {
             NavigationBar {
                 PestanaInferior(nav, rutaActual, Rutas.LISTA, "🔥", "Pokémon")

@@ -1,6 +1,8 @@
 package com.tecsup.pokemon
 
 import android.content.Context
+import com.tecsup.pokemon.data.auth.AuthRepository
+import com.tecsup.pokemon.data.auth.FirebaseAuthRepository
 import com.tecsup.pokemon.data.local.AppDatabase
 import com.tecsup.pokemon.data.remote.RetrofitClient
 import com.tecsup.pokemon.data.repository.ItemRepository
@@ -17,4 +19,5 @@ class AppContainer(context: Context) {
     var notificador: Notificador = object : Notificador {
         override fun mostrar(titulo: String, texto: String) {}
     }
+    val authRepository: AuthRepository by lazy { FirebaseAuthRepository() }
 }
