@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 class DetalleViewModel(
     private val repo: ItemRepository,
@@ -42,6 +43,7 @@ class DetalleViewModel(
 
     private fun mensajeDe(e: Throwable) = when (e) {
         is IOException -> "No hay conexión a internet"
+        is HttpException -> "El servidor respondió con error ${e.code()}"
         else -> "No se pudo cargar el detalle"
     }
 }
