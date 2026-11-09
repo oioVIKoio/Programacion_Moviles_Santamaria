@@ -1,49 +1,45 @@
 package com.tecsup.pokemon.data.repository
 
+import com.tecsup.pokemon.data.local.ItemDao
+import com.tecsup.pokemon.data.mapper.aEntity
 import com.tecsup.pokemon.data.mapper.aModelo
 import com.tecsup.pokemon.data.remote.ApiService
 import com.tecsup.pokemon.domain.model.Item
 import java.io.IOException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import kotlinx.serialization.SerializationException
 import retrofit2.HttpException
 
 /**
- * Por ahora guarda lo descargado en memoria. Cuando entre Room (C09),
- * la lista saldrá de la base de datos y Retrofit solo la actualizará.
+ * Room es la fuente única de verdad: la lista y los favoritos salen siempre de la base de datos.
+ * Retrofit solo la actualiza en refrescar().
  */
-class ItemRepositoryImpl(private val api: ApiService) : ItemRepository {
+class ItemRepositoryImpl(
+    private val api: ApiService,
+    private val dao: ItemDao
+) : ItemRepository {
 
-    private val cache = MutableStateFlow<List<Item>>(emptyList())
-
-    override val items: Flow<List<Item>> = cache
-    override val favoritos: Flow<List<Item>> = cache.map { lista -> lista.filter { it.esFavorito } }
+    override val items: Flow<List<Item>> = dao.todos().map { lista -> lista.map { it.aModelo() } }
+    override val favoritos: Flow<List<Item>> = dao.favoritos().map { lista -> lista.map { it.aModelo() } }
 
     override suspend fun refrescar(): Result<Int> = conErrores {
-        val favoritos = idsFavoritos()
+        // Si se guarda sin cuidado, el Upsert pone esFavorito en false. Se conservan aquí:
+        val favoritos = dao.idsFavoritos().toSet()
         val nuevos = api.listar().pokemon
-            .map { it.pokemon.aModelo(esFavorito = it.pokemon.name in favoritos) }
-            .sortedBy { it.titulo }
-        cache.value = nuevos
+            .map { it.pokemon.aEntity(esFavorito = it.pokemon.name in favoritos) }
+        dao.guardarTodos(nuevos)
         nuevos.size
     }
 
     override suspend fun obtenerDetalle(id: String): Result<Item> = conErrores {
-        api.detalle(id).aModelo(esFavorito = id in idsFavoritos())
+        api.detalle(id).aModelo(esFavorito = id in dao.idsFavoritos())
     }
 
-    override suspend fun alternarFavorito(id: String) = cache.update { lista ->
-        lista.map { if (it.id == id) it.copy(esFavorito = !it.esFavorito) else it }
-    }
-
-    override suspend fun cantidadGuardada() = cache.value.size
-    override suspend fun cantidadFavoritos() = cache.value.count { it.esFavorito }
-    override suspend fun limpiarCache() { cache.value = emptyList() }
-
-    private fun idsFavoritos() = cache.value.filter { it.esFavorito }.map { it.id }.toSet()
+    override suspend fun alternarFavorito(id: String) = dao.alternarFavorito(id)
+    override suspend fun cantidadGuardada() = dao.contar()
+    override suspend fun cantidadFavoritos() = dao.contarFavoritos()
+    override suspend fun limpiarCache() = dao.borrarTodo()
 
     /** IOException: sin internet. HttpException: 404, 500... SerializationException: JSON distinto al DTO. */
     private inline fun <T> conErrores(bloque: () -> T): Result<T> = try {

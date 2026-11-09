@@ -1,10 +1,14 @@
 package com.tecsup.pokemon
 
+import android.content.Context
+import com.tecsup.pokemon.data.local.AppDatabase
 import com.tecsup.pokemon.data.remote.RetrofitClient
 import com.tecsup.pokemon.data.repository.ItemRepository
 import com.tecsup.pokemon.data.repository.ItemRepositoryImpl
 
-/** Crea una sola vez la API y los repositorios. Los ViewModel los reciben por la Factory. */
-class AppContainer {
-    val itemRepository: ItemRepository by lazy { ItemRepositoryImpl(RetrofitClient.api) }
+/** Crea una sola vez la API, la base de datos y los repositorios. Los ViewModel los reciben por la Factory. */
+class AppContainer(context: Context) {
+    private val database = AppDatabase.crear(context)
+
+    val itemRepository: ItemRepository by lazy { ItemRepositoryImpl(RetrofitClient.api, database.itemDao()) }
 }
