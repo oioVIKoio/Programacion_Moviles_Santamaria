@@ -52,8 +52,10 @@ fun AppNav(container: AppContainer) {
             composable(Rutas.LISTA) {
                 val vm: ListaViewModel = viewModel(factory = AppViewModelFactory(container))
                 val estado by vm.estado.collectAsStateWithLifecycle()
+                val aviso by vm.aviso.collectAsStateWithLifecycle()
                 ListaScreen(
                     estado = estado,
+                    aviso = aviso,
                     onItemClick = { nav.navigate(Rutas.detalle(it.id)) },
                     onFavorito = { vm.alternarFavorito(it.id) },
                     onReintentar = vm::refrescar
