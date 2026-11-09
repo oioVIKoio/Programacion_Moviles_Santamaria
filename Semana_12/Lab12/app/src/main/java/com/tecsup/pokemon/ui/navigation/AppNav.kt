@@ -19,6 +19,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.pokemon.AppContainer
 import com.tecsup.pokemon.ui.AppViewModelFactory
+import com.tecsup.pokemon.ui.admin.AdminScreen
+import com.tecsup.pokemon.ui.admin.AdminViewModel
 import com.tecsup.pokemon.ui.detalle.DetalleScreen
 import com.tecsup.pokemon.ui.detalle.DetalleViewModel
 import com.tecsup.pokemon.ui.favoritos.FavoritosScreen
@@ -29,12 +31,14 @@ import com.tecsup.pokemon.ui.lista.ListaViewModel
 object Rutas {
     const val LISTA = "lista"
     const val FAVORITOS = "favoritos"
+    const val ADMIN = "admin"
     const val DETALLE = "detalle/{id}"
     fun detalle(id: String) = "detalle/$id"
 }
 
+/** [esAdmin] sale del rol de la sesión (Firestore); el panel solo existe para el administrador. */
 @Composable
-fun AppNav(container: AppContainer) {
+fun AppNav(container: AppContainer, esAdmin: Boolean = false) {
     val nav = rememberNavController()
     val entrada by nav.currentBackStackEntryAsState()
     val rutaActual = entrada?.destination?.route
@@ -44,6 +48,7 @@ fun AppNav(container: AppContainer) {
             NavigationBar {
                 PestanaInferior(nav, rutaActual, Rutas.LISTA, "🔥", "Pokémon")
                 PestanaInferior(nav, rutaActual, Rutas.FAVORITOS, "★", "Favoritos")
+                if (esAdmin) PestanaInferior(nav, rutaActual, Rutas.ADMIN, "⚙", "Admin")
             }
         }
     ) { padding ->
@@ -70,6 +75,14 @@ fun AppNav(container: AppContainer) {
                 val vm: DetalleViewModel = viewModel(factory = AppViewModelFactory(container, id))
                 val estado by vm.estado.collectAsStateWithLifecycle()
                 DetalleScreen(estado = estado, onReintentar = vm::cargar, onFavorito = vm::alternarFavorito)
+            }
+
+            if (esAdmin) {
+                composable(Rutas.ADMIN) {
+                    val vm: AdminViewModel = viewModel(factory = AppViewModelFactory(container))
+                    val ui by vm.ui.collectAsStateWithLifecycle()
+                    AdminScreen(ui = ui, onSincronizar = vm::sincronizar, onLimpiarCache = vm::limpiarCache)
+                }
             }
 
             composable(Rutas.FAVORITOS) {
