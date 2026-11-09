@@ -12,6 +12,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -33,6 +36,7 @@ val itemsDePrueba = listOf(
 fun ListaScreen(
     estado: UiState<List<Item>>,
     onItemClick: (Item) -> Unit,
+    onFavorito: (Item) -> Unit,
     onReintentar: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -45,18 +49,33 @@ fun ListaScreen(
                     Text("No hay Pokémon para mostrar", style = MaterialTheme.typography.bodyLarge)
                 }
             } else {
-                LazyColumn(
-                    modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(estado.datos, key = { it.id }) { item ->
-                        Card(Modifier.fillMaxWidth().clickable { onItemClick(item) }) {
-                            Column(Modifier.padding(16.dp)) {
-                                Text(item.titulo, style = MaterialTheme.typography.titleMedium)
-                                Text(item.subtitulo, style = MaterialTheme.typography.bodyMedium)
-                            }
-                        }
+                ListaItems(estado.datos, onItemClick, onFavorito, modifier)
+            }
+        }
+    }
+}
+
+@Composable
+fun ListaItems(
+    items: List<Item>,
+    onItemClick: (Item) -> Unit,
+    onFavorito: (Item) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(items, key = { it.id }) { item ->
+            Card(Modifier.fillMaxWidth().clickable { onItemClick(item) }) {
+                Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(item.titulo, style = MaterialTheme.typography.titleMedium)
+                        Text(item.subtitulo, style = MaterialTheme.typography.bodyMedium)
+                    }
+                    TextButton(onClick = { onFavorito(item) }) {
+                        Text(if (item.esFavorito) "★" else "☆", style = MaterialTheme.typography.titleLarge)
                     }
                 }
             }

@@ -21,6 +21,7 @@ class MainActivity : ComponentActivity() {
                     ListaScreen(
                         estado = UiState.Exito(itemsDePrueba),
                         onItemClick = {},
+                        onFavorito = {},
                         onReintentar = {},
                         modifier = Modifier.padding(padding)
                     )
