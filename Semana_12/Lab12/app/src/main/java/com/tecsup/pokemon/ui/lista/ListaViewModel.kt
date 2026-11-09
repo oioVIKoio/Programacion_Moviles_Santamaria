@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tecsup.pokemon.data.repository.ItemRepository
 import com.tecsup.pokemon.domain.model.Item
+import com.tecsup.pokemon.notification.Notificador
 import com.tecsup.pokemon.ui.UiState
 import java.io.IOException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +13,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
-class ListaViewModel(private val repo: ItemRepository) : ViewModel() {
+class ListaViewModel(
+    private val repo: ItemRepository,
+    private val notificador: Notificador
+) : ViewModel() {
 
     private val _estado = MutableStateFlow<UiState<List<Item>>>(UiState.Cargando)
     val estado: StateFlow<UiState<List<Item>>> = _estado.asStateFlow()
@@ -39,9 +43,10 @@ class ListaViewModel(private val repo: ItemRepository) : ViewModel() {
             val resultado = repo.refrescar()
             refrescoTerminado = true
             resultado
-                .onSuccess {
+                .onSuccess { n ->
                     if (_estado.value is UiState.Cargando) _estado.value = UiState.Exito(emptyList())
                     _aviso.value = null
+                    notificador.mostrar("Datos actualizados", "Se guardaron $n elementos")
                 }
                 .onFailure { e ->
                     // Sin nada guardado: pantalla de error con Reintentar. Con datos: se muestran con un aviso.

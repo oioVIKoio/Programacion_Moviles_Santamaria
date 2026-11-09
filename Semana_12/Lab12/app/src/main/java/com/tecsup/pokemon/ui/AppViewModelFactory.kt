@@ -18,7 +18,7 @@ class AppViewModelFactory(
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T = when (modelClass) {
         LoginViewModel::class.java -> LoginViewModel(container.authRepository)
-        ListaViewModel::class.java -> ListaViewModel(container.itemRepository)
+        ListaViewModel::class.java -> ListaViewModel(container.itemRepository, container.notificador)
         DetalleViewModel::class.java -> DetalleViewModel(container.itemRepository, id)
         FavoritosViewModel::class.java -> FavoritosViewModel(container.itemRepository)
         AdminViewModel::class.java -> AdminViewModel(container.itemRepository, container.notificador)
