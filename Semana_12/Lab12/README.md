@@ -13,8 +13,8 @@ App Android en Kotlin con Jetpack Compose (Material 3) que muestra los Pokémon 
 | Room como fuente de verdad (Entity, Dao, Database) y modo sin conexión | Hecho |
 | Favoritos: marcar, desmarcar y pantalla Favoritos (se conservan al cerrar la app) | Hecho |
 | Panel Admin (solo administrador): totales, *Sincronizar* y *Limpiar caché* | Hecho |
-| Login con Firebase Authentication y roles desde Firestore | En curso (Diego) |
-| Notificación local «Se guardaron N elementos» al sincronizar | En curso (Diego) |
+| Login con Firebase Authentication, sesión guardada, cerrar sesión y roles desde Firestore (`usuarios/{uid}`, campo `rol`) | Hecho |
+| Notificación local «Se guardaron N elementos» al sincronizar | Hecho |
 
 ## Endpoints
 
@@ -65,7 +65,7 @@ Pruebas unitarias de los ViewModel con un repositorio falso en memoria (`FakeIte
 2. Tener internet en el emulador o el celular.
 3. Ejecutar la configuración `app`.
 
-`google-services.json` (Firebase) no se sube al repositorio: cada integrante usa el suyo.
+`google-services.json` (Firebase) no se sube al repositorio: se coloca en `app/` (lo crea quien tiene el proyecto de Firebase y se lo pasa al otro por privado). Sin ese archivo la app no compila.
 
 ## Capturas
 
