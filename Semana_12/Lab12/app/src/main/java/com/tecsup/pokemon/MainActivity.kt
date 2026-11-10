@@ -7,6 +7,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import com.tecsup.pokemon.ui.navigation.AppNav
 import com.tecsup.pokemon.ui.theme.PokedexTheme
@@ -22,7 +26,10 @@ class MainActivity : ComponentActivity() {
         val container = (application as PokemonApp).container
         setContent {
             PokedexTheme {
-                AppNav(container)
+                // Fondo del tema: sin esto el login quedaba blanco con textos claros en modo oscuro
+                Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    AppNav(container)
+                }
             }
         }
     }

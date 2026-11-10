@@ -69,7 +69,15 @@ Pruebas unitarias de los ViewModel con un repositorio falso en memoria (`FakeIte
 
 ## Capturas
 
-*(Pendiente: lista, detalle, favoritos y panel Admin.)*
+Tomadas en un celular real con la sesión del administrador.
+
+| Lista | Detalle |
+|---|---|
+| ![Lista de Pokémon de fuego](capturas/01-lista.png) | ![Detalle de un Pokémon](capturas/02-detalle.png) |
+
+| Favoritos | Panel Admin |
+|---|---|
+| ![Pantalla Favoritos](capturas/03-favoritos.png) | ![Panel Admin](capturas/04-admin.png) |
 
 ## Fases
 
