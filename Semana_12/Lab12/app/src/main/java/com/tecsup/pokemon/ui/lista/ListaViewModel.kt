@@ -10,6 +10,7 @@ import java.io.IOException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
@@ -25,16 +26,30 @@ class ListaViewModel(
     private val _aviso = MutableStateFlow<String?>(null)
     val aviso: StateFlow<String?> = _aviso.asStateFlow()
 
+    // Texto de la barra de búsqueda. Filtra lo que sale de Room; no vuelve a llamar a la API
+    private val _busqueda = MutableStateFlow("")
+    val busqueda: StateFlow<String> = _busqueda.asStateFlow()
+
     // Evita mostrar "vacío" antes de que responda la API la primera vez
     private var refrescoTerminado = false
 
     init {
         viewModelScope.launch {
-            repo.items.collect { lista ->
-                if (lista.isNotEmpty() || refrescoTerminado) _estado.value = UiState.Exito(lista)
+            combine(repo.items, _busqueda) { lista, texto -> lista to texto }.collect { (lista, texto) ->
+                if (lista.isNotEmpty() || refrescoTerminado) _estado.value = UiState.Exito(filtrar(lista, texto))
             }
         }
         refrescar()
+    }
+
+    fun buscar(texto: String) {
+        _busqueda.value = texto
+    }
+
+    /** Coincidencia por nombre, sin importar mayúsculas: "char" encuentra a Charizard y Charmander. */
+    private fun filtrar(lista: List<Item>, texto: String): List<Item> {
+        val buscado = texto.trim()
+        return if (buscado.isEmpty()) lista else lista.filter { it.titulo.contains(buscado, ignoreCase = true) }
     }
 
     fun refrescar() {

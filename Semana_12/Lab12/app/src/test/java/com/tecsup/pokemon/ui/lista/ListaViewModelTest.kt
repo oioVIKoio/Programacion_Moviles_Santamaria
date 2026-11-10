@@ -96,4 +96,26 @@ class ListaViewModelTest {
 
         assertTrue(notificador.avisos.isEmpty())
     }
+
+    @Test
+    fun buscarFiltraPorNombreSinImportarMayusculas() {
+        val repo = FakeItemRepository(listOf(unItem("charmander"), unItem("charizard"), unItem("vulpix")))
+        val vm = ListaViewModel(repo, notificador)
+
+        vm.buscar("CHAR")
+
+        assertEquals(listOf("charmander", "charizard"), (vm.estado.value as UiState.Exito).datos.map { it.id })
+    }
+
+    @Test
+    fun buscarSinCoincidenciasDejaLaListaVaciaYBorrarLaRecupera() {
+        val repo = FakeItemRepository(listOf(unItem("charmander"), unItem("vulpix")))
+        val vm = ListaViewModel(repo, notificador)
+
+        vm.buscar("pikachu")
+        assertTrue((vm.estado.value as UiState.Exito).datos.isEmpty())
+
+        vm.buscar("")
+        assertEquals(2, (vm.estado.value as UiState.Exito).datos.size)
+    }
 }

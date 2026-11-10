@@ -118,9 +118,12 @@ private fun Catalogo(container: AppContainer, sesion: Sesion, onCerrarSesion: ()
                 val vm: ListaViewModel = viewModel(factory = AppViewModelFactory(container))
                 val estado by vm.estado.collectAsStateWithLifecycle()
                 val aviso by vm.aviso.collectAsStateWithLifecycle()
+                val busqueda by vm.busqueda.collectAsStateWithLifecycle()
                 ListaScreen(
                     estado = estado,
                     aviso = aviso,
+                    busqueda = busqueda,
+                    onBuscar = vm::buscar,
                     onItemClick = { nav.navigate(Rutas.detalle(it.id)) },
                     onFavorito = { vm.alternarFavorito(it.id) },
                     onReintentar = vm::refrescar

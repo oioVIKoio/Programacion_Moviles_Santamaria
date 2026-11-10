@@ -16,7 +16,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Card
@@ -24,6 +26,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -56,20 +60,51 @@ fun ListaScreen(
     onFavorito: (Item) -> Unit,
     onReintentar: () -> Unit,
     modifier: Modifier = Modifier,
-    aviso: String? = null
+    aviso: String? = null,
+    busqueda: String = "",
+    onBuscar: (String) -> Unit = {}
 ) {
     when (estado) {
         is UiState.Cargando -> Cargando(modifier)
         is UiState.Error -> ErrorView(estado.mensaje, onReintentar, modifier)
         is UiState.Exito -> Column(modifier.fillMaxSize()) {
             if (aviso != null) AvisoSinConexion(aviso, onReintentar)
+            BarraBusqueda(busqueda, onBuscar)
             if (estado.datos.isEmpty()) {
-                VacioView("No hay Pokémon para mostrar")
+                VacioView(
+                    if (busqueda.isBlank()) "No hay Pokémon para mostrar"
+                    else "Ningún Pokémon coincide con \"${busqueda.trim()}\""
+                )
             } else {
                 ListaItems(estado.datos, onItemClick, onFavorito)
             }
         }
     }
+}
+
+/** Campo para filtrar la lista por nombre, con botón para borrar lo escrito. */
+@Composable
+private fun BarraBusqueda(texto: String, onBuscar: (String) -> Unit) {
+    OutlinedTextField(
+        value = texto,
+        onValueChange = onBuscar,
+        placeholder = { Text("Buscar por nombre") },
+        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+        trailingIcon = {
+            if (texto.isNotEmpty()) {
+                IconButton(onClick = { onBuscar("") }) {
+                    Icon(Icons.Filled.Close, contentDescription = "Borrar búsqueda")
+                }
+            }
+        },
+        singleLine = true,
+        shape = CircleShape,
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 12.dp)
+    )
 }
 
 /** Franja superior que avisa que los datos son los guardados en el celular. */
