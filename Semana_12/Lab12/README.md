@@ -15,6 +15,8 @@ App Android en Kotlin con Jetpack Compose (Material 3) que muestra los Pokémon 
 | Panel Admin (solo administrador): totales, *Sincronizar* y *Limpiar caché* | Hecho |
 | Login con Firebase Authentication, sesión guardada, cerrar sesión y roles desde Firestore (`usuarios/{uid}`, campo `rol`) | Hecho |
 | Notificación local «Se guardaron N elementos» al sincronizar | Hecho |
+| Búsqueda por nombre en la lista (Fase 2) | Hecho |
+| Detalle con chips de tipos, altura, peso y estadísticas base (Fase 2) | Hecho |
 
 ## Endpoints
 
@@ -83,12 +85,12 @@ Si el rol siempre sale `usuario`, casi siempre es porque el ID del documento no 
 
 | Integrante | Fase 1 (`sin-ia`) | Fase 2 (`con-ia`) |
 |---|---|---|
-| **Victor** | C01 proyecto base · C03 modelo, `UiState` y componentes · C04 lista · C07 detalle · C08 Room (Entity, Dao, Database) · C10 favoritos · C14 panel Admin | C16 pruebas de los ViewModel · C18 README y `PROMPTS.md` |
-| **Diego Panez** | C02 estructura y contratos · C05 Retrofit · C06 Repository y lista con la API · C09 Room como fuente de verdad · C11 modo sin conexión · C12 Firebase · C13 login y sesión · C15 notificación | C17 mejora de la interfaz |
+| **Victor** | C01 proyecto base · C03 modelo, `UiState` y componentes · C04 lista · C07 detalle · C08 Room (Entity, Dao, Database) · C10 favoritos · C14 panel Admin · pruebas de los ViewModel · README | Base de la fase con IA · README y `PROMPTS.md` (consultas 1 a 6) · rediseño con Material 3 (tema de fuego, imágenes con Coil, iconos) · capturas |
+| **Diego Panez** | C02 estructura y contratos · C05 Retrofit · C06 Repository y lista con la API · C09 Room como fuente de verdad · C11 modo sin conexión · C12 Firebase · C13 login y sesión · C15 notificación | Tarjetas sin doble borde y tonos del tema · detalle con tipos, medidas y estadísticas · búsqueda por nombre · `PROMPTS.md` (consultas 7 a 9) |
 
 ## Capturas
 
-Tomadas en un celular real con la sesión del administrador.
+Tomadas con la sesión del administrador. La lista y el detalle muestran las mejoras de la Fase 2 (búsqueda y estadísticas).
 
 | Login | Lista |
 |---|---|
