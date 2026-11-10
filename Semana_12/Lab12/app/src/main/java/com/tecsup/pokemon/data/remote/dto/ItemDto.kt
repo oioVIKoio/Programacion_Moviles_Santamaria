@@ -25,7 +25,15 @@ data class PokemonDetalleDto(
     val height: Int, // en decímetros
     val weight: Int, // en hectogramos
     val types: List<TipoSlotDto>,
-    val sprites: SpritesDto
+    val sprites: SpritesDto,
+    val stats: List<EstadisticaDto> = emptyList()
+)
+
+/** { "base_stat": 90, "stat": { "name": "hp" } } */
+@Serializable
+data class EstadisticaDto(
+    @SerialName("base_stat") val valor: Int,
+    val stat: NombreDto
 )
 
 @Serializable

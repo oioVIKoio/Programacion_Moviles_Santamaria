@@ -3,6 +3,7 @@ package com.tecsup.pokemon.data.mapper
 import com.tecsup.pokemon.data.local.ItemEntity
 import com.tecsup.pokemon.data.remote.dto.ItemDto
 import com.tecsup.pokemon.data.remote.dto.PokemonDetalleDto
+import com.tecsup.pokemon.domain.model.Estadistica
 import com.tecsup.pokemon.domain.model.Item
 
 private const val SPRITES = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
@@ -39,5 +40,10 @@ fun PokemonDetalleDto.aModelo(esFavorito: Boolean) = Item(
     subtitulo = "N.º $id · Tipos: ${types.joinToString { it.type.name }} · " +
         "Altura ${height / 10.0} m · Peso ${weight / 10.0} kg",
     imagenUrl = sprites.frontDefault,
-    esFavorito = esFavorito
+    esFavorito = esFavorito,
+    numero = id,
+    alturaM = height / 10.0,
+    pesoKg = weight / 10.0,
+    tipos = types.map { it.type.name },
+    estadisticas = stats.map { Estadistica(it.stat.name, it.valor) }
 )
