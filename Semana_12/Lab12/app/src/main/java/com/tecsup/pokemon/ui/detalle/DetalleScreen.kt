@@ -51,7 +51,7 @@ fun DetalleScreen(
                 // El subtítulo trae los datos separados por " · " (número, tipos, altura y peso)
                 Card(
                     Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f))
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
                 ) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         item.subtitulo.split(" · ").forEach {

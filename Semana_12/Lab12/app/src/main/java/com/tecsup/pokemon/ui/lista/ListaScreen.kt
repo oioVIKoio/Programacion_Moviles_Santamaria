@@ -1,5 +1,6 @@
 package com.tecsup.pokemon.ui.lista
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -124,8 +125,9 @@ fun ListaItems(
         items(items, key = { it.id }) { item ->
             Card(
                 Modifier.fillMaxWidth().clickable { onItemClick(item) },
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                // Color opaco del tema: con un color translúcido la sombra se veía a través y formaba un doble borde
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
             ) {
                 Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                     ImagenPokemon(item.imagenUrl, 72.dp)

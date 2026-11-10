@@ -28,7 +28,14 @@ private val Claro = lightColorScheme(
     surfaceVariant = Color(0xFFF5DED6),
     onSurfaceVariant = Color(0xFF53433E),
     errorContainer = Color(0xFFFFDAD6),
-    onErrorContainer = Color(0xFF410002)
+    onErrorContainer = Color(0xFF410002),
+    // Tonos de contenedor (tarjetas, barra inferior): si no se definen, Material usa los lilas por defecto
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFFFF1EC),
+    surfaceContainer = Color(0xFFFCEAE3),
+    surfaceContainerHigh = Color(0xFFF7E4DC),
+    surfaceContainerHighest = Color(0xFFF1DED6),
+    outlineVariant = Color(0xFFE6CFC7)
 )
 
 private val Oscuro = darkColorScheme(
@@ -46,7 +53,13 @@ private val Oscuro = darkColorScheme(
     surface = Color(0xFF1A110E),
     onSurface = Color(0xFFF1DFD9),
     surfaceVariant = Color(0xFF53433E),
-    onSurfaceVariant = Color(0xFFD8C2BA)
+    onSurfaceVariant = Color(0xFFD8C2BA),
+    surfaceContainerLowest = Color(0xFF140C0A),
+    surfaceContainerLow = Color(0xFF231915),
+    surfaceContainer = Color(0xFF271D19),
+    surfaceContainerHigh = Color(0xFF322823),
+    surfaceContainerHighest = Color(0xFF3D322D),
+    outlineVariant = Color(0xFF53433E)
 )
 
 private val Formas = Shapes(
