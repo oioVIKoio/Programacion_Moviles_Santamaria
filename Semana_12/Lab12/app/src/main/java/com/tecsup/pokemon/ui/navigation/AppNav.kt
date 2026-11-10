@@ -9,7 +9,15 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -81,17 +89,26 @@ private fun Catalogo(container: AppContainer, sesion: Sesion, onCerrarSesion: ()
                 title = {
                     Column {
                         Text("Pokédex de fuego")
-                        Text(sesion.correo, style = MaterialTheme.typography.bodySmall)
+                        Text(sesion.correo, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f))
                     }
                 },
-                actions = { TextButton(onClick = onCerrarSesion) { Text("Cerrar sesión") } }
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                actions = {
+                    IconButton(onClick = onCerrarSesion) {
+                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
+                    }
+                }
             )
         },
         bottomBar = {
             NavigationBar {
-                PestanaInferior(nav, rutaActual, Rutas.LISTA, "🔥", "Pokémon")
-                PestanaInferior(nav, rutaActual, Rutas.FAVORITOS, "★", "Favoritos")
-                if (esAdmin) PestanaInferior(nav, rutaActual, Rutas.ADMIN, "⚙", "Admin")
+                PestanaInferior(nav, rutaActual, Rutas.LISTA, Icons.Filled.LocalFireDepartment, "Pokémon")
+                PestanaInferior(nav, rutaActual, Rutas.FAVORITOS, Icons.Filled.Star, "Favoritos")
+                if (esAdmin) PestanaInferior(nav, rutaActual, Rutas.ADMIN, Icons.Filled.Settings, "Admin")
             }
         }
     ) { padding ->
@@ -146,7 +163,7 @@ private fun androidx.compose.foundation.layout.RowScope.PestanaInferior(
     nav: NavHostController,
     rutaActual: String?,
     ruta: String,
-    icono: String,
+    icono: ImageVector,
     etiqueta: String
 ) {
     NavigationBarItem(
@@ -158,7 +175,7 @@ private fun androidx.compose.foundation.layout.RowScope.PestanaInferior(
                 restoreState = true
             }
         },
-        icon = { Text(icono) },
+        icon = { Icon(icono, contentDescription = null) },
         label = { Text(etiqueta) }
     )
 }

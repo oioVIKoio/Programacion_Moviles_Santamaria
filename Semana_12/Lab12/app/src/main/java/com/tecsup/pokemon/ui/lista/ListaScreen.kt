@@ -1,28 +1,43 @@
 package com.tecsup.pokemon.ui.lista
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.foundation.layout.Row
-import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.tecsup.pokemon.domain.model.Item
 import com.tecsup.pokemon.ui.UiState
 import com.tecsup.pokemon.ui.components.Cargando
 import com.tecsup.pokemon.ui.components.ErrorView
+import com.tecsup.pokemon.ui.components.VacioView
 
 // Datos de prueba: se reemplazan cuando la lista consuma la API
 val itemsDePrueba = listOf(
@@ -48,9 +63,7 @@ fun ListaScreen(
         is UiState.Exito -> Column(modifier.fillMaxSize()) {
             if (aviso != null) AvisoSinConexion(aviso, onReintentar)
             if (estado.datos.isEmpty()) {
-                Column(Modifier.fillMaxSize().padding(24.dp)) {
-                    Text("No hay Pokémon para mostrar", style = MaterialTheme.typography.bodyLarge)
-                }
+                VacioView("No hay Pokémon para mostrar")
             } else {
                 ListaItems(estado.datos, onItemClick, onFavorito)
             }
@@ -62,15 +75,37 @@ fun ListaScreen(
 @Composable
 private fun AvisoSinConexion(texto: String, onReintentar: () -> Unit) {
     Surface(color = MaterialTheme.colorScheme.errorContainer, modifier = Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal = 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                Icons.Filled.CloudOff,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onErrorContainer,
+                modifier = Modifier.size(18.dp)
+            )
             Text(
                 texto,
                 color = MaterialTheme.colorScheme.onErrorContainer,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).padding(start = 8.dp)
             )
             TextButton(onClick = onReintentar) { Text("Reintentar") }
         }
+    }
+}
+
+/** Imagen del Pokémon sobre un círculo de color suave. */
+@Composable
+fun ImagenPokemon(url: String?, tamano: androidx.compose.ui.unit.Dp, modifier: Modifier = Modifier) {
+    Box(
+        modifier.size(tamano).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer),
+        contentAlignment = Alignment.Center
+    ) {
+        AsyncImage(
+            model = url,
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.size(tamano * 0.85f)
+        )
     }
 }
 
@@ -84,17 +119,31 @@ fun ListaItems(
     LazyColumn(
         modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(items, key = { it.id }) { item ->
-            Card(Modifier.fillMaxWidth().clickable { onItemClick(item) }) {
-                Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
+            Card(
+                Modifier.fillMaxWidth().clickable { onItemClick(item) },
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            ) {
+                Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    ImagenPokemon(item.imagenUrl, 72.dp)
+                    Column(Modifier.weight(1f).padding(horizontal = 16.dp)) {
                         Text(item.titulo, style = MaterialTheme.typography.titleMedium)
-                        Text(item.subtitulo, style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            item.subtitulo,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
-                    TextButton(onClick = { onFavorito(item) }) {
-                        Text(if (item.esFavorito) "★" else "☆", style = MaterialTheme.typography.titleLarge)
+                    IconButton(onClick = { onFavorito(item) }) {
+                        Icon(
+                            if (item.esFavorito) Icons.Filled.Star else Icons.Filled.StarBorder,
+                            contentDescription = if (item.esFavorito) "Quitar de favoritos" else "Marcar como favorito",
+                            tint = if (item.esFavorito) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.outline,
+                            modifier = Modifier.size(28.dp)
+                        )
                     }
                 }
             }

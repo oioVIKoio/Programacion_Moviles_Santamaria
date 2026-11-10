@@ -7,9 +7,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.MaterialTheme
 import androidx.core.content.ContextCompat
 import com.tecsup.pokemon.ui.navigation.AppNav
+import com.tecsup.pokemon.ui.theme.PokedexTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
         pedirPermisoDeNotificaciones()
         val container = (application as PokemonApp).container
         setContent {
-            MaterialTheme {
+            PokedexTheme {
                 AppNav(container)
             }
         }
