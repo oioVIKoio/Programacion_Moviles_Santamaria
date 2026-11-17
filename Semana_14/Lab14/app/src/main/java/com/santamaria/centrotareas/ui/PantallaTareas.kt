@@ -19,6 +19,7 @@ import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.StopCircle
 import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -43,6 +44,7 @@ import com.santamaria.centrotareas.ui.components.CajaMensaje
 import com.santamaria.centrotareas.ui.components.FranjaVida
 import com.santamaria.centrotareas.ui.components.TarjetaPaso
 import com.santamaria.centrotareas.ui.components.TipoMensaje
+import com.santamaria.centrotareas.model.CargaUi
 import com.santamaria.centrotareas.model.PrimosUi
 import com.santamaria.centrotareas.ui.theme.Ambar
 import com.santamaria.centrotareas.ui.theme.FormaBoton
@@ -154,8 +156,23 @@ fun PantallaTareas(vm: TareasViewModel) {
                 }
             }
             TarjetaPaso(3, "Dos cargas de red", Icons.Outlined.Sync, abierta == 3, { abierta = if (abierta == 3) 0 else 3 }) {
-                // TODO Pasos 6 y 7
-                Text("Se construye en los pasos 6 y 7.", style = MaterialTheme.typography.bodyMedium)
+                val carga by vm.carga.collectAsState()
+                val cargando = carga is CargaUi.Cargando
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    BotonSecundario("Una por una", onClick = vm::cargarUnaPorUna, habilitado = !cargando, modifier = Modifier.weight(1f))
+                    BotonPrincipal("A la vez", onClick = vm::cargarALaVez, habilitado = !cargando, modifier = Modifier.weight(1f))
+                }
+                when (val estado = carga) {
+                    CargaUi.Cargando -> Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                        CircularProgressIndicator()
+                    }
+                    is CargaUi.Exito -> CajaMensaje(
+                        tipo = TipoMensaje.EXITO,
+                        titulo = "Modo: ${estado.modo}",
+                        texto = "Perfil: ${estado.perfil}\nPedidos: ${estado.pedidos}\nTiempo: ${estado.milisegundos} ms"
+                    )
+                    else -> Unit // TODO Paso 7: Error
+                }
             }
             Spacer(Modifier.height(8.dp))
         }
