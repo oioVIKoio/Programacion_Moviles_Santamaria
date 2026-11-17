@@ -13,7 +13,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bolt
-import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.santamaria.centrotareas.ui.components.BotonPeligro
+import com.santamaria.centrotareas.ui.components.BotonPrincipal
 import com.santamaria.centrotareas.ui.components.FranjaVida
 import com.santamaria.centrotareas.ui.components.TarjetaPaso
 import com.santamaria.centrotareas.viewmodel.TareasViewModel
@@ -67,10 +66,10 @@ fun PantallaTareas(vm: TareasViewModel) {
         ) {
             TarjetaPaso(1, "Tarea con progreso", Icons.Outlined.Bolt, abierta == 1, { abierta = if (abierta == 1) 0 else 1 }) {
                 val mensaje by vm.mensaje.collectAsState()
-                // Paso 1: botón MAL a propósito. Toca "Tócame" justo después y mira qué pasa.
-                BotonPeligro("Tarea larga (MAL)", onClick = vm::tareaLargaMala, icono = Icons.Outlined.ErrorOutline)
+                // Paso 2: ahora "Tócame" sigue sumando mientras la tarea trabaja
+                BotonPrincipal("Tarea larga", onClick = vm::tareaLarga)
                 Text(mensaje, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                // TODO Pasos 2 a 4
+                // TODO Pasos 3 y 4
             }
             TarjetaPaso(2, "Contar números primos", Icons.Outlined.Memory, abierta == 2, { abierta = if (abierta == 2) 0 else 2 }) {
                 // TODO Paso 5

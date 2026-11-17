@@ -79,24 +79,3 @@ fun BotonSecundario(
         )
     ) { Contenido(texto, icono) }
 }
-
-/** Acción que muestra algo que está mal a propósito (Paso 1): relleno rojo. */
-@Composable
-fun BotonPeligro(
-    texto: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    icono: ImageVector? = null,
-    habilitado: Boolean = true
-) {
-    Button(
-        onClick = onClick,
-        enabled = habilitado,
-        modifier = modifier.fillMaxWidth().height(52.dp),
-        shape = FormaBoton,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.error,
-            contentColor = Color.White
-        )
-    ) { Contenido(texto, icono) }
-}
