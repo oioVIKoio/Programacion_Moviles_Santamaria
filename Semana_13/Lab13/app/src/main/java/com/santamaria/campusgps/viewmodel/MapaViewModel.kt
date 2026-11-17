@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.santamaria.campusgps.data.LugaresRepository
 import com.santamaria.campusgps.data.UbicacionRepository
 import com.santamaria.campusgps.model.LugarConDistancia
+import com.santamaria.campusgps.model.Posicion
 import com.santamaria.campusgps.model.UbicacionUi
+import com.santamaria.campusgps.util.distanciaMetros
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,7 +35,7 @@ class MapaViewModel(
             ubicacionRepo.obtenerPosicion()
                 .onSuccess {
                     _estado.value = UbicacionUi.Lista(it)
-                    // TODO Paso 5: actualizarDistancias(it)
+                    actualizarDistancias(it)
                 }
                 .onFailure { _estado.value = UbicacionUi.Error(mensajeDe(it)) }
         }
@@ -45,6 +47,13 @@ class MapaViewModel(
 
     // TODO Paso 6: fun seleccionar(id: Int?)
     // TODO Paso 7: val masCercano: StateFlow<Lugar?>
+
+    // Se calcula solo cuando llega la ubicación (dentro de buscar) y deja la lista ordenada de menor a mayor
+    private fun actualizarDistancias(posicion: Posicion) {
+        _lugares.value = lugaresRepo.obtenerLugares()
+            .map { LugarConDistancia(it, distanciaMetros(posicion, it)) }
+            .sortedBy { it.metros }
+    }
 
     private fun mensajeDe(e: Throwable): String = when (e) {
         is SecurityException -> "Falta el permiso de ubicación"
