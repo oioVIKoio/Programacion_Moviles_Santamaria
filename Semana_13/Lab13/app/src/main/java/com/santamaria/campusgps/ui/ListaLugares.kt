@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.santamaria.campusgps.model.LugarConDistancia
+import com.santamaria.campusgps.ui.components.Insignia
 import com.santamaria.campusgps.ui.theme.AzulSuave
 import com.santamaria.campusgps.ui.theme.FormaFila
 import com.santamaria.campusgps.ui.theme.NumeroGrande
@@ -48,6 +49,7 @@ private fun iconoDe(categoria: String): ImageVector = when (categoria) {
 fun ListaLugares(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
+    masCercano: Int?,
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -67,7 +69,10 @@ fun ListaLugares(
                     Icon(iconoDe(item.lugar.categoria), null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(item.lugar.nombre, style = MaterialTheme.typography.titleMedium.copy(fontSize = 15.sp))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(item.lugar.nombre, style = MaterialTheme.typography.titleMedium.copy(fontSize = 15.sp), modifier = Modifier.weight(1f, fill = false))
+                            if (item.lugar.id == masCercano) Insignia("Más cercano")
+                        }
                         Text(item.lugar.categoria, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Column(horizontalAlignment = Alignment.End) {

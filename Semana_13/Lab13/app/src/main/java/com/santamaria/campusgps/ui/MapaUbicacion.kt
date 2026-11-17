@@ -24,6 +24,7 @@ fun MapaUbicacion(
     estado: UbicacionUi,
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
+    masCercano: Int?,
     modifier: Modifier = Modifier
 ) {
     val camara = rememberCameraPositionState {
@@ -66,7 +67,7 @@ fun MapaUbicacion(
                 title = "Estás aquí"
             )
         }
-        // Paso 4: un marcador azul por lugar (el tuyo sigue rojo). key(id) evita que se mezclen al reordenar la lista.
+        // Paso 4: un marcador azul por lugar (el tuyo sigue rojo; el más cercano va verde, Paso 7). key(id) evita que se mezclen al reordenar la lista.
         lugares.forEach { item ->
             key(item.lugar.id) {
                 Marker(
@@ -75,7 +76,10 @@ fun MapaUbicacion(
                     ),
                     title = item.lugar.nombre,
                     snippet = item.lugar.categoria,
-                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
+                    // Verde el más cercano, azul el resto
+                    icon = BitmapDescriptorFactory.defaultMarker(
+                        if (item.lugar.id == masCercano) BitmapDescriptorFactory.HUE_GREEN else BitmapDescriptorFactory.HUE_AZURE
+                    )
                 )
             }
         }

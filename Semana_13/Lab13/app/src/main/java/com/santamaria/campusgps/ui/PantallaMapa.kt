@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.NearMe
 import androidx.compose.material3.Icon
@@ -34,14 +35,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.santamaria.campusgps.model.Lugar
 import com.santamaria.campusgps.model.LugarConDistancia
 import com.santamaria.campusgps.model.UbicacionUi
 import com.santamaria.campusgps.ui.components.BotonPrincipal
+import com.santamaria.campusgps.ui.components.BotonSecundario
 import com.santamaria.campusgps.ui.components.CajaMensaje
 import com.santamaria.campusgps.ui.components.TipoMensaje
+import com.santamaria.campusgps.ui.theme.Exito
 import com.santamaria.campusgps.ui.theme.FormaBoton
 import com.santamaria.campusgps.ui.theme.FormaHoja
 import com.santamaria.campusgps.ui.theme.NumeroChico
+import com.santamaria.campusgps.util.formatearDistancia
 import com.santamaria.campusgps.viewmodel.MapaViewModel
 import java.util.Locale
 
@@ -54,6 +59,7 @@ fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
     val lugares by vm.lugares.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
+    val masCercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
 
     // Si el usuario acepta alguno de los dos permisos buscamos; si niega, avisamos sin cerrar la app
@@ -88,12 +94,14 @@ fun PantallaMapa(vm: MapaViewModel) {
                 estado = estado,
                 lugares = lugares,
                 seleccionado = seleccionado,
+                masCercano = masCercano?.id,
                 modifier = Modifier.weight(1f)
             )
             HojaInferior(
                 estado = estado,
                 lugares = lugares,
                 seleccionado = seleccionado,
+                masCercano = masCercano,
                 onSeleccionar = vm::seleccionar,
                 onBuscar = { alPulsar() }
             )
@@ -124,6 +132,7 @@ private fun HojaInferior(
     estado: UbicacionUi,
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
+    masCercano: Lugar?,
     onSeleccionar: (Int) -> Unit,
     onBuscar: () -> Unit
 ) {
@@ -154,6 +163,13 @@ private fun HojaInferior(
                 habilitado = estado !is UbicacionUi.Buscando,
                 onClick = onBuscar
             )
+            // Deshabilitado hasta que haya un lugar con distancia; al pulsarlo se selecciona y la cámara va a él
+            BotonSecundario(
+                texto = "Ir al más cercano",
+                icono = Icons.Outlined.Flag,
+                habilitado = masCercano != null,
+                onClick = { masCercano?.let { onSeleccionar(it.id) } }
+            )
             when (val e = estado) {
                 UbicacionUi.Inicial -> Column(
                     Modifier.fillMaxWidth().padding(vertical = 18.dp),
@@ -175,7 +191,7 @@ private fun HojaInferior(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     // Todavía sin ubicación: la lista sale con "Sin calcular"
-                    ListaLugares(lugares, seleccionado, onSeleccionar, Modifier.height(ALTO_LISTA))
+                    ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA))
                 }
                 is UbicacionUi.Lista -> {
                     Row(
@@ -188,7 +204,16 @@ private fun HojaInferior(
                             style = NumeroChico
                         )
                     }
-                    ListaLugares(lugares, seleccionado, onSeleccionar, Modifier.height(ALTO_LISTA))
+                    // "Más cercano: nombre (distancia)"
+                    val cercano = lugares.firstOrNull { it.lugar.id == masCercano?.id }
+                    if (cercano?.metros != null) {
+                        Text(
+                            "Más cercano: ${cercano.lugar.nombre} (${formatearDistancia(cercano.metros)})",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Exito
+                        )
+                    }
+                    ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA))
                 }
                 is UbicacionUi.Error -> CajaMensaje(
                     tipo = TipoMensaje.ERROR,
