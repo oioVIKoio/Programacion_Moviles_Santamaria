@@ -18,3 +18,6 @@ sealed interface CargaUi {
     ) : CargaUi
     data class Error(val mensaje: String) : CargaUi
 }
+
+/** Un avance de la tarea con progreso: valor de 0f a 1f y el hilo que lo produjo. */
+data class Avance(val progreso: Float, val hilo: String)

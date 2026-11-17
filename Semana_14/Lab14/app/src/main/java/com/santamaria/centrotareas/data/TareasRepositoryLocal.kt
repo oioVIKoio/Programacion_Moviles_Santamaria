@@ -1,12 +1,26 @@
 package com.santamaria.centrotareas.data
 
+import android.util.Log
+import com.santamaria.centrotareas.model.Avance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class TareasRepositoryLocal : TareasRepository {
+
+    // 100 vueltas de 40 ms ≈ 4 s. flowOn mueve el trabajo a Default: quien recoge sigue en su hilo.
+    override fun tareaConProgreso(): Flow<Avance> = flow {
+        Log.d("HILO", "Dentro: ${Thread.currentThread().name}")
+        for (i in 1..100) {
+            delay(40)
+            emit(Avance(i / 100f, Thread.currentThread().name))
+        }
+    }.flowOn(Dispatchers.Default)
 
     override suspend fun cargarPerfil(): String {
         delay(2000)

@@ -7,16 +7,13 @@ import com.santamaria.centrotareas.data.TareasRepository
 import com.santamaria.centrotareas.model.CargaUi
 import com.santamaria.centrotareas.model.PrimosUi
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
@@ -24,7 +21,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _mensaje = MutableStateFlow("Listo")
     val mensaje: StateFlow<String> = _mensaje.asStateFlow()
 
-    // Paso 3: avance de 0f a 1f; 100 vueltas de 40 ms ≈ 4 s
+    // Avance de 0f a 1f; lo emite el Repository (Flow), ≈ 4 s
     private val _progreso = MutableStateFlow(0f)
     val progreso: StateFlow<Float> = _progreso.asStateFlow()
 
@@ -45,13 +42,10 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                 _progreso.value = 0f
                 _mensaje.value = "Trabajando..."
                 Log.d("HILO", "Antes: ${Thread.currentThread().name}")
-                for (i in 1..100) {
-                    withContext(Dispatchers.Default) {
-                        if (i == 1) Log.d("HILO", "Dentro: ${Thread.currentThread().name}")
-                        _hilo.value = Thread.currentThread().name
-                        delay(40)
-                    }
-                    _progreso.value = i / 100f
+                // El Repository emite el avance desde Default; aquí se recoge en el hilo principal
+                repo.tareaConProgreso().collect { avance ->
+                    _hilo.value = avance.hilo
+                    _progreso.value = avance.progreso
                 }
                 Log.d("HILO", "Despues: ${Thread.currentThread().name}")
                 _mensaje.value = "Terminó"
