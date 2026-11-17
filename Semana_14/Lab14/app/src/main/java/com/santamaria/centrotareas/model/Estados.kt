@@ -24,3 +24,6 @@ data class Avance(val progreso: Float, val hilo: String)
 
 /** Un avance del conteo de primos: porcentaje (0 a 100) y primos encontrados hasta ahora. */
 data class AvancePrimos(val porcentaje: Int, val cantidad: Int)
+
+/** Últimos tiempos medidos de cada modo de carga, en milisegundos (null = aún no se ejecutó). */
+data class Tiempos(val unaPorUna: Long? = null, val aLaVez: Long? = null)

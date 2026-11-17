@@ -1,6 +1,8 @@
 package com.santamaria.centrotareas.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -48,6 +51,7 @@ import com.santamaria.centrotareas.ui.components.TarjetaPaso
 import com.santamaria.centrotareas.ui.components.TipoMensaje
 import com.santamaria.centrotareas.model.CargaUi
 import com.santamaria.centrotareas.model.PrimosUi
+import com.santamaria.centrotareas.model.Tiempos
 import com.santamaria.centrotareas.ui.theme.Ambar
 import com.santamaria.centrotareas.ui.theme.FormaBoton
 import com.santamaria.centrotareas.ui.theme.NumeroChico
@@ -55,6 +59,47 @@ import com.santamaria.centrotareas.ui.theme.NumeroGrande
 import com.santamaria.centrotareas.viewmodel.TareasViewModel
 
 private fun miles(n: Int) = String.format(Locale.US, "%,d", n).replace(',', ' ')
+
+/** Barras con los últimos tiempos de "Una por una" y "A la vez" y cuánto se ahorra en paralelo. */
+@Composable
+private fun ComparacionTiempos(tiempos: Tiempos) {
+    val una = tiempos.unaPorUna
+    val vez = tiempos.aLaVez
+    if (una == null && vez == null) return
+    val maximo = maxOf(una ?: 0L, vez ?: 0L).toFloat()
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("COMPARACIÓN DE TIEMPOS", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        FilaTiempo("Una por una", una, maximo, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f))
+        FilaTiempo("A la vez", vez, maximo, MaterialTheme.colorScheme.primary)
+        if (una != null && vez != null && una > vez) {
+            val segundos = String.format(Locale.US, "%.1f", (una - vez) / 1000.0).replace('.', ',')
+            Text(
+                "$segundos s menos al ejecutar en paralelo",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+@Composable
+private fun FilaTiempo(nombre: String, ms: Long?, maximo: Float, color: androidx.compose.ui.graphics.Color) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(nombre, style = MaterialTheme.typography.bodySmall, modifier = Modifier.width(84.dp))
+        Box(
+            modifier = Modifier.weight(1f).height(8.dp).clip(FormaBoton).background(MaterialTheme.colorScheme.outline)
+        ) {
+            if (ms != null && maximo > 0f) {
+                Box(Modifier.fillMaxWidth(ms / maximo).height(8.dp).clip(FormaBoton).background(color))
+            }
+        }
+        Text(
+            if (ms == null) "—" else String.format(Locale.US, "%.1f s", ms / 1000.0),
+            style = NumeroChico.copy(fontSize = 11.sp),
+            modifier = Modifier.width(44.dp)
+        )
+    }
+}
 
 @Composable
 fun PantallaTareas(vm: TareasViewModel) {
@@ -171,6 +216,7 @@ fun PantallaTareas(vm: TareasViewModel) {
             TarjetaPaso(3, "Dos cargas de red", Icons.Outlined.Sync, abierta == 3, { abierta = if (abierta == 3) 0 else 3 }) {
                 val carga by vm.carga.collectAsState()
                 val simularError by vm.simularError.collectAsState()
+                val tiempos by vm.tiempos.collectAsState()
                 val cargando = carga is CargaUi.Cargando
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text("Simular error", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
@@ -203,6 +249,7 @@ fun PantallaTareas(vm: TareasViewModel) {
                     )
                     CargaUi.Inicial -> Unit
                 }
+                ComparacionTiempos(tiempos)
             }
             Spacer(Modifier.height(8.dp))
         }
