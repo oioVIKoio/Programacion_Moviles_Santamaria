@@ -23,6 +23,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -157,7 +159,17 @@ fun PantallaTareas(vm: TareasViewModel) {
             }
             TarjetaPaso(3, "Dos cargas de red", Icons.Outlined.Sync, abierta == 3, { abierta = if (abierta == 3) 0 else 3 }) {
                 val carga by vm.carga.collectAsState()
+                val simularError by vm.simularError.collectAsState()
                 val cargando = carga is CargaUi.Cargando
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("Simular error", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                    Switch(
+                        checked = simularError,
+                        onCheckedChange = vm::cambiarSimularError,
+                        enabled = !cargando,
+                        colors = SwitchDefaults.colors(checkedTrackColor = MaterialTheme.colorScheme.error)
+                    )
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     BotonSecundario("Una por una", onClick = vm::cargarUnaPorUna, habilitado = !cargando, modifier = Modifier.weight(1f))
                     BotonPrincipal("A la vez", onClick = vm::cargarALaVez, habilitado = !cargando, modifier = Modifier.weight(1f))
@@ -171,7 +183,14 @@ fun PantallaTareas(vm: TareasViewModel) {
                         titulo = "Modo: ${estado.modo}",
                         texto = "Perfil: ${estado.perfil}\nPedidos: ${estado.pedidos}\nTiempo: ${estado.milisegundos} ms"
                     )
-                    else -> Unit // TODO Paso 7: Error
+                    is CargaUi.Error -> CajaMensaje(
+                        tipo = TipoMensaje.ERROR,
+                        titulo = "No se pudo cargar",
+                        texto = estado.mensaje.removePrefix("No se pudo cargar: "),
+                        accion = "Reintentar",
+                        onAccion = vm::cargarALaVez
+                    )
+                    CargaUi.Inicial -> Unit
                 }
             }
             Spacer(Modifier.height(8.dp))
