@@ -2,13 +2,14 @@ package com.santamaria.centrotareas.data
 
 import android.util.Log
 import com.santamaria.centrotareas.model.Avance
+import com.santamaria.centrotareas.model.AvancePrimos
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class TareasRepositoryLocal : TareasRepository {
@@ -33,15 +34,17 @@ class TareasRepositoryLocal : TareasRepository {
         return listOf("Pedido 101", "Pedido 102", "Pedido 103")
     }
 
-    // Cálculo pesado: va en Dispatchers.Default y se puede cancelar a mitad (ensureActive)
-    override suspend fun contarPrimos(hasta: Int): Int = withContext(Dispatchers.Default) {
+    // Cálculo pesado en Default y cancelable (ensureActive); emite el porcentaje cada ~1 %
+    override fun contarPrimos(hasta: Int): Flow<AvancePrimos> = flow {
         var cantidad = 0
+        val paso = maxOf(1, hasta / 100)
         for (n in 2..hasta) {
-            ensureActive()
+            currentCoroutineContext().ensureActive()
             if (esPrimo(n)) cantidad++
+            if (n % paso == 0) emit(AvancePrimos((n.toLong() * 100 / hasta).toInt(), cantidad))
         }
-        cantidad
-    }
+        emit(AvancePrimos(100, cantidad))
+    }.flowOn(Dispatchers.Default)
 
     private fun esPrimo(n: Int): Boolean {
         var d = 2

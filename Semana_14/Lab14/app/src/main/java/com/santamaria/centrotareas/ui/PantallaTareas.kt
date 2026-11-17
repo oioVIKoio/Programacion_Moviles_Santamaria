@@ -152,7 +152,18 @@ fun PantallaTareas(vm: TareasViewModel) {
                         titulo = "Cálculo terminado",
                         texto = "${miles(estado.cantidad)} primos hasta ${miles(limite ?: 0)} · ${estado.milisegundos} ms"
                     )
-                    PrimosUi.Calculando -> Text("Calculando…", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    is PrimosUi.Calculando -> {
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Text("Calculando…", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                            Text("${estado.porcentaje} %", style = NumeroChico.copy(fontSize = 14.sp))
+                        }
+                        LinearProgressIndicator(
+                            progress = { estado.porcentaje / 100f },
+                            modifier = Modifier.fillMaxWidth().height(8.dp).clip(FormaBoton),
+                            trackColor = MaterialTheme.colorScheme.outline,
+                            drawStopIndicator = {}
+                        )
+                    }
                     PrimosUi.Cancelado -> Text("Cancelado", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     PrimosUi.Inicial -> Unit
                 }
