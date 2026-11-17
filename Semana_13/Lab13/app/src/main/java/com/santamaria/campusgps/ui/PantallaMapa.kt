@@ -1,5 +1,11 @@
 package com.santamaria.campusgps.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +46,32 @@ import java.util.Locale
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
+    val contexto = LocalContext.current
+
+    // Si el usuario acepta alguno de los dos permisos buscamos; si niega, avisamos sin cerrar la app
+    val lanzador = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { resultado ->
+        if (resultado.values.any { it }) vm.buscar() else vm.permisoDenegado()
+    }
+
+    fun alPulsar() {
+        val tienePermiso = listOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ).any { ContextCompat.checkSelfPermission(contexto, it) == PackageManager.PERMISSION_GRANTED }
+
+        if (tienePermiso) {
+            vm.buscar()
+        } else {
+            lanzador.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
 
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         // Chip de marca flotante, como en el diseño (aquí todavía sin mapa debajo)
@@ -78,7 +110,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                     texto = if (estado is UbicacionUi.Buscando) "Buscando…" else "Obtener mi ubicación",
                     icono = Icons.Outlined.NearMe,
                     habilitado = estado !is UbicacionUi.Buscando,
-                    onClick = { vm.buscar() }
+                    onClick = { alPulsar() }
                 )
                 when (val e = estado) {
                     UbicacionUi.Inicial -> Column(
