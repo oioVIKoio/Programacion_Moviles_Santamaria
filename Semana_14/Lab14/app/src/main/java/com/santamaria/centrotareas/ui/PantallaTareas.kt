@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.StopCircle
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -32,8 +33,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.santamaria.centrotareas.ui.components.BotonPrincipal
+import com.santamaria.centrotareas.ui.components.BotonSecundario
 import com.santamaria.centrotareas.ui.components.FranjaVida
 import com.santamaria.centrotareas.ui.components.TarjetaPaso
+import com.santamaria.centrotareas.ui.theme.Ambar
 import com.santamaria.centrotareas.ui.theme.FormaBoton
 import com.santamaria.centrotareas.ui.theme.NumeroChico
 import com.santamaria.centrotareas.ui.theme.NumeroGrande
@@ -76,6 +79,7 @@ fun PantallaTareas(vm: TareasViewModel) {
                 val mensaje by vm.mensaje.collectAsState()
                 val progreso by vm.progreso.collectAsState()
                 val hilo by vm.hilo.collectAsState()
+                val corriendo by vm.corriendo.collectAsState()
                 // Paso 3: mensaje y porcentaje arriba, barra, hilo actual y el botón Iniciar
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -89,7 +93,7 @@ fun PantallaTareas(vm: TareasViewModel) {
                 LinearProgressIndicator(
                     progress = { progreso },
                     modifier = Modifier.fillMaxWidth().height(10.dp).clip(FormaBoton),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = if (mensaje == "Cancelado") Ambar else MaterialTheme.colorScheme.primary,
                     trackColor = MaterialTheme.colorScheme.outline,
                     drawStopIndicator = {}
                 )
@@ -102,8 +106,10 @@ fun PantallaTareas(vm: TareasViewModel) {
                     )
                     Text(hilo, style = NumeroChico.copy(fontSize = 11.sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                BotonPrincipal("Iniciar", onClick = vm::tareaLarga, icono = Icons.Outlined.PlayArrow)
-                // TODO Paso 4: Cancelar y bloquear el doble inicio
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    BotonPrincipal("Iniciar", onClick = vm::tareaLarga, icono = Icons.Outlined.PlayArrow, habilitado = !corriendo, modifier = Modifier.weight(1f))
+                    BotonSecundario("Cancelar", onClick = vm::cancelar, icono = Icons.Outlined.StopCircle, habilitado = corriendo, modifier = Modifier.weight(1f))
+                }
             }
             TarjetaPaso(2, "Contar números primos", Icons.Outlined.Memory, abierta == 2, { abierta = if (abierta == 2) 0 else 2 }) {
                 // TODO Paso 5

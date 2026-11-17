@@ -7,6 +7,7 @@ import com.santamaria.centrotareas.data.TareasRepository
 import com.santamaria.centrotareas.model.CargaUi
 import com.santamaria.centrotareas.model.PrimosUi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,25 +29,41 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _hilo = MutableStateFlow("main")
     val hilo: StateFlow<String> = _hilo.asStateFlow()
 
+    // Paso 4: el Job permite cancelar; corriendo bloquea el doble inicio
+    private var trabajo: Job? = null
+    private val _corriendo = MutableStateFlow(false)
+    val corriendo: StateFlow<Boolean> = _corriendo.asStateFlow()
+
     fun tareaLarga() {
-        viewModelScope.launch {
-            _progreso.value = 0f
-            _mensaje.value = "Trabajando..."
-            Log.d("HILO", "Antes: ${Thread.currentThread().name}")
-            for (i in 1..100) {
-                withContext(Dispatchers.Default) {
-                    if (i == 1) Log.d("HILO", "Dentro: ${Thread.currentThread().name}")
-                    _hilo.value = Thread.currentThread().name
-                    delay(40)
+        if (_corriendo.value) return
+        _corriendo.value = true
+        trabajo = viewModelScope.launch {
+            try {
+                _progreso.value = 0f
+                _mensaje.value = "Trabajando..."
+                Log.d("HILO", "Antes: ${Thread.currentThread().name}")
+                for (i in 1..100) {
+                    withContext(Dispatchers.Default) {
+                        if (i == 1) Log.d("HILO", "Dentro: ${Thread.currentThread().name}")
+                        _hilo.value = Thread.currentThread().name
+                        delay(40)
+                    }
+                    _progreso.value = i / 100f
                 }
-                _progreso.value = i / 100f
+                Log.d("HILO", "Despues: ${Thread.currentThread().name}")
+                _mensaje.value = "Terminó"
+            } finally {
+                // Termine bien o cancelada: vuelve a habilitar Iniciar
+                _hilo.value = "main"
+                _corriendo.value = false
             }
-            _hilo.value = Thread.currentThread().name
-            Log.d("HILO", "Despues: ${Thread.currentThread().name}")
-            _mensaje.value = "Terminó"
         }
     }
-    // TODO Paso 4: trabajo (Job), corriendo y cancelar()
+
+    fun cancelar() {
+        trabajo?.cancel()
+        _mensaje.value = "Cancelado"
+    }
 
     // ----- Contar primos (paso 5) -----
     private val _primos = MutableStateFlow<PrimosUi>(PrimosUi.Inicial)
