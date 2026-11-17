@@ -13,9 +13,12 @@ data class Lugar(
 // metros = null mientras todavía no se conoce la ubicación del usuario
 data class LugarConDistancia(val lugar: Lugar, val metros: Float?)
 
+// Qué salió mal: la pantalla decide el botón según el tipo (Abrir ajustes, Reintentar o ninguno)
+enum class TipoError { SIN_PERMISO, GPS_APAGADO, SIN_PLAY_SERVICES, OTRO }
+
 sealed interface UbicacionUi {
     data object Inicial : UbicacionUi
     data object Buscando : UbicacionUi
     data class Lista(val posicion: Posicion) : UbicacionUi
-    data class Error(val mensaje: String) : UbicacionUi
+    data class Error(val mensaje: String, val tipo: TipoError) : UbicacionUi
 }

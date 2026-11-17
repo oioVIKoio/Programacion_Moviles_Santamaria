@@ -40,8 +40,6 @@ import com.santamaria.campusgps.model.LugarConDistancia
 import com.santamaria.campusgps.model.UbicacionUi
 import com.santamaria.campusgps.ui.components.BotonPrincipal
 import com.santamaria.campusgps.ui.components.BotonSecundario
-import com.santamaria.campusgps.ui.components.CajaMensaje
-import com.santamaria.campusgps.ui.components.TipoMensaje
 import com.santamaria.campusgps.ui.theme.Exito
 import com.santamaria.campusgps.ui.theme.FormaBoton
 import com.santamaria.campusgps.ui.theme.FormaHoja
@@ -215,11 +213,7 @@ private fun HojaInferior(
                     }
                     ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA))
                 }
-                is UbicacionUi.Error -> CajaMensaje(
-                    tipo = TipoMensaje.ERROR,
-                    titulo = "No pudimos ubicarte",
-                    texto = e.mensaje
-                )
+                is UbicacionUi.Error -> MensajeError(e, onReintentar = onBuscar)
             }
         }
     }
