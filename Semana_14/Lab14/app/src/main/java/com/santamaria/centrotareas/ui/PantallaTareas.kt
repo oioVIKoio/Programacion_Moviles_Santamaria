@@ -13,11 +13,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bolt
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.santamaria.centrotareas.ui.components.BotonPeligro
 import com.santamaria.centrotareas.ui.components.FranjaVida
 import com.santamaria.centrotareas.ui.components.TarjetaPaso
 import com.santamaria.centrotareas.viewmodel.TareasViewModel
@@ -63,8 +66,11 @@ fun PantallaTareas(vm: TareasViewModel) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             TarjetaPaso(1, "Tarea con progreso", Icons.Outlined.Bolt, abierta == 1, { abierta = if (abierta == 1) 0 else 1 }) {
-                // TODO Pasos 1 a 4
-                Text("Se construye en los pasos 1 a 4.", style = MaterialTheme.typography.bodyMedium)
+                val mensaje by vm.mensaje.collectAsState()
+                // Paso 1: botón MAL a propósito. Toca "Tócame" justo después y mira qué pasa.
+                BotonPeligro("Tarea larga (MAL)", onClick = vm::tareaLargaMala, icono = Icons.Outlined.ErrorOutline)
+                Text(mensaje, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                // TODO Pasos 2 a 4
             }
             TarjetaPaso(2, "Contar números primos", Icons.Outlined.Memory, abierta == 2, { abierta = if (abierta == 2) 0 else 2 }) {
                 // TODO Paso 5
