@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.santamaria.campusgps.model.LugarConDistancia
 import com.santamaria.campusgps.model.UbicacionUi
 import com.santamaria.campusgps.ui.components.BotonPrincipal
 import com.santamaria.campusgps.ui.components.CajaMensaje
@@ -42,6 +44,9 @@ import com.santamaria.campusgps.ui.theme.FormaHoja
 import com.santamaria.campusgps.ui.theme.NumeroChico
 import com.santamaria.campusgps.viewmodel.MapaViewModel
 import java.util.Locale
+
+// Altura fija de la lista: el mapa se queda con el resto (weight 1f)
+private val ALTO_LISTA = 250.dp
 
 // Ejemplo resuelto: pedir la ubicación y mostrar latitud y longitud, ya con el diseño.
 @Composable
@@ -85,7 +90,13 @@ fun PantallaMapa(vm: MapaViewModel) {
                 seleccionado = seleccionado,
                 modifier = Modifier.weight(1f)
             )
-            HojaInferior(estado = estado, onBuscar = { alPulsar() })
+            HojaInferior(
+                estado = estado,
+                lugares = lugares,
+                seleccionado = seleccionado,
+                onSeleccionar = vm::seleccionar,
+                onBuscar = { alPulsar() }
+            )
         }
 
         // Chip de marca flotante sobre el mapa, como en el diseño
@@ -109,7 +120,13 @@ fun PantallaMapa(vm: MapaViewModel) {
 
 // Hoja blanca con esquinas redondeadas que se monta 28 dp sobre el mapa
 @Composable
-private fun HojaInferior(estado: UbicacionUi, onBuscar: () -> Unit) {
+private fun HojaInferior(
+    estado: UbicacionUi,
+    lugares: List<LugarConDistancia>,
+    seleccionado: Int?,
+    onSeleccionar: (Int) -> Unit,
+    onBuscar: () -> Unit
+) {
     val solape = 28.dp
     Surface(
         modifier = Modifier
@@ -151,20 +168,27 @@ private fun HojaInferior(estado: UbicacionUi, onBuscar: () -> Unit) {
                         textAlign = TextAlign.Center
                     )
                 }
-                UbicacionUi.Buscando -> Text(
-                    "Buscando señal GPS…",
-                    style = NumeroChico,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                is UbicacionUi.Lista -> Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Tu ubicación", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                UbicacionUi.Buscando -> {
                     Text(
-                        String.format(Locale.US, "%.4f, %.4f", e.posicion.latitud, e.posicion.longitud),
-                        style = NumeroChico
+                        "Buscando señal GPS…",
+                        style = NumeroChico,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    // Todavía sin ubicación: la lista sale con "Sin calcular"
+                    ListaLugares(lugares, seleccionado, onSeleccionar, Modifier.height(ALTO_LISTA))
+                }
+                is UbicacionUi.Lista -> {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Tu ubicación", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            String.format(Locale.US, "%.4f, %.4f", e.posicion.latitud, e.posicion.longitud),
+                            style = NumeroChico
+                        )
+                    }
+                    ListaLugares(lugares, seleccionado, onSeleccionar, Modifier.height(ALTO_LISTA))
                 }
                 is UbicacionUi.Error -> CajaMensaje(
                     tipo = TipoMensaje.ERROR,

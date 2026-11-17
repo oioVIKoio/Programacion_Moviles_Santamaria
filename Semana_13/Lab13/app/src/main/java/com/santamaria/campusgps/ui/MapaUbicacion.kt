@@ -42,6 +42,15 @@ fun MapaUbicacion(
         }
     }
 
+    // Al elegir un lugar en la lista, la cámara se acerca a él (zoom 17)
+    LaunchedEffect(seleccionado) {
+        lugares.firstOrNull { it.lugar.id == seleccionado }?.let { item ->
+            camara.animate(
+                CameraUpdateFactory.newLatLngZoom(LatLng(item.lugar.latitud, item.lugar.longitud), 17f)
+            )
+        }
+    }
+
     GoogleMap(
         modifier = modifier,
         cameraPositionState = camara,
