@@ -81,6 +81,22 @@ Si la espera fuera de 10 segundos, Android mostraría el diálogo **"La aplicaci
 
 El valor por defecto del campo de primos es **2 000 000** (no 500 000): con 500 000 el cálculo tardaba 0,6 s en el emulador y la guía pide que tarde entre 2 y 5 s para notar que la pantalla no se congela (2 000 000 → ≈ 2,5 s).
 
+## Fase 2 · Mejoras con IA (rama `con-ia`)
+
+Hechas con Claude Code, detalle de los prompts en [`PROMPTS.md`](PROMPTS.md). Cada una es un commit aparte y se probó en el emulador.
+
+| # | Mejora | Capas que cambian | Commit |
+|---|---|---|---|
+| 1 | La tarea con progreso vive en el Repository y se expone como `Flow` con `flowOn(Dispatchers.Default)` | Repository + ViewModel | `2d52854` |
+| 2 | Contar primos muestra el porcentaje mientras avanza (`Flow<AvancePrimos>` desde el Repository) | Repository + ViewModel + View | `cd0caf0` |
+| 3 | Comparación de tiempos: barras de Una por una y A la vez y el ahorro en paralelo | ViewModel + View | `8e5649d` |
+
+Se evaluó y **se descartó** el "tiempo máximo" con `withTimeout`: las cargas simuladas tardan 2 s y 3 s fijos, así que con un límite de 2 s fallarían siempre y no demostraría nada.
+
+| Primos con progreso | Comparación de tiempos |
+|---|---|
+| ![Primos con progreso](capturas/06-fase2-primos-con-progreso.png) | ![Comparación de tiempos](capturas/07-fase2-comparacion-de-tiempos.png) |
+
 ## Para pensar
 
 **1. ¿Por qué no se veía "Trabajando..." en el Paso 1?**
