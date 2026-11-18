@@ -28,6 +28,7 @@ import com.santamaria.campusgps.ui.theme.AzulSuave
 import com.santamaria.campusgps.ui.theme.Exito
 import com.santamaria.campusgps.ui.theme.FormaFila
 import com.santamaria.campusgps.ui.theme.NumeroGrande
+import com.santamaria.campusgps.ui.theme.ReferenciaTexto
 import com.santamaria.campusgps.util.formatearCaminata
 import com.santamaria.campusgps.util.formatearDistancia
 
@@ -40,7 +41,8 @@ fun ListaLugares(
     masCercano: Int?,
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    dentro: Set<Int> = emptySet()
+    dentro: Set<Int> = emptySet(),
+    referencia: Int? = null
 ) {
     LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(lugares, key = { it.lugar.id }) { item ->
@@ -62,12 +64,16 @@ fun ListaLugares(
                             Text(item.lugar.nombre, style = MaterialTheme.typography.titleMedium.copy(fontSize = 15.sp), modifier = Modifier.weight(1f, fill = false))
                             if (item.lugar.id == masCercano) Insignia("Más cercano")
                         }
-                        // Con un radio elegido, los lugares que caen dentro lo dicen en verde
-                        if (item.lugar.id in dentro) {
-                            Text("${item.lugar.categoria} · dentro del radio", style = MaterialTheme.typography.bodySmall, color = Exito)
-                        } else {
-                            Text(item.lugar.categoria, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
+                        // Una sola línea: categoría, y a continuación si cae en el radio o es tu referencia
+                        val esReferencia = item.lugar.id == referencia
+                        val esDentro = item.lugar.id in dentro
+                        Text(
+                            item.lugar.categoria +
+                                (if (esDentro) " · dentro del radio" else "") +
+                                (if (esReferencia) " · tu referencia" else ""),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (esReferencia) ReferenciaTexto else if (esDentro) Exito else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         if (item.metros == null) {

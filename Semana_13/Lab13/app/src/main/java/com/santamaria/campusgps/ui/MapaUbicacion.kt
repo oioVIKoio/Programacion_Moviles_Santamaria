@@ -40,6 +40,7 @@ import com.santamaria.campusgps.model.TipoMapa
 import com.santamaria.campusgps.model.UbicacionUi
 import com.santamaria.campusgps.ui.theme.Azul
 import com.santamaria.campusgps.ui.theme.Exito
+import com.santamaria.campusgps.ui.theme.Referencia
 
 // Solo dibuja lo que recibe: no consulta ningún Repository
 @Composable
@@ -50,6 +51,7 @@ fun MapaUbicacion(
     masCercano: Int?,
     radio: Int?,
     onSeleccionar: (Int?) -> Unit,
+    referencia: Int?,
     tipoMapa: TipoMapa,
     soloCampus: Boolean,
     ubicacionNativa: Boolean,
@@ -134,8 +136,9 @@ fun MapaUbicacion(
             key(item.lugar.id) {
                 val esCercano = item.lugar.id == masCercano
                 val esElegido = item.lugar.id == seleccionado
+                val esReferencia = item.lugar.id == referencia
                 MarkerComposable(
-                    item.lugar.id, item.lugar.categoria, esCercano, esElegido,
+                    item.lugar.id, item.lugar.categoria, esCercano, esElegido, esReferencia,
                     state = rememberUpdatedMarkerState(position = LatLng(item.lugar.latitud, item.lugar.longitud)),
                     title = item.lugar.nombre,
                     snippet = item.lugar.categoria,
@@ -151,7 +154,8 @@ fun MapaUbicacion(
                         modifier = Modifier.size(if (esElegido) 58.dp else 40.dp),
                         shape = CircleShape,
                         color = if (esCercano) Exito else Azul,
-                        border = BorderStroke(if (esElegido) 4.dp else 2.dp, Color.White),
+                        // Tu referencia guardada lleva el borde ámbar; el resto, blanco
+                        border = BorderStroke(if (esElegido) 4.dp else if (esReferencia) 3.dp else 2.dp, if (esReferencia) Referencia else Color.White),
                         shadowElevation = if (esElegido) 10.dp else 4.dp
                     ) {
                         Box(contentAlignment = Alignment.Center) {

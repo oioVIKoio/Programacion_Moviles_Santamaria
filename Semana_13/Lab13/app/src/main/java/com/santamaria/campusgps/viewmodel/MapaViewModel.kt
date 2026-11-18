@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.santamaria.campusgps.data.GpsApagadoException
 import com.santamaria.campusgps.data.LugaresRepository
+import com.santamaria.campusgps.data.ReferenciaRepository
 import com.santamaria.campusgps.data.UbicacionRepository
 import com.santamaria.campusgps.model.Lugar
 import com.santamaria.campusgps.model.LugarConDistancia
@@ -23,7 +24,8 @@ import kotlinx.coroutines.launch
 
 class MapaViewModel(
     private val ubicacionRepo: UbicacionRepository,
-    private val lugaresRepo: LugaresRepository
+    private val lugaresRepo: LugaresRepository,
+    private val referenciaRepo: ReferenciaRepository
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow<UbicacionUi>(UbicacionUi.Inicial)
@@ -91,8 +93,10 @@ class MapaViewModel(
         _estado.value = UbicacionUi.Error("Sin permiso de ubicación no puedo mostrar dónde estás", TipoError.SIN_PERMISO)
     }
 
+    // Tocar un lugar lo selecciona y lo deja guardado como tu referencia (no se pierde al cerrar la app)
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
+        if (id != null) viewModelScope.launch { referenciaRepo.guardar(id) }
     }
 
     fun elegirRadio(metros: Int?) {
@@ -110,6 +114,11 @@ class MapaViewModel(
         .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
+
+    // Mejora 4: la referencia guardada, con su distancia actual. Sale de todos los lugares, así un filtro no la esconde.
+    val referencia: StateFlow<LugarConDistancia?> = combine(_lugares, referenciaRepo.ultimoLugarId) { todos, id ->
+        todos.firstOrNull { it.lugar.id == id }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     // Se calcula solo cuando llega la ubicación (dentro de buscar) y deja la lista ordenada de menor a mayor
     private fun actualizarDistancias(posicion: Posicion) {

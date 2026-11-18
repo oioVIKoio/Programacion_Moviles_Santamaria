@@ -59,6 +59,7 @@ import com.santamaria.campusgps.ui.theme.Exito
 import com.santamaria.campusgps.ui.theme.FormaBoton
 import com.santamaria.campusgps.ui.theme.FormaHoja
 import com.santamaria.campusgps.ui.theme.NumeroChico
+import com.santamaria.campusgps.ui.theme.ReferenciaTexto
 import com.santamaria.campusgps.util.formatearDistancia
 import com.santamaria.campusgps.viewmodel.MapaViewModel
 import java.util.Locale
@@ -75,6 +76,7 @@ fun PantallaMapa(vm: MapaViewModel) {
     val masCercano by vm.masCercano.collectAsState()
     val categoria by vm.categoria.collectAsState()
     val radio by vm.radio.collectAsState()
+    val referencia by vm.referencia.collectAsState()
     val dentro by vm.dentroDelRadio.collectAsState()
     val tipoMapa by vm.tipoMapa.collectAsState()
     val soloCampus by vm.soloCampus.collectAsState()
@@ -122,6 +124,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 masCercano = masCercano?.id,
                 radio = radio,
                 onSeleccionar = vm::seleccionar,
+                referencia = referencia?.lugar?.id,
                 tipoMapa = tipoMapa,
                 soloCampus = soloCampus,
                 ubicacionNativa = permisoConcedido,
@@ -139,6 +142,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 radio = radio,
                 onRadio = vm::elegirRadio,
                 dentro = dentro,
+                referencia = referencia,
                 onSeleccionar = vm::seleccionar,
                 onBuscar = { alPulsar() }
             )
@@ -209,6 +213,7 @@ private fun HojaInferior(
     radio: Int?,
     onRadio: (Int?) -> Unit,
     dentro: Set<Int>,
+    referencia: LugarConDistancia?,
     onSeleccionar: (Int) -> Unit,
     onBuscar: () -> Unit
 ) {
@@ -251,6 +256,14 @@ private fun HojaInferior(
                 habilitado = masCercano != null,
                 onClick = { masCercano?.let { onSeleccionar(it.id) } }
             )
+            // Tu referencia: el último lugar que tocaste, guardado aunque cierres la app, con cuánto te falta si ya te ubicaste
+            referencia?.let { ref ->
+                Text(
+                    "Tu referencia: ${ref.lugar.nombre}" + (ref.metros?.let { " · a ${formatearDistancia(it)}" } ?: ""),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = ReferenciaTexto
+                )
+            }
             when (val e = estado) {
                 UbicacionUi.Inicial -> Column(
                     Modifier.fillMaxWidth().padding(vertical = 18.dp),
@@ -272,7 +285,7 @@ private fun HojaInferior(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     // Todavía sin ubicación: la lista sale con "Sin calcular"
-                    ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA))
+                    ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA), referencia = referencia?.lugar?.id)
                 }
                 is UbicacionUi.Lista -> {
                     Row(
@@ -296,7 +309,7 @@ private fun HojaInferior(
                     }
                     FiltroCategorias(categorias, categoria, onCategoria)
                     FiltroRadio(radios, radio, onRadio)
-                    ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA), dentro)
+                    ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA), dentro, referencia?.lugar?.id)
                 }
                 is UbicacionUi.Error -> MensajeError(e, onReintentar = onBuscar)
             }

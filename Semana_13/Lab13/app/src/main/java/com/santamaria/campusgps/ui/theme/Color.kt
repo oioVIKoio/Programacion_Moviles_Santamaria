@@ -14,3 +14,7 @@ val Fondo = Color(0xFFF2F4F7)
 val Superficie = Color(0xFFFFFFFF)
 val Linea = Color(0xFFE3E7ED)
 val TextoSecundario = Color(0xFF66758A)
+
+// Referencia guardada: borde del marcador y texto
+val Referencia = Color(0xFFF5A623)
+val ReferenciaTexto = Color(0xFFB26A00)

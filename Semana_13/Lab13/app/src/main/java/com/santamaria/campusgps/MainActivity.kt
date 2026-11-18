@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.santamaria.campusgps.data.LugaresRepositoryTecsup
+import com.santamaria.campusgps.data.ReferenciaRepositoryDataStore
 import com.santamaria.campusgps.data.UbicacionRepositoryGoogle
 import com.santamaria.campusgps.ui.PantallaMapa
 import com.santamaria.campusgps.ui.theme.CampusGPSTheme
@@ -21,7 +22,8 @@ class MainActivity : ComponentActivity() {
                 val vm: MapaViewModel = viewModel(
                     factory = CampusViewModelFactory(
                         UbicacionRepositoryGoogle(applicationContext),
-                        LugaresRepositoryTecsup()
+                        LugaresRepositoryTecsup(),
+                        ReferenciaRepositoryDataStore(applicationContext)
                     )
                 )
                 PantallaMapa(vm)
