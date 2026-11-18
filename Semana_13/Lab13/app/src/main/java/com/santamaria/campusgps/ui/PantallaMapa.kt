@@ -49,7 +49,7 @@ import com.santamaria.campusgps.viewmodel.MapaViewModel
 import java.util.Locale
 
 // Altura fija de la lista: el mapa se queda con el resto (weight 1f)
-private val ALTO_LISTA = 250.dp
+private val ALTO_LISTA = 200.dp
 
 // Ejemplo resuelto: pedir la ubicación y mostrar latitud y longitud, ya con el diseño.
 @Composable
@@ -58,6 +58,7 @@ fun PantallaMapa(vm: MapaViewModel) {
     val lugares by vm.lugares.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
+    val categoria by vm.categoria.collectAsState()
     val contexto = LocalContext.current
 
     // Si el usuario acepta alguno de los dos permisos buscamos; si niega, avisamos sin cerrar la app
@@ -100,6 +101,9 @@ fun PantallaMapa(vm: MapaViewModel) {
                 lugares = lugares,
                 seleccionado = seleccionado,
                 masCercano = masCercano,
+                categorias = vm.categorias,
+                categoria = categoria,
+                onCategoria = vm::filtrarCategoria,
                 onSeleccionar = vm::seleccionar,
                 onBuscar = { alPulsar() }
             )
@@ -131,6 +135,9 @@ private fun HojaInferior(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     masCercano: Lugar?,
+    categorias: List<String>,
+    categoria: String?,
+    onCategoria: (String?) -> Unit,
     onSeleccionar: (Int) -> Unit,
     onBuscar: () -> Unit
 ) {
@@ -211,6 +218,7 @@ private fun HojaInferior(
                             color = Exito
                         )
                     }
+                    FiltroCategorias(categorias, categoria, onCategoria)
                     ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA))
                 }
                 is UbicacionUi.Error -> MensajeError(e, onReintentar = onBuscar)

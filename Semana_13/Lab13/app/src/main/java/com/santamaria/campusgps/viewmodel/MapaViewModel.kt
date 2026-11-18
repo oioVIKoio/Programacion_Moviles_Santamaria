@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -27,10 +28,19 @@ class MapaViewModel(
     private val _estado = MutableStateFlow<UbicacionUi>(UbicacionUi.Inicial)
     val estado: StateFlow<UbicacionUi> = _estado.asStateFlow()
 
+    // _lugares guarda todos los lugares con su distancia; lugares es lo que se ve (filtrado)
     private val _lugares = MutableStateFlow(
         lugaresRepo.obtenerLugares().map { LugarConDistancia(it, null) }
     )
-    val lugares: StateFlow<List<LugarConDistancia>> = _lugares.asStateFlow()
+
+    // Mejora 1: filtro por categoría (null = todas)
+    val categorias: List<String> = lugaresRepo.obtenerLugares().map { it.categoria }.distinct()
+    private val _categoria = MutableStateFlow<String?>(null)
+    val categoria: StateFlow<String?> = _categoria.asStateFlow()
+
+    val lugares: StateFlow<List<LugarConDistancia>> = combine(_lugares, _categoria) { todos, cat ->
+        if (cat == null) todos else todos.filter { it.lugar.categoria == cat }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _lugares.value)
 
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()
@@ -59,8 +69,14 @@ class MapaViewModel(
         _seleccionado.value = id
     }
 
-    // El más cercano se deriva de la lista (ya ordenada): el primero que ya tiene distancia
-    val masCercano: StateFlow<Lugar?> = _lugares
+    // Al cambiar de categoría se quita la selección: el lugar elegido puede haber quedado fuera de la lista
+    fun filtrarCategoria(categoria: String?) {
+        _categoria.value = categoria
+        _seleccionado.value = null
+    }
+
+    // El más cercano se deriva de la lista visible (ya ordenada): el primero que ya tiene distancia
+    val masCercano: StateFlow<Lugar?> = lugares
         .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
