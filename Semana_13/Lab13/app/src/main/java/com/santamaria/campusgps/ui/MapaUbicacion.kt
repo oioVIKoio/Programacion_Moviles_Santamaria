@@ -52,8 +52,11 @@ fun MapaUbicacion(
     ubicacionNativa: Boolean,
     modifier: Modifier = Modifier
 ) {
+    // La cámara arranca en el centro de los lugares (el campus) y no en un punto fijo de Lima
     val camara = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(-12.0464, -77.0428), 12f)
+        val centro = if (lugares.isEmpty()) LatLng(-12.0464, -77.0428)
+        else LatLng(lugares.map { it.lugar.latitud }.average(), lugares.map { it.lugar.longitud }.average())
+        position = CameraPosition.fromLatLngZoom(centro, 16f)
     }
 
     // Cuando llega la ubicación, la cámara viaja hasta ella
