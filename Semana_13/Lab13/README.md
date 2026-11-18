@@ -86,6 +86,34 @@ Colores de los marcadores: **rojo** = tú, **azul** = lugares del campus, **verd
 | `git grep` de la clave de Maps en `Lab13` | Sin resultados |
 | Sin Google Play Services | **No se probó**: el emulador sí lo tiene; el código lo maneja con un mensaje sin botón |
 
+## Fase 2: mejoras con IA (rama `con-ia`)
+
+El detalle de cada consulta está en [`PROMPTS.md`](PROMPTS.md). Las mejoras de la Fase 2 y el cambio de datos, uno por commit:
+
+1. **Filtro por categoría** (`feat(filtro)`, toca ViewModel y View): chips *Todos / Estudio / Comida / Eventos / Servicios*. La lista y el mapa solo muestran la categoría elegida y el "más cercano" se recalcula sobre lo que se ve.
+2. **Radio de cercanía** (`feat(radio)`, toca ViewModel y View): chips *Sin radio / 100 m / 200 m / 500 m*. Dibuja un círculo alrededor de tu posición y la lista marca en verde los lugares que caen dentro, sin ocultar ninguno. Se combina con el filtro.
+3. **Mapa del campus** (`feat(mapa)`, toca ViewModel y View): íconos propios por categoría en los marcadores (azul, y verde el más cercano); el lugar que tocas, en el mapa o en la lista, se agranda y sube por encima de los demás, y tocar un lugar vacío del mapa quita la selección, botón de capas con visor *Normal / Satélite / Híbrido*, vista *Solo lugares del campus* (apaga los puntos de Google; arranca apagada) y punto azul nativo del mapa solo si hay permiso.
+
+4. **Lugares reales del campus** (`feat(lugares)`, toca solo el Repository): `LugaresRepositoryTecsup` reemplaza a los 5 lugares ficticios con los sitios que Google Maps nombra como Tecsup en Av. Cascanueces 2221, Santa Anita (Pabellones 10, 11, 15 y 16, Canchas Deportivas, Polideportivo e Informes). El ViewModel y la pantalla no cambiaron: se cambió la implementación de la interface `LugaresRepository` en `MainActivity`. La cámara arranca en el centro de los lugares.
+5. **Referencia guardada** (`feat(referencia)`, toca Repository, ViewModel y View; es la mejora "Último lugar visitado" de la guía): al tocar un lugar, en el mapa o en la lista, se guarda como tu referencia con DataStore. Sigue ahí cuando cierras y vuelves a abrir la app: sale la línea "Tu referencia: …" (con los metros que te faltan si ya te ubicaste), el marcador con borde ámbar y la tarjeta con "tu referencia". Para llegar, te guías con la distancia y el mapa de la propia app, sin salir a otra.
+
+| Radio de 200 m | Íconos propios | Solo lugares del campus |
+|---|---|---|
+| ![Radio](capturas/07-radio-200m.png) | ![Íconos](capturas/08-mapa-iconos.png) | ![Solo campus](capturas/09-solo-campus.png) |
+
+| Prueba (Fase 2) | Resultado |
+|---|---|
+| Chip **Comida** | Queda la Cafetería (109 m) y es el "más cercano" |
+| Radio de 200 m | Círculo en el mapa; Biblioteca, Cafetería y Laboratorio dicen "dentro del radio" |
+| Radio de 100 m | Solo la Biblioteca (88 m) dice "dentro del radio" |
+| Radio + categoría a la vez | Los dos filtros se combinan |
+| Íconos de los marcadores | Libro, café y evento en azul; verde el más cercano; tu posición sigue en rojo |
+| **Satélite** (celular real) | El mapa muestra el campus desde arriba |
+| **Solo lugares del campus** | Desaparecen paraderos, tiendas y hospital; quedan las calles y los lugares |
+| Punto azul nativo | Aparece sobre tu posición solo con el permiso concedido |
+| Tocar un lugar y cerrar la app por completo | Al reabrirla sigue "Tu referencia: Pabellón 10", con el marcador de borde ámbar |
+| Lugares reales (celular en el campus) | El más cercano es un pabellón a unos 140 m; categorías Estudio, Servicios y Deporte |
+
 ## Para pensar
 
 **1. ¿Por qué `FusedLocationProviderClient` está en el Repository y no en el ViewModel?**
