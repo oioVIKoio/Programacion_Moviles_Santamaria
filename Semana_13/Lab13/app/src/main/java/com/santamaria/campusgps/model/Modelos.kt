@@ -22,3 +22,6 @@ sealed interface UbicacionUi {
     data class Lista(val posicion: Posicion) : UbicacionUi
     data class Error(val mensaje: String, val tipo: TipoError) : UbicacionUi
 }
+
+// Mejora 3: tipo de mapa que se ve (el visor del mapa)
+enum class TipoMapa(val etiqueta: String) { NORMAL("Normal"), SATELITE("Satélite"), HIBRIDO("Híbrido") }

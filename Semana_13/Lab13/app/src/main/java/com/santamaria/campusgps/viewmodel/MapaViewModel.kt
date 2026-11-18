@@ -9,6 +9,7 @@ import com.santamaria.campusgps.model.Lugar
 import com.santamaria.campusgps.model.LugarConDistancia
 import com.santamaria.campusgps.model.Posicion
 import com.santamaria.campusgps.model.TipoError
+import com.santamaria.campusgps.model.TipoMapa
 import com.santamaria.campusgps.model.UbicacionUi
 import com.santamaria.campusgps.util.distanciaMetros
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,6 +53,20 @@ class MapaViewModel(
         if (radio == null) emptySet()
         else lista.filter { it.metros != null && it.metros <= radio }.map { it.lugar.id }.toSet()
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
+    // Mejora 3: visor del mapa. "Solo campus" oculta los puntos de interés y el transporte de Google (apagado por defecto)
+    private val _tipoMapa = MutableStateFlow(TipoMapa.NORMAL)
+    val tipoMapa: StateFlow<TipoMapa> = _tipoMapa.asStateFlow()
+    private val _soloCampus = MutableStateFlow(false)
+    val soloCampus: StateFlow<Boolean> = _soloCampus.asStateFlow()
+
+    fun cambiarTipoMapa(tipo: TipoMapa) {
+        _tipoMapa.value = tipo
+    }
+
+    fun alternarSoloCampus() {
+        _soloCampus.value = !_soloCampus.value
+    }
 
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()

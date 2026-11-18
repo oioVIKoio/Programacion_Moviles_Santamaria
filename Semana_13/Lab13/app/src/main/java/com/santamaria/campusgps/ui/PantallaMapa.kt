@@ -24,16 +24,27 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Flag
+import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.NearMe
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.Spacer
+import com.santamaria.campusgps.model.TipoMapa
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
@@ -65,7 +76,16 @@ fun PantallaMapa(vm: MapaViewModel) {
     val categoria by vm.categoria.collectAsState()
     val radio by vm.radio.collectAsState()
     val dentro by vm.dentroDelRadio.collectAsState()
+    val tipoMapa by vm.tipoMapa.collectAsState()
+    val soloCampus by vm.soloCampus.collectAsState()
+    var capasAbierto by remember { mutableStateOf(false) }
     val contexto = LocalContext.current
+
+    // Punto azul nativo del mapa: solo si el permiso ya está concedido (se recalcula cuando cambia el estado tras pedirlo)
+    val permisoConcedido = listOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    ).any { ContextCompat.checkSelfPermission(contexto, it) == PackageManager.PERMISSION_GRANTED }
 
     // Si el usuario acepta alguno de los dos permisos buscamos; si niega, avisamos sin cerrar la app
     val lanzador = rememberLauncherForActivityResult(
@@ -101,6 +121,9 @@ fun PantallaMapa(vm: MapaViewModel) {
                 seleccionado = seleccionado,
                 masCercano = masCercano?.id,
                 radio = radio,
+                tipoMapa = tipoMapa,
+                soloCampus = soloCampus,
+                ubicacionNativa = permisoConcedido,
                 modifier = Modifier.weight(1f)
             )
             HojaInferior(
@@ -120,20 +143,52 @@ fun PantallaMapa(vm: MapaViewModel) {
             )
         }
 
-        // Chip de marca flotante sobre el mapa, como en el diseño
-        Surface(
-            modifier = Modifier.statusBarsPadding().padding(20.dp),
-            shape = FormaBoton,
-            color = MaterialTheme.colorScheme.surface,
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        // Arriba a la izquierda: chip de marca y el botón de capas del mapa
+        Row(
+            Modifier.statusBarsPadding().padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Row(
-                Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(7.dp)
+            Surface(
+                shape = FormaBoton,
+                color = MaterialTheme.colorScheme.surface,
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
             ) {
-                Icon(Icons.Outlined.LocationOn, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
-                Text("CampusGPS", style = MaterialTheme.typography.labelLarge)
+                Row(
+                    Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(7.dp)
+                ) {
+                    Icon(Icons.Outlined.LocationOn, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                    Text("CampusGPS", style = MaterialTheme.typography.labelLarge)
+                }
+            }
+            Box {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surface,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                ) {
+                    IconButton(onClick = { capasAbierto = true }) {
+                        Icon(Icons.Outlined.Layers, contentDescription = "Capas del mapa", tint = MaterialTheme.colorScheme.primary)
+                    }
+                }
+                // Visor del mapa y vista "Solo lugares del campus" (apaga los puntos de Google)
+                DropdownMenu(expanded = capasAbierto, onDismissRequest = { capasAbierto = false }) {
+                    TipoMapa.entries.forEach { tipo ->
+                        DropdownMenuItem(
+                            text = { Text(tipo.etiqueta) },
+                            leadingIcon = { if (tipo == tipoMapa) Icon(Icons.Outlined.Check, null) else Spacer(Modifier.size(24.dp)) },
+                            onClick = { vm.cambiarTipoMapa(tipo); capasAbierto = false }
+                        )
+                    }
+                    HorizontalDivider()
+                    DropdownMenuItem(
+                        text = { Text("Solo lugares del campus") },
+                        leadingIcon = { if (soloCampus) Icon(Icons.Outlined.Check, null) else Spacer(Modifier.size(24.dp)) },
+                        onClick = { vm.alternarSoloCampus(); capasAbierto = false }
+                    )
+                }
             }
         }
     }
