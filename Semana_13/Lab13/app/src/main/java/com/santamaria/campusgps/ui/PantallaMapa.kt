@@ -30,6 +30,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.santamaria.campusgps.model.UbicacionUi
@@ -46,6 +47,8 @@ import java.util.Locale
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
+    val lugares by vm.lugares.collectAsState()
+    val seleccionado by vm.seleccionado.collectAsState()
     val contexto = LocalContext.current
 
     // Si el usuario acepta alguno de los dos permisos buscamos; si niega, avisamos sin cerrar la app
@@ -74,7 +77,18 @@ fun PantallaMapa(vm: MapaViewModel) {
     }
 
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        // Chip de marca flotante, como en el diseño (aquí todavía sin mapa debajo)
+        Column(Modifier.fillMaxSize()) {
+            // El mapa ocupa el espacio libre; la hoja queda debajo
+            MapaUbicacion(
+                estado = estado,
+                lugares = lugares,
+                seleccionado = seleccionado,
+                modifier = Modifier.weight(1f)
+            )
+            HojaInferior(estado = estado, onBuscar = { alPulsar() })
+        }
+
+        // Chip de marca flotante sobre el mapa, como en el diseño
         Surface(
             modifier = Modifier.statusBarsPadding().padding(20.dp),
             shape = FormaBoton,
@@ -90,63 +104,73 @@ fun PantallaMapa(vm: MapaViewModel) {
                 Text("CampusGPS", style = MaterialTheme.typography.labelLarge)
             }
         }
+    }
+}
 
-        // Hoja inferior
-        Surface(
-            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
-            shape = FormaHoja,
-            color = MaterialTheme.colorScheme.surface,
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+// Hoja blanca con esquinas redondeadas que se monta 28 dp sobre el mapa
+@Composable
+private fun HojaInferior(estado: UbicacionUi, onBuscar: () -> Unit) {
+    val solape = 28.dp
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .layout { medida, restricciones ->
+                val pieza = medida.measure(restricciones)
+                val px = solape.roundToPx()
+                layout(pieza.width, pieza.height - px) { pieza.place(0, -px) }
+            },
+        shape = FormaHoja,
+        color = MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Column(
+            Modifier.navigationBarsPadding().padding(start = 20.dp, end = 20.dp, top = 11.dp, bottom = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Column(
-                Modifier.navigationBarsPadding().padding(start = 20.dp, end = 20.dp, top = 11.dp, bottom = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                Box(
-                    Modifier.align(Alignment.CenterHorizontally).size(width = 42.dp, height = 4.dp)
-                        .background(MaterialTheme.colorScheme.outline, CircleShape)
-                )
-                BotonPrincipal(
-                    texto = if (estado is UbicacionUi.Buscando) "Buscando…" else "Obtener mi ubicación",
-                    icono = Icons.Outlined.NearMe,
-                    habilitado = estado !is UbicacionUi.Buscando,
-                    onClick = { alPulsar() }
-                )
-                when (val e = estado) {
-                    UbicacionUi.Inicial -> Column(
-                        Modifier.fillMaxWidth().padding(vertical = 18.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text("Encuentra el lugar más cercano", style = MaterialTheme.typography.titleMedium)
-                        Text(
-                            "Activa tu ubicación para ordenar los sitios del campus por distancia.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                    UbicacionUi.Buscando -> Text(
-                        "Buscando señal GPS…",
-                        style = NumeroChico,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    is UbicacionUi.Lista -> Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Tu ubicación", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(
-                            String.format(Locale.US, "%.4f, %.4f", e.posicion.latitud, e.posicion.longitud),
-                            style = NumeroChico
-                        )
-                    }
-                    is UbicacionUi.Error -> CajaMensaje(
-                        tipo = TipoMensaje.ERROR,
-                        titulo = "No pudimos ubicarte",
-                        texto = e.mensaje
+            Box(
+                Modifier.align(Alignment.CenterHorizontally).size(width = 42.dp, height = 4.dp)
+                    .background(MaterialTheme.colorScheme.outline, CircleShape)
+            )
+            BotonPrincipal(
+                texto = if (estado is UbicacionUi.Buscando) "Buscando…" else "Obtener mi ubicación",
+                icono = Icons.Outlined.NearMe,
+                habilitado = estado !is UbicacionUi.Buscando,
+                onClick = onBuscar
+            )
+            when (val e = estado) {
+                UbicacionUi.Inicial -> Column(
+                    Modifier.fillMaxWidth().padding(vertical = 18.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text("Encuentra el lugar más cercano", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "Activa tu ubicación para ordenar los sitios del campus por distancia.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
                     )
                 }
+                UbicacionUi.Buscando -> Text(
+                    "Buscando señal GPS…",
+                    style = NumeroChico,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                is UbicacionUi.Lista -> Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Tu ubicación", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        String.format(Locale.US, "%.4f, %.4f", e.posicion.latitud, e.posicion.longitud),
+                        style = NumeroChico
+                    )
+                }
+                is UbicacionUi.Error -> CajaMensaje(
+                    tipo = TipoMensaje.ERROR,
+                    titulo = "No pudimos ubicarte",
+                    texto = e.mensaje
+                )
             }
         }
     }
