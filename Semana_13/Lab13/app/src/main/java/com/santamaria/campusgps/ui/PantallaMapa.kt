@@ -121,6 +121,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 seleccionado = seleccionado,
                 masCercano = masCercano?.id,
                 radio = radio,
+                onSeleccionar = vm::seleccionar,
                 tipoMapa = tipoMapa,
                 soloCampus = soloCampus,
                 ubicacionNativa = permisoConcedido,

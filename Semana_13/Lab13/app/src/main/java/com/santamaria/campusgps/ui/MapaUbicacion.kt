@@ -1,6 +1,7 @@
 package com.santamaria.campusgps.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -14,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -47,6 +49,7 @@ fun MapaUbicacion(
     seleccionado: Int?,
     masCercano: Int?,
     radio: Int?,
+    onSeleccionar: (Int?) -> Unit,
     tipoMapa: TipoMapa,
     soloCampus: Boolean,
     ubicacionNativa: Boolean,
@@ -56,7 +59,7 @@ fun MapaUbicacion(
     val camara = rememberCameraPositionState {
         val centro = if (lugares.isEmpty()) LatLng(-12.0464, -77.0428)
         else LatLng(lugares.map { it.lugar.latitud }.average(), lugares.map { it.lugar.longitud }.average())
-        position = CameraPosition.fromLatLngZoom(centro, 16f)
+        position = CameraPosition.fromLatLngZoom(centro, 17f)
     }
 
     // Cuando llega la ubicación, la cámara viaja hasta ella
@@ -65,7 +68,7 @@ fun MapaUbicacion(
             camara.animate(
                 CameraUpdateFactory.newLatLngZoom(
                     LatLng(estado.posicion.latitud, estado.posicion.longitud),
-                    16f
+                    17f
                 )
             )
         }
@@ -89,6 +92,8 @@ fun MapaUbicacion(
     GoogleMap(
         modifier = modifier,
         cameraPositionState = camara,
+        // Tocar un lugar vacío del mapa quita la selección
+        onMapClick = { onSeleccionar(null) },
         properties = MapProperties(
             mapType = when (tipoMapa) {
                 TipoMapa.NORMAL -> MapType.NORMAL
@@ -124,28 +129,39 @@ fun MapaUbicacion(
             )
         }
         // Un marcador por lugar con el ícono de su categoría: azul, y verde el más cercano. key(id) evita que se mezclen al reordenar.
+        // Solo el lugar elegido (al tocar su marcador o su tarjeta) resalta: se agranda y sube por encima de los demás.
         lugares.forEach { item ->
             key(item.lugar.id) {
                 val esCercano = item.lugar.id == masCercano
+                val esElegido = item.lugar.id == seleccionado
                 MarkerComposable(
-                    item.lugar.id, item.lugar.categoria, esCercano,
+                    item.lugar.id, item.lugar.categoria, esCercano, esElegido,
                     state = rememberUpdatedMarkerState(position = LatLng(item.lugar.latitud, item.lugar.longitud)),
                     title = item.lugar.nombre,
                     snippet = item.lugar.categoria,
-                    anchor = Offset(0.5f, 0.5f)
+                    anchor = Offset(0.5f, 0.5f),
+                    zIndex = if (esElegido) 2f else 0f,
+                    // Tocar el marcador lo elige; devolver false deja que Maps muestre además su nombre y categoría
+                    onClick = {
+                        onSeleccionar(item.lugar.id)
+                        false
+                    }
                 ) {
                     Surface(
+                        modifier = Modifier.size(if (esElegido) 58.dp else 40.dp),
                         shape = CircleShape,
                         color = if (esCercano) Exito else Azul,
-                        border = BorderStroke(2.dp, Color.White),
-                        shadowElevation = 4.dp
+                        border = BorderStroke(if (esElegido) 4.dp else 2.dp, Color.White),
+                        shadowElevation = if (esElegido) 10.dp else 4.dp
                     ) {
-                        Icon(
-                            iconoDe(item.lugar.categoria),
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.padding(8.dp).size(22.dp)
-                        )
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                iconoDe(item.lugar.categoria),
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(if (esElegido) 34.dp else 22.dp)
+                            )
+                        }
                     }
                 }
             }
