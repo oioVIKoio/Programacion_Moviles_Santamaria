@@ -14,6 +14,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -49,7 +53,7 @@ import com.santamaria.campusgps.viewmodel.MapaViewModel
 import java.util.Locale
 
 // Altura fija de la lista: el mapa se queda con el resto (weight 1f)
-private val ALTO_LISTA = 200.dp
+private val ALTO_LISTA = 170.dp
 
 // Ejemplo resuelto: pedir la ubicación y mostrar latitud y longitud, ya con el diseño.
 @Composable
@@ -59,6 +63,8 @@ fun PantallaMapa(vm: MapaViewModel) {
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
     val categoria by vm.categoria.collectAsState()
+    val radio by vm.radio.collectAsState()
+    val dentro by vm.dentroDelRadio.collectAsState()
     val contexto = LocalContext.current
 
     // Si el usuario acepta alguno de los dos permisos buscamos; si niega, avisamos sin cerrar la app
@@ -94,6 +100,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 lugares = lugares,
                 seleccionado = seleccionado,
                 masCercano = masCercano?.id,
+                radio = radio,
                 modifier = Modifier.weight(1f)
             )
             HojaInferior(
@@ -104,6 +111,10 @@ fun PantallaMapa(vm: MapaViewModel) {
                 categorias = vm.categorias,
                 categoria = categoria,
                 onCategoria = vm::filtrarCategoria,
+                radios = vm.radios,
+                radio = radio,
+                onRadio = vm::elegirRadio,
+                dentro = dentro,
                 onSeleccionar = vm::seleccionar,
                 onBuscar = { alPulsar() }
             )
@@ -138,6 +149,10 @@ private fun HojaInferior(
     categorias: List<String>,
     categoria: String?,
     onCategoria: (String?) -> Unit,
+    radios: List<Int>,
+    radio: Int?,
+    onRadio: (Int?) -> Unit,
+    dentro: Set<Int>,
     onSeleccionar: (Int) -> Unit,
     onBuscar: () -> Unit
 ) {
@@ -155,7 +170,12 @@ private fun HojaInferior(
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column(
-            Modifier.navigationBarsPadding().padding(start = 20.dp, end = 20.dp, top = 11.dp, bottom = 20.dp),
+            // La hoja nunca pasa del 55 % de la pantalla (así el mapa siempre se ve) y desplaza su contenido si no cabe
+            Modifier
+                .navigationBarsPadding()
+                .heightIn(max = (LocalConfiguration.current.screenHeightDp * 0.55f).dp)
+                .verticalScroll(rememberScrollState())
+                .padding(start = 20.dp, end = 20.dp, top = 11.dp, bottom = 20.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Box(
@@ -219,7 +239,8 @@ private fun HojaInferior(
                         )
                     }
                     FiltroCategorias(categorias, categoria, onCategoria)
-                    ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA))
+                    FiltroRadio(radios, radio, onRadio)
+                    ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA), dentro)
                 }
                 is UbicacionUi.Error -> MensajeError(e, onReintentar = onBuscar)
             }

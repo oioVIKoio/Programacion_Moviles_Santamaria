@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.santamaria.campusgps.model.LugarConDistancia
 import com.santamaria.campusgps.ui.components.Insignia
 import com.santamaria.campusgps.ui.theme.AzulSuave
+import com.santamaria.campusgps.ui.theme.Exito
 import com.santamaria.campusgps.ui.theme.FormaFila
 import com.santamaria.campusgps.ui.theme.NumeroGrande
 import com.santamaria.campusgps.util.formatearCaminata
@@ -51,7 +52,8 @@ fun ListaLugares(
     seleccionado: Int?,
     masCercano: Int?,
     onClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    dentro: Set<Int> = emptySet()
 ) {
     LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(lugares, key = { it.lugar.id }) { item ->
@@ -73,7 +75,12 @@ fun ListaLugares(
                             Text(item.lugar.nombre, style = MaterialTheme.typography.titleMedium.copy(fontSize = 15.sp), modifier = Modifier.weight(1f, fill = false))
                             if (item.lugar.id == masCercano) Insignia("Más cercano")
                         }
-                        Text(item.lugar.categoria, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        // Con un radio elegido, los lugares que caen dentro lo dicen en verde
+                        if (item.lugar.id in dentro) {
+                            Text("${item.lugar.categoria} · dentro del radio", style = MaterialTheme.typography.bodySmall, color = Exito)
+                        } else {
+                            Text(item.lugar.categoria, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         if (item.metros == null) {

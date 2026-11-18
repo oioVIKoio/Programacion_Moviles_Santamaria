@@ -10,6 +10,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
@@ -17,6 +18,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 import com.santamaria.campusgps.model.LugarConDistancia
 import com.santamaria.campusgps.model.UbicacionUi
+import com.santamaria.campusgps.ui.theme.Azul
 
 // Solo dibuja lo que recibe: no consulta ningún Repository
 @Composable
@@ -25,6 +27,7 @@ fun MapaUbicacion(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     masCercano: Int?,
+    radio: Int?,
     modifier: Modifier = Modifier
 ) {
     val camara = rememberCameraPositionState {
@@ -59,6 +62,16 @@ fun MapaUbicacion(
         uiSettings = MapUiSettings(zoomControlsEnabled = false),
         contentPadding = PaddingValues(bottom = 28.dp)
     ) {
+        // Mejora 2: círculo del radio de cercanía alrededor de tu posición
+        if (estado is UbicacionUi.Lista && radio != null) {
+            Circle(
+                center = LatLng(estado.posicion.latitud, estado.posicion.longitud),
+                radius = radio.toDouble(),
+                strokeColor = Azul,
+                strokeWidth = 3f,
+                fillColor = Azul.copy(alpha = 0.12f)
+            )
+        }
         if (estado is UbicacionUi.Lista) {
             Marker(
                 state = rememberUpdatedMarkerState(
