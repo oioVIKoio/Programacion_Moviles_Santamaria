@@ -114,6 +114,14 @@ El detalle de cada consulta está en [`PROMPTS.md`](PROMPTS.md). Las mejoras de 
 | Tocar un lugar y cerrar la app por completo | Al reabrirla sigue "Tu referencia: Pabellón 10", con el marcador de borde ámbar |
 | Lugares reales (celular en el campus) | El más cercano es un pabellón a unos 140 m; categorías Estudio, Servicios y Deporte |
 
+### Mejoras de la Fase 2 agregadas después
+
+| Mejora | Qué hace | Capas que toca |
+|---|---|---|
+| Seguimiento en vivo (de la lista de la guía) | Arranca solo al ubicarte y actualiza tu posición cada ~2 s con `requestLocationUpdates` convertido en `Flow` (`callbackFlow`); recalcula distancias y el más cercano, y el mapa te sigue. Se pausa con el interruptor, se detiene al salir de la app y se retoma al volver | Repository + ViewModel + View |
+| Elegir qué lugares se ven (extra) | Chip **Lugares** con casillas: lo que desmarcas sale del mapa, de la lista y del cálculo del más cercano | ViewModel + View |
+| Hoja arrastrable (extra) | La hoja inferior baja y deja solo **Obtener mi ubicación** e **Ir al más cercano**; sube sola al llegar la ubicación | View |
+
 ## Para pensar
 
 **1. ¿Por qué `FusedLocationProviderClient` está en el Repository y no en el ViewModel?**
