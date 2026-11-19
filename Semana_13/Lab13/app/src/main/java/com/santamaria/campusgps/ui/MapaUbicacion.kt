@@ -57,6 +57,7 @@ fun MapaUbicacion(
     tipoMapa: TipoMapa,
     soloCampus: Boolean,
     ubicacionNativa: Boolean,
+    siguiendo: Boolean = false,
     modifier: Modifier = Modifier,
     // Alto que tapa la hoja inferior: el mapa se centra en la parte que queda a la vista
     relleno: Dp = 0.dp
@@ -69,13 +70,12 @@ fun MapaUbicacion(
     }
 
     // Cuando llega la ubicación, la cámara viaja hasta ella
+    // Siguiendo en vivo la cámara solo se desplaza (no cambia el zoom que tú elijas)
     LaunchedEffect(estado) {
         if (estado is UbicacionUi.Lista) {
+            val destino = LatLng(estado.posicion.latitud, estado.posicion.longitud)
             camara.animate(
-                CameraUpdateFactory.newLatLngZoom(
-                    LatLng(estado.posicion.latitud, estado.posicion.longitud),
-                    17f
-                )
+                if (siguiendo) CameraUpdateFactory.newLatLng(destino) else CameraUpdateFactory.newLatLngZoom(destino, 17f)
             )
         }
     }

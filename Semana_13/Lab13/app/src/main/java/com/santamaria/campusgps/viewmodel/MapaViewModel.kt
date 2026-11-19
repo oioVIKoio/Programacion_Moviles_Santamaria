@@ -13,10 +13,12 @@ import com.santamaria.campusgps.model.TipoError
 import com.santamaria.campusgps.model.TipoMapa
 import com.santamaria.campusgps.model.UbicacionUi
 import com.santamaria.campusgps.util.distanciaMetros
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -89,9 +91,57 @@ class MapaViewModel(
                 .onSuccess {
                     _estado.value = UbicacionUi.Lista(it)
                     actualizarDistancias(it)
+                    // Ya hay ubicación y permiso: el seguimiento arranca solo
+                    if (quiereSeguir && !_siguiendo.value) iniciarSeguimiento()
                 }
                 .onFailure { _estado.value = errorDe(it) }
         }
+    }
+
+    // Mejora 6: seguimiento en vivo. Solo se puede encender cuando ya hay una ubicación (el permiso ya fue concedido).
+    private val _siguiendo = MutableStateFlow(false)
+    val siguiendo: StateFlow<Boolean> = _siguiendo.asStateFlow()
+    private var trabajoSeguimiento: Job? = null
+
+    // Mientras usas la app el seguimiento está encendido; solo se apaga si lo pausas tú o al salir de la app
+    private var quiereSeguir = true
+
+    fun alternarSeguimiento() {
+        if (_siguiendo.value) {
+            quiereSeguir = false
+            detenerSeguimiento()
+        } else {
+            quiereSeguir = true
+            iniciarSeguimiento()
+        }
+    }
+
+    // Al volver a la app se retoma el seguimiento si ya te habías ubicado y no lo pausaste
+    fun alVolver() {
+        if (_estado.value is UbicacionUi.Lista && quiereSeguir && !_siguiendo.value) iniciarSeguimiento()
+    }
+
+    private fun iniciarSeguimiento() {
+        trabajoSeguimiento?.cancel()
+        _siguiendo.value = true
+        trabajoSeguimiento = viewModelScope.launch {
+            ubicacionRepo.seguirPosicion()
+                .catch {
+                    _siguiendo.value = false
+                    _estado.value = errorDe(it)
+                }
+                .collect { posicion ->
+                    _estado.value = UbicacionUi.Lista(posicion)
+                    actualizarDistancias(posicion)
+                }
+        }
+    }
+
+    // Se llama al salir de la app para no gastar batería (no cambia lo que prefiere el usuario)
+    fun detenerSeguimiento() {
+        trabajoSeguimiento?.cancel()
+        trabajoSeguimiento = null
+        _siguiendo.value = false
     }
 
     fun permisoDenegado() {

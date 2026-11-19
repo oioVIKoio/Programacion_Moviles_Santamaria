@@ -47,8 +47,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +60,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.Spacer
 import com.santamaria.campusgps.model.TipoMapa
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.style.TextAlign
@@ -88,11 +92,26 @@ fun PantallaMapa(vm: MapaViewModel) {
     val radio by vm.radio.collectAsState()
     val referencia by vm.referencia.collectAsState()
     val ocultos by vm.ocultos.collectAsState()
+    val siguiendo by vm.siguiendo.collectAsState()
     val dentro by vm.dentroDelRadio.collectAsState()
     val tipoMapa by vm.tipoMapa.collectAsState()
     val soloCampus by vm.soloCampus.collectAsState()
     var capasAbierto by remember { mutableStateOf(false) }
     val contexto = LocalContext.current
+
+    // Al salir de la app (pantalla apagada o cambio de app) se detiene el seguimiento para no gastar batería, y al volver se retoma
+    val ciclo = (contexto as? androidx.activity.ComponentActivity)?.lifecycle
+    DisposableEffect(ciclo) {
+        val observador = androidx.lifecycle.LifecycleEventObserver { _, evento ->
+            when (evento) {
+                androidx.lifecycle.Lifecycle.Event.ON_STOP -> vm.detenerSeguimiento()
+                androidx.lifecycle.Lifecycle.Event.ON_START -> vm.alVolver()
+                else -> Unit
+            }
+        }
+        ciclo?.addObserver(observador)
+        onDispose { ciclo?.removeObserver(observador) }
+    }
 
     // Punto azul nativo del mapa: solo si el permiso ya está concedido (se recalcula cuando cambia el estado tras pedirlo)
     val permisoConcedido = listOf(
@@ -174,6 +193,8 @@ fun PantallaMapa(vm: MapaViewModel) {
                 referencia = referencia,
                 onSeleccionar = vm::seleccionar,
                 onBuscar = { alPulsar() },
+                siguiendo = siguiendo,
+                onSeguimiento = vm::alternarSeguimiento,
                 hueco = hueco,
                 modifier = Modifier.onSizeChanged { altoContenido = with(densidad) { it.height.toDp() } }
             )
@@ -192,6 +213,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 tipoMapa = tipoMapa,
                 soloCampus = soloCampus,
                 ubicacionNativa = permisoConcedido,
+                siguiendo = siguiendo,
                 modifier = Modifier.fillMaxSize(),
                 relleno = relleno
             )
@@ -269,6 +291,8 @@ private fun HojaInferior(
     referencia: LugarConDistancia?,
     onSeleccionar: (Int) -> Unit,
     onBuscar: () -> Unit,
+    siguiendo: Boolean,
+    onSeguimiento: () -> Unit,
     hueco: Dp,
     modifier: Modifier = Modifier
 ) {
@@ -333,6 +357,31 @@ private fun HojaInferior(
                         Modifier.weight(1f, fill = false), dentro, referencia?.lugar?.id,
                         cabecera = {
                             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column {
+                                        Text("Seguimiento en vivo", style = MaterialTheme.typography.titleMedium)
+                                        Text(
+                                            if (siguiendo) "Actualizando mientras caminas" else "En pausa",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    Switch(
+                                        checked = siguiendo,
+                                        onCheckedChange = { onSeguimiento() },
+                                        colors = SwitchDefaults.colors(
+                                            checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                            checkedThumbColor = Color.White,
+                                            uncheckedTrackColor = MaterialTheme.colorScheme.surface,
+                                            uncheckedBorderColor = MaterialTheme.colorScheme.outline,
+                                            uncheckedThumbColor = MaterialTheme.colorScheme.outline
+                                        )
+                                    )
+                                }
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                                     SelectorLugares(todos, ocultos, onAlternarLugar, onMostrarTodos)
                                     FiltroCategorias(categorias, categoria, onCategoria, Modifier.weight(1f))
