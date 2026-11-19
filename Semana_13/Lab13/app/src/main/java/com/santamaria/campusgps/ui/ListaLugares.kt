@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.santamaria.campusgps.model.LugarConDistancia
@@ -46,6 +47,7 @@ fun ListaLugares(
     modifier: Modifier = Modifier,
     dentro: Set<Int> = emptySet(),
     referencia: Int? = null,
+    conRadio: Boolean = false,
     cabecera: (@Composable () -> Unit)? = null
 ) {
     LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -54,7 +56,8 @@ fun ListaLugares(
         items(lugares, key = { it.lugar.id }) { item ->
             val elegido = item.lugar.id == seleccionado
             Surface(
-                modifier = Modifier.fillMaxWidth().clickable { onClick(item.lugar.id) },
+                // Con un radio elegido, los lugares que quedan fuera se atenúan
+                modifier = Modifier.fillMaxWidth().alpha(if (conRadio && item.lugar.id !in dentro) 0.5f else 1f).clickable { onClick(item.lugar.id) },
                 shape = FormaFila,
                 color = if (elegido) AzulSuave else MaterialTheme.colorScheme.surface,
                 border = BorderStroke(

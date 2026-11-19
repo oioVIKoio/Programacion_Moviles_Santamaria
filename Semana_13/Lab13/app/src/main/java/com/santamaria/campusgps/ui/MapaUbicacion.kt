@@ -134,8 +134,8 @@ fun MapaUbicacion(
                 fillColor = Azul.copy(alpha = 0.12f)
             )
         }
-        // Tu posición sigue en rojo (marcador por defecto), como pide la guía
-        if (estado is UbicacionUi.Lista) {
+        // Tu posición se ve con el punto azul nativo. El pin rojo de la guía (Fase 1) solo queda de respaldo si no hay punto azul.
+        if (estado is UbicacionUi.Lista && !ubicacionNativa) {
             Marker(
                 state = rememberUpdatedMarkerState(
                     position = LatLng(estado.posicion.latitud, estado.posicion.longitud)

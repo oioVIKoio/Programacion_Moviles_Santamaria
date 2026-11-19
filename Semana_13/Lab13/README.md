@@ -107,7 +107,7 @@ El detalle de cada consulta está en [`PROMPTS.md`](PROMPTS.md). Las mejoras de 
 | Radio de 200 m | Círculo en el mapa; Biblioteca, Cafetería y Laboratorio dicen "dentro del radio" |
 | Radio de 100 m | Solo la Biblioteca (88 m) dice "dentro del radio" |
 | Radio + categoría a la vez | Los dos filtros se combinan |
-| Íconos de los marcadores | Libro, café y evento en azul; verde el más cercano; tu posición sigue en rojo |
+| Íconos de los marcadores | Libro, café y evento en azul; verde el más cercano; tu posición se ve solo con el punto azul nativo |
 | **Satélite** (celular real) | El mapa muestra el campus desde arriba |
 | **Solo lugares del campus** | Desaparecen paraderos, tiendas y hospital; quedan las calles y los lugares |
 | Punto azul nativo | Aparece sobre tu posición solo con el permiso concedido |
@@ -120,6 +120,7 @@ El detalle de cada consulta está en [`PROMPTS.md`](PROMPTS.md). Las mejoras de 
 |---|---|---|
 | Seguimiento en vivo (de la lista de la guía) | Arranca solo al ubicarte y actualiza tu posición cada ~2 s con `requestLocationUpdates` convertido en `Flow` (`callbackFlow`); recalcula distancias y el más cercano, y el mapa te sigue. Se pausa con el interruptor, se detiene al salir de la app y se retoma al volver | Repository + ViewModel + View |
 | Elegir qué lugares se ven (extra) | Chip **Lugares** con casillas: lo que desmarcas sale del mapa, de la lista y del cálculo del más cercano | ViewModel + View |
+| Radio con resumen (mejora del radio) | Con un radio elegido dice "N lugares dentro de X m" y atenúa los lugares que quedan fuera | ViewModel + View |
 | Hoja arrastrable (extra) | La hoja inferior baja y deja solo **Obtener mi ubicación** e **Ir al más cercano**; sube sola al llegar la ubicación | View |
 
 ## Para pensar

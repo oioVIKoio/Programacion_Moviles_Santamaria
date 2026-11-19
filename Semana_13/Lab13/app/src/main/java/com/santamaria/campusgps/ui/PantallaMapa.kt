@@ -355,6 +355,7 @@ private fun HojaInferior(
                     ListaLugares(
                         lugares, seleccionado, masCercano?.id, onSeleccionar,
                         Modifier.weight(1f, fill = false), dentro, referencia?.lugar?.id,
+                        conRadio = radio != null,
                         cabecera = {
                             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                 Row(
@@ -387,6 +388,18 @@ private fun HojaInferior(
                                     FiltroCategorias(categorias, categoria, onCategoria, Modifier.weight(1f))
                                 }
                                 FiltroRadio(radios, radio, onRadio)
+                                // Resumen del radio: cuántos lugares caen dentro (los de afuera se ven atenuados en la lista)
+                                if (radio != null) {
+                                    Text(
+                                        when (dentro.size) {
+                                            0 -> "Ningún lugar dentro de $radio m"
+                                            1 -> "1 lugar dentro de $radio m"
+                                            else -> "${dentro.size} lugares dentro de $radio m"
+                                        },
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = if (dentro.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else com.santamaria.campusgps.ui.theme.Exito
+                                    )
+                                }
                                 if (lugares.isEmpty()) {
                                     Text(
                                         "No hay lugares visibles. Márcalos en «Lugares».",
