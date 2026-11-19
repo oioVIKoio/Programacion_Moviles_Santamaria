@@ -4,6 +4,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +35,7 @@ import com.santamaria.campusgps.util.formatearCaminata
 import com.santamaria.campusgps.util.formatearDistancia
 
 
+@OptIn(ExperimentalLayoutApi::class)
 /** Lista de lugares: no sabe nada del ViewModel, solo recibe datos y avisa el toque por id. */
 @Composable
 fun ListaLugares(
@@ -60,13 +63,16 @@ fun ListaLugares(
                     Icon(iconoDe(item.lugar.categoria), null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text(item.lugar.nombre, style = MaterialTheme.typography.titleMedium.copy(fontSize = 15.sp), modifier = Modifier.weight(1f, fill = false))
-                            if (item.lugar.id == masCercano) Insignia("Más cercano")
-                        }
+                        Text(item.lugar.nombre, style = MaterialTheme.typography.titleMedium.copy(fontSize = 15.sp))
                         // Una sola línea: categoría, y a continuación si cae en el radio o es tu referencia
                         val esReferencia = item.lugar.id == referencia
                         val esDentro = item.lugar.id in dentro
+                        FlowRow(
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            itemVerticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (item.lugar.id == masCercano) Insignia("Más cercano")
                         Text(
                             item.lugar.categoria +
                                 (if (esDentro) " · dentro del radio" else "") +
@@ -74,6 +80,7 @@ fun ListaLugares(
                             style = MaterialTheme.typography.bodySmall,
                             color = if (esReferencia) ReferenciaTexto else if (esDentro) Exito else MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        }
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         if (item.metros == null) {

@@ -55,14 +55,12 @@ import com.santamaria.campusgps.model.LugarConDistancia
 import com.santamaria.campusgps.model.UbicacionUi
 import com.santamaria.campusgps.ui.components.BotonPrincipal
 import com.santamaria.campusgps.ui.components.BotonSecundario
-import com.santamaria.campusgps.ui.theme.Exito
 import com.santamaria.campusgps.ui.theme.FormaBoton
 import com.santamaria.campusgps.ui.theme.FormaHoja
 import com.santamaria.campusgps.ui.theme.NumeroChico
 import com.santamaria.campusgps.ui.theme.ReferenciaTexto
 import com.santamaria.campusgps.util.formatearDistancia
 import com.santamaria.campusgps.viewmodel.MapaViewModel
-import java.util.Locale
 
 // Altura fija de la lista: el mapa se queda con el resto (weight 1f)
 private val ALTO_LISTA = 170.dp
@@ -237,7 +235,7 @@ private fun HojaInferior(
                 .heightIn(max = (LocalConfiguration.current.screenHeightDp * 0.55f).dp)
                 .verticalScroll(rememberScrollState())
                 .padding(start = 20.dp, end = 20.dp, top = 11.dp, bottom = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Box(
                 Modifier.align(Alignment.CenterHorizontally).size(width = 42.dp, height = 4.dp)
@@ -256,14 +254,6 @@ private fun HojaInferior(
                 habilitado = masCercano != null,
                 onClick = { masCercano?.let { onSeleccionar(it.id) } }
             )
-            // Tu referencia: el último lugar que tocaste, guardado aunque cierres la app, con cuánto te falta si ya te ubicaste
-            referencia?.let { ref ->
-                Text(
-                    "Tu referencia: ${ref.lugar.nombre}" + (ref.metros?.let { " · a ${formatearDistancia(it)}" } ?: ""),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = ReferenciaTexto
-                )
-            }
             when (val e = estado) {
                 UbicacionUi.Inicial -> Column(
                     Modifier.fillMaxWidth().padding(vertical = 18.dp),
@@ -277,6 +267,14 @@ private fun HojaInferior(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
+                    // Tu referencia: el último lugar que tocaste, guardado aunque cierres la app
+                    referencia?.let { ref ->
+                        Text(
+                            "Tu referencia: ${ref.lugar.nombre}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = ReferenciaTexto
+                        )
+                    }
                 }
                 UbicacionUi.Buscando -> {
                     Text(
@@ -288,25 +286,6 @@ private fun HojaInferior(
                     ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA), referencia = referencia?.lugar?.id)
                 }
                 is UbicacionUi.Lista -> {
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Tu ubicación", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(
-                            String.format(Locale.US, "%.4f, %.4f", e.posicion.latitud, e.posicion.longitud),
-                            style = NumeroChico
-                        )
-                    }
-                    // "Más cercano: nombre (distancia)"
-                    val cercano = lugares.firstOrNull { it.lugar.id == masCercano?.id }
-                    if (cercano?.metros != null) {
-                        Text(
-                            "Más cercano: ${cercano.lugar.nombre} (${formatearDistancia(cercano.metros)})",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Exito
-                        )
-                    }
                     FiltroCategorias(categorias, categoria, onCategoria)
                     FiltroRadio(radios, radio, onRadio)
                     ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA), dentro, referencia?.lugar?.id)
