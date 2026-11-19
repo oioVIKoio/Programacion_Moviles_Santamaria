@@ -83,7 +83,14 @@ class MapaViewModel(
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()
 
+    // Cada vez que pulsas «Obtener mi ubicación» suma 1: el mapa vuelve a seguirte
+    private val _recentrar = MutableStateFlow(0)
+    val recentrar: StateFlow<Int> = _recentrar.asStateFlow()
+
     fun buscar() {
+        // Pedir tu ubicación te lleva a ti: se quita el lugar elegido para que la cámara no tenga dos destinos
+        _seleccionado.value = null
+        _recentrar.value += 1
         if (!ubicacionRepo.playServicesDisponible()) {
             _estado.value = UbicacionUi.Error("Este teléfono no tiene Google Play Services", TipoError.SIN_PLAY_SERVICES)
             return
@@ -116,9 +123,15 @@ class MapaViewModel(
     val rumbo: StateFlow<Float?> = _rumbo.asStateFlow()
     private var trabajoRumbo: Job? = null
 
+    // El sensor de orientación va con el seguimiento (la flecha siempre apunta); «Mi rumbo» solo decide si el mapa gira
     fun alternarRumbo() {
         _modoRumbo.value = !_modoRumbo.value
-        if (_modoRumbo.value) iniciarRumbo() else detenerRumbo()
+    }
+
+    // Vuelve a centrar la cámara en ti (botón de mi ubicación)
+    fun recentrarCamara() {
+        _seleccionado.value = null
+        _recentrar.value += 1
     }
 
     private fun iniciarRumbo() {
@@ -128,12 +141,6 @@ class MapaViewModel(
                 .catch { _modoRumbo.value = false }
                 .collect { _rumbo.value = it }
         }
-    }
-
-    private fun detenerRumbo() {
-        trabajoRumbo?.cancel()
-        trabajoRumbo = null
-        if (!_modoRumbo.value) _rumbo.value = null
     }
 
     // Mejora 6: seguimiento en vivo. Solo se puede encender cuando ya hay una ubicación (el permiso ya fue concedido).
@@ -157,12 +164,12 @@ class MapaViewModel(
     // Al volver a la app se retoma el seguimiento si ya te habías ubicado y no lo pausaste
     fun alVolver() {
         if (_estado.value is UbicacionUi.Lista && quiereSeguir && !_siguiendo.value) iniciarSeguimiento()
-        if (_modoRumbo.value && trabajoRumbo == null) iniciarRumbo()
     }
 
     private fun iniciarSeguimiento() {
         trabajoSeguimiento?.cancel()
         _siguiendo.value = true
+        iniciarRumbo()
         trabajoSeguimiento = viewModelScope.launch {
             ubicacionRepo.seguirPosicion()
                 .catch {
@@ -181,9 +188,10 @@ class MapaViewModel(
         trabajoSeguimiento?.cancel()
         trabajoSeguimiento = null
         _siguiendo.value = false
-        // El sensor de orientación también se apaga al salir; el modo se conserva para retomarlo al volver
+        // El sensor de orientación también se apaga (y se retoma con el seguimiento)
         trabajoRumbo?.cancel()
         trabajoRumbo = null
+        _rumbo.value = null
     }
 
     fun permisoDenegado() {

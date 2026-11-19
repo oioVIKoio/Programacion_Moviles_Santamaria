@@ -39,6 +39,7 @@ import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.MyLocation
 import androidx.compose.material.icons.outlined.NearMe
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -96,6 +97,7 @@ fun PantallaMapa(vm: MapaViewModel) {
     val ocultos by vm.ocultos.collectAsState()
     val siguiendo by vm.siguiendo.collectAsState()
     val enfoque by vm.enfoque.collectAsState()
+    val recentrar by vm.recentrar.collectAsState()
     val oscuro by vm.oscuro.collectAsState()
     val modoRumbo by vm.modoRumbo.collectAsState()
     val rumbo by vm.rumbo.collectAsState()
@@ -229,12 +231,25 @@ fun PantallaMapa(vm: MapaViewModel) {
                 ubicacionNativa = permisoConcedido,
                 siguiendo = siguiendo,
                 enfoque = enfoque,
+                recentrar = recentrar,
                 oscuro = oscuro,
                 modoRumbo = modoRumbo,
                 rumbo = rumbo,
                 modifier = Modifier.fillMaxSize(),
                 relleno = relleno
             )
+
+        // Arriba a la derecha: botón de mi ubicación (vuelve a centrar y seguirte)
+        Surface(
+            modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(20.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surface,
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        ) {
+            IconButton(onClick = vm::recentrarCamara) {
+                Icon(Icons.Outlined.MyLocation, contentDescription = "Mi ubicación", tint = MaterialTheme.colorScheme.primary)
+            }
+        }
 
         // Arriba a la izquierda: chip de marca y el botón de capas del mapa
         Row(

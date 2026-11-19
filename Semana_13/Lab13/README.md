@@ -107,7 +107,7 @@ El detalle de cada consulta está en [`PROMPTS.md`](PROMPTS.md). Las mejoras de 
 | Radio de 200 m | Círculo en el mapa; Biblioteca, Cafetería y Laboratorio dicen "dentro del radio" |
 | Radio de 100 m | Solo la Biblioteca (88 m) dice "dentro del radio" |
 | Radio + categoría a la vez | Los dos filtros se combinan |
-| Íconos de los marcadores | Libro, café y evento en azul; verde el más cercano; tu posición se ve solo con el punto azul nativo |
+| Íconos de los marcadores | Libro, café y evento en azul; verde el más cercano; tu posición se ve con el punto azul propio (flecha hacia donde miras) |
 | **Satélite** (celular real) | El mapa muestra el campus desde arriba |
 | **Solo lugares del campus** | Desaparecen paraderos, tiendas y hospital; quedan las calles y los lugares |
 | Punto azul nativo | Aparece sobre tu posición solo con el permiso concedido |
@@ -124,6 +124,8 @@ El detalle de cada consulta está en [`PROMPTS.md`](PROMPTS.md). Las mejoras de 
 | Modo oscuro (de la lista de la guía) | Opción **Modo oscuro** en el menú de capas: cambia el tema de toda la app (`darkColorScheme`) y el estilo del mapa (`MapStyleOptions` con un JSON en `res/raw`). Se combina con Normal, Satélite e Híbrido y con «Solo lugares del campus»; en Satélite el mapa son fotos, así que solo cambia la interfaz | ViewModel + View |
 | Mi rumbo (extra) | Chip que hace girar el mapa hacia donde apunta el celular (sensor de orientación de Google convertido en `Flow`); al apagarlo vuelve el norte arriba | Repository + ViewModel + View |
 | Rumbo a tu referencia y «Llegaste» (extra) | La tarjeta de la referencia dice hacia dónde queda («al noreste») y, si estás a menos de 30 m, aparece «Llegaste a X» | ViewModel + View |
+| Punto de posición propio (extra) | Punto azul con una **flecha siempre visible** hacia donde miras y, con **Mi rumbo**, un **abanico de luz**; se dibuja en `PuntoUsuario.kt` y lo gira el marcador del mapa. Reemplaza al punto nativo de Google | View + Repository (sensor de orientación) |
+| Cámara que te sigue (extra) | La cámara te sigue mientras caminas; deja de seguirte si tocas un lugar o mueves el mapa y vuelve con **Obtener mi ubicación** o el botón de la mira | View + ViewModel |
 | Hoja arrastrable (extra) | La hoja inferior baja y deja solo **Obtener mi ubicación** e **Ir al más cercano**; sube sola al llegar la ubicación | View |
 
 ## Para pensar

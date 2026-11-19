@@ -12,6 +12,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.delay
 import androidx.compose.ui.unit.Dp
 import androidx.compose.runtime.LaunchedEffect
@@ -28,6 +31,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.Circle
+import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -59,6 +63,7 @@ fun MapaUbicacion(
     ubicacionNativa: Boolean,
     siguiendo: Boolean = false,
     enfoque: Int = 0,
+    recentrar: Int = 0,
     oscuro: Boolean = false,
     modoRumbo: Boolean = false,
     rumbo: Float? = null,
@@ -74,10 +79,20 @@ fun MapaUbicacion(
     }
 
     // Cuando llega la ubicación, la cámara viaja hasta ella
-    // Siguiendo en vivo la cámara solo se desplaza (no cambia el zoom que tú elijas)
+    // La cámara te sigue mientras caminas (como en Google Maps). Deja de seguirte si tocas un lugar o mueves el mapa con el dedo,
+    // y vuelve a seguirte al pulsar «Obtener mi ubicación» o el botón de mi ubicación del mapa.
+    var camaraSigue by remember { mutableStateOf(true) }
+    LaunchedEffect(recentrar) {
+        camaraSigue = true
+        (estado as? UbicacionUi.Lista)?.let { camara.animate(CameraUpdateFactory.newLatLng(LatLng(it.posicion.latitud, it.posicion.longitud))) }
+    }
+    LaunchedEffect(camara.isMoving) {
+        if (camara.isMoving && camara.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE) camaraSigue = false
+    }
+
+    // Cuando llega la ubicación, la cámara viaja hasta ella; siguiendo en vivo solo se desplaza (respeta el zoom que elijas)
     LaunchedEffect(estado) {
-        // Con un lugar elegido el seguimiento no mueve la cámara: si no, te devolvería a tu posición cada 2 s
-        if (estado is UbicacionUi.Lista && !(siguiendo && seleccionado != null)) {
+        if (estado is UbicacionUi.Lista && (!siguiendo || camaraSigue)) {
             val destino = LatLng(estado.posicion.latitud, estado.posicion.longitud)
             camara.animate(
                 if (siguiendo) CameraUpdateFactory.newLatLng(destino) else CameraUpdateFactory.newLatLngZoom(destino, 17f)
@@ -88,6 +103,7 @@ fun MapaUbicacion(
     // Al elegir un lugar en la lista, la cámara se acerca a él (zoom 17)
     // También se repite en cada toque (enfoque), no solo cuando cambia el lugar elegido
     LaunchedEffect(seleccionado, enfoque) {
+        if (seleccionado != null) camaraSigue = false
         lugares.firstOrNull { it.lugar.id == seleccionado }?.let { item ->
             camara.animate(
                 CameraUpdateFactory.newLatLngZoom(LatLng(item.lugar.latitud, item.lugar.longitud), 17f)
@@ -99,28 +115,15 @@ fun MapaUbicacion(
     // La pausa deja terminar la animación de la hoja y solo se actúa con el último valor.
     LaunchedEffect(relleno) {
         delay(250)
-        val destino = lugares.firstOrNull { it.lugar.id == seleccionado }?.let { LatLng(it.lugar.latitud, it.lugar.longitud) }
-            ?: (estado as? UbicacionUi.Lista)?.let { LatLng(it.posicion.latitud, it.posicion.longitud) }
+        val lugar = lugares.firstOrNull { it.lugar.id == seleccionado }
+        val tuPosicion = (estado as? UbicacionUi.Lista)?.let { LatLng(it.posicion.latitud, it.posicion.longitud) }
+        // Si la cámara te sigue, el destino eres tú; si no, el lugar elegido; si moviste el mapa a mano sin elegir nada, no se toca
+        val destino = when {
+            camaraSigue -> tuPosicion
+            lugar != null -> LatLng(lugar.lugar.latitud, lugar.lugar.longitud)
+            else -> null
+        }
         destino?.let { camara.animate(CameraUpdateFactory.newLatLng(it)) }
-    }
-
-    // «Mi rumbo»: el mapa gira hacia donde apunta el celular (solo si el cambio pasa de 4 grados, para que no tiemble)
-    LaunchedEffect(rumbo, modoRumbo) {
-        if (modoRumbo && rumbo != null) {
-            var diferencia = kotlin.math.abs(camara.position.bearing - rumbo)
-            if (diferencia > 180f) diferencia = 360f - diferencia
-            if (diferencia > 4f) {
-                val actual = camara.position
-                camara.move(CameraUpdateFactory.newCameraPosition(CameraPosition(actual.target, actual.zoom, actual.tilt, rumbo)))
-            }
-        }
-    }
-    // Al apagar «Mi rumbo» el mapa vuelve a tener el norte arriba
-    LaunchedEffect(modoRumbo) {
-        if (!modoRumbo && camara.position.bearing != 0f) {
-            val actual = camara.position
-            camara.animate(CameraUpdateFactory.newCameraPosition(CameraPosition(actual.target, actual.zoom, actual.tilt, 0f)))
-        }
     }
 
     val contexto = LocalContext.current
@@ -148,13 +151,13 @@ fun MapaUbicacion(
                 TipoMapa.HIBRIDO -> MapType.HYBRID
             },
             mapStyleOptions = estilo,
-            // Punto azul nativo: solo si el permiso ya fue concedido (sin permiso lanzaría SecurityException)
-            isMyLocationEnabled = ubicacionNativa
+            // El punto azul es propio (PuntoUsuario), así que se apaga el nativo
+            isMyLocationEnabled = false
         ),
         // Sin botones de zoom (el diseño no los lleva) y con margen para que la hoja no tape el logo de Google
-        uiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = ubicacionNativa),
-        // Margen arriba para que el botón de mi ubicación no quede bajo la barra de estado, y abajo el alto que tapa la hoja (así el mapa se centra en lo que se ve y el logo de Google queda a la vista)
-        contentPadding = PaddingValues(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(), bottom = relleno)
+        uiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false),
+        // Margen arriba: deja libre la fila del chip y los botones (así la brújula del mapa queda debajo y no tapada), y abajo el alto que tapa la hoja (así el mapa se centra en lo que se ve y el logo de Google queda a la vista)
+        contentPadding = PaddingValues(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 76.dp, bottom = relleno)
     ) {
         // Radio de cercanía alrededor de tu posición
         if (estado is UbicacionUi.Lista && radio != null) {
@@ -166,14 +169,18 @@ fun MapaUbicacion(
                 fillColor = Azul.copy(alpha = 0.12f)
             )
         }
-        // Tu posición se ve con el punto azul nativo. El pin rojo de la guía (Fase 1) solo queda de respaldo si no hay punto azul.
-        if (estado is UbicacionUi.Lista && !ubicacionNativa) {
-            Marker(
-                state = rememberUpdatedMarkerState(
-                    position = LatLng(estado.posicion.latitud, estado.posicion.longitud)
-                ),
-                title = "Estás aquí"
-            )
+        // Tu posición: punto azul con flecha hacia donde miras (y abanico con «Mi rumbo»). Es plano: gira junto con el mapa.
+        if (estado is UbicacionUi.Lista) {
+            MarkerComposable(
+                modoRumbo, rumbo != null,
+                state = rememberUpdatedMarkerState(position = LatLng(estado.posicion.latitud, estado.posicion.longitud)),
+                anchor = Offset(0.5f, 0.5f),
+                flat = true,
+                rotation = rumbo ?: 0f,
+                zIndex = 3f
+            ) {
+                PuntoUsuario(conAbanico = modoRumbo && rumbo != null, conFlecha = rumbo != null)
+            }
         }
         // Un marcador por lugar con el ícono de su categoría: azul, y verde el más cercano. key(id) evita que se mezclen al reordenar.
         // Solo el lugar elegido (al tocar su marcador o su tarjeta) resalta: se agranda y sube por encima de los demás.
