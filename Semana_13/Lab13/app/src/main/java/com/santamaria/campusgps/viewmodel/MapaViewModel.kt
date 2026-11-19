@@ -46,8 +46,13 @@ class MapaViewModel(
     private val _radio = MutableStateFlow<Int?>(null)
     val radio: StateFlow<Int?> = _radio.asStateFlow()
 
-    val lugares: StateFlow<List<LugarConDistancia>> = combine(_lugares, _categoria) { todos, cat ->
-        if (cat == null) todos else todos.filter { it.lugar.categoria == cat }
+    // Mejora 5: elegir cuáles lugares se ven. Los ocultos salen del mapa, de la lista y del cálculo del más cercano.
+    val todosLosLugares: List<Lugar> = lugaresRepo.obtenerLugares()
+    private val _ocultos = MutableStateFlow<Set<Int>>(emptySet())
+    val ocultos: StateFlow<Set<Int>> = _ocultos.asStateFlow()
+
+    val lugares: StateFlow<List<LugarConDistancia>> = combine(_lugares, _categoria, _ocultos) { todos, cat, ocultos ->
+        todos.filter { (cat == null || it.lugar.categoria == cat) && it.lugar.id !in ocultos }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _lugares.value)
 
     // Ids de los lugares visibles que están dentro del radio elegido (vacío si no hay radio o aún no hay distancias)
@@ -97,6 +102,17 @@ class MapaViewModel(
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
         if (id != null) viewModelScope.launch { referenciaRepo.guardar(id) }
+    }
+
+    // Marca o desmarca un lugar; si era el elegido, se quita la selección porque deja de verse
+    fun alternarLugar(id: Int) {
+        val oculto = id in _ocultos.value
+        _ocultos.value = if (oculto) _ocultos.value - id else _ocultos.value + id
+        if (!oculto && _seleccionado.value == id) _seleccionado.value = null
+    }
+
+    fun mostrarTodosLosLugares() {
+        _ocultos.value = emptySet()
     }
 
     fun elegirRadio(metros: Int?) {

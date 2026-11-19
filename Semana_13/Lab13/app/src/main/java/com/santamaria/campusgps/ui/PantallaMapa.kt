@@ -75,6 +75,7 @@ fun PantallaMapa(vm: MapaViewModel) {
     val categoria by vm.categoria.collectAsState()
     val radio by vm.radio.collectAsState()
     val referencia by vm.referencia.collectAsState()
+    val ocultos by vm.ocultos.collectAsState()
     val dentro by vm.dentroDelRadio.collectAsState()
     val tipoMapa by vm.tipoMapa.collectAsState()
     val soloCampus by vm.soloCampus.collectAsState()
@@ -133,6 +134,10 @@ fun PantallaMapa(vm: MapaViewModel) {
                 lugares = lugares,
                 seleccionado = seleccionado,
                 masCercano = masCercano,
+                todos = vm.todosLosLugares,
+                ocultos = ocultos,
+                onAlternarLugar = vm::alternarLugar,
+                onMostrarTodos = vm::mostrarTodosLosLugares,
                 categorias = vm.categorias,
                 categoria = categoria,
                 onCategoria = vm::filtrarCategoria,
@@ -204,6 +209,10 @@ private fun HojaInferior(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     masCercano: Lugar?,
+    todos: List<Lugar>,
+    ocultos: Set<Int>,
+    onAlternarLugar: (Int) -> Unit,
+    onMostrarTodos: () -> Unit,
     categorias: List<String>,
     categoria: String?,
     onCategoria: (String?) -> Unit,
@@ -286,9 +295,21 @@ private fun HojaInferior(
                     ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA), referencia = referencia?.lugar?.id)
                 }
                 is UbicacionUi.Lista -> {
-                    FiltroCategorias(categorias, categoria, onCategoria)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        SelectorLugares(todos, ocultos, onAlternarLugar, onMostrarTodos)
+                        FiltroCategorias(categorias, categoria, onCategoria, Modifier.weight(1f))
+                    }
                     FiltroRadio(radios, radio, onRadio)
-                    ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA), dentro, referencia?.lugar?.id)
+                    if (lugares.isEmpty()) {
+                        Text(
+                            "No hay lugares visibles. Márcalos en «Lugares».",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(vertical = 18.dp)
+                        )
+                    } else {
+                        ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA), dentro, referencia?.lugar?.id)
+                    }
                 }
                 is UbicacionUi.Error -> MensajeError(e, onReintentar = onBuscar)
             }
