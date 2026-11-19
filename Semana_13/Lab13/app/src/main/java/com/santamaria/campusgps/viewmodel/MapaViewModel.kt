@@ -13,6 +13,7 @@ import com.santamaria.campusgps.model.TipoError
 import com.santamaria.campusgps.model.TipoMapa
 import com.santamaria.campusgps.model.UbicacionUi
 import com.santamaria.campusgps.util.distanciaMetros
+import com.santamaria.campusgps.util.rumboHacia
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,6 +24,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+
+private const val DISTANCIA_LLEGADA = 30f
 
 class MapaViewModel(
     private val ubicacionRepo: UbicacionRepository,
@@ -98,6 +101,41 @@ class MapaViewModel(
         }
     }
 
+    // Mejora 7: modo oscuro (cambia el tema de la app y el estilo del mapa)
+    private val _oscuro = MutableStateFlow(false)
+    val oscuro: StateFlow<Boolean> = _oscuro.asStateFlow()
+
+    fun alternarOscuro() {
+        _oscuro.value = !_oscuro.value
+    }
+
+    // Mejora 8: "Mi rumbo". El mapa gira hacia donde apunta el celular, como un GPS normal.
+    private val _modoRumbo = MutableStateFlow(false)
+    val modoRumbo: StateFlow<Boolean> = _modoRumbo.asStateFlow()
+    private val _rumbo = MutableStateFlow<Float?>(null)
+    val rumbo: StateFlow<Float?> = _rumbo.asStateFlow()
+    private var trabajoRumbo: Job? = null
+
+    fun alternarRumbo() {
+        _modoRumbo.value = !_modoRumbo.value
+        if (_modoRumbo.value) iniciarRumbo() else detenerRumbo()
+    }
+
+    private fun iniciarRumbo() {
+        trabajoRumbo?.cancel()
+        trabajoRumbo = viewModelScope.launch {
+            ubicacionRepo.seguirRumbo()
+                .catch { _modoRumbo.value = false }
+                .collect { _rumbo.value = it }
+        }
+    }
+
+    private fun detenerRumbo() {
+        trabajoRumbo?.cancel()
+        trabajoRumbo = null
+        if (!_modoRumbo.value) _rumbo.value = null
+    }
+
     // Mejora 6: seguimiento en vivo. Solo se puede encender cuando ya hay una ubicación (el permiso ya fue concedido).
     private val _siguiendo = MutableStateFlow(false)
     val siguiendo: StateFlow<Boolean> = _siguiendo.asStateFlow()
@@ -119,6 +157,7 @@ class MapaViewModel(
     // Al volver a la app se retoma el seguimiento si ya te habías ubicado y no lo pausaste
     fun alVolver() {
         if (_estado.value is UbicacionUi.Lista && quiereSeguir && !_siguiendo.value) iniciarSeguimiento()
+        if (_modoRumbo.value && trabajoRumbo == null) iniciarRumbo()
     }
 
     private fun iniciarSeguimiento() {
@@ -142,6 +181,9 @@ class MapaViewModel(
         trabajoSeguimiento?.cancel()
         trabajoSeguimiento = null
         _siguiendo.value = false
+        // El sensor de orientación también se apaga al salir; el modo se conserva para retomarlo al volver
+        trabajoRumbo?.cancel()
+        trabajoRumbo = null
     }
 
     fun permisoDenegado() {
@@ -149,9 +191,16 @@ class MapaViewModel(
     }
 
     // Tocar un lugar lo selecciona y lo deja guardado como tu referencia (no se pierde al cerrar la app)
+    // Cada toque suma 1 a "enfoque": así la cámara viaja al lugar aunque ya estuviera elegido
+    private val _enfoque = MutableStateFlow(0)
+    val enfoque: StateFlow<Int> = _enfoque.asStateFlow()
+
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
-        if (id != null) viewModelScope.launch { referenciaRepo.guardar(id) }
+        if (id != null) {
+            _enfoque.value += 1
+            viewModelScope.launch { referenciaRepo.guardar(id) }
+        }
     }
 
     // Marca o desmarca un lugar; si era el elegido, se quita la selección porque deja de verse
@@ -186,10 +235,15 @@ class MapaViewModel(
         todos.firstOrNull { it.lugar.id == id }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
+    // Mejora 9: "Llegaste". Si estás a menos de 30 m de tu referencia, la pantalla lo avisa.
+    val llegaste: StateFlow<Lugar?> = referencia
+        .map { ref -> if (ref?.metros != null && ref.metros <= DISTANCIA_LLEGADA) ref.lugar else null }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     // Se calcula solo cuando llega la ubicación (dentro de buscar) y deja la lista ordenada de menor a mayor
     private fun actualizarDistancias(posicion: Posicion) {
         _lugares.value = lugaresRepo.obtenerLugares()
-            .map { LugarConDistancia(it, distanciaMetros(posicion, it)) }
+            .map { LugarConDistancia(it, distanciaMetros(posicion, it), rumboHacia(posicion, it)) }
             .sortedBy { it.metros }
     }
 

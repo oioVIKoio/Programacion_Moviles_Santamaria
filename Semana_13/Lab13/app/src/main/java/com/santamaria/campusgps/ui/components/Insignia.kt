@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.santamaria.campusgps.ui.theme.Exito
-import com.santamaria.campusgps.ui.theme.ExitoSuave
 import com.santamaria.campusgps.ui.theme.FormaBoton
 
 /** Etiqueta pequeña, por ejemplo "Más cercano". */
@@ -18,7 +17,7 @@ fun Insignia(texto: String, modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier,
         shape = FormaBoton,
-        color = ExitoSuave,
+        color = MaterialTheme.colorScheme.tertiaryContainer,
         border = BorderStroke(1.dp, Exito.copy(alpha = 0.25f))
     ) {
         Text(

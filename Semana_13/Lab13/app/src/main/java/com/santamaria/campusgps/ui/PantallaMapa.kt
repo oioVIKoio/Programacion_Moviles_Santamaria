@@ -69,6 +69,8 @@ import com.santamaria.campusgps.model.Lugar
 import com.santamaria.campusgps.model.LugarConDistancia
 import com.santamaria.campusgps.model.UbicacionUi
 import com.santamaria.campusgps.ui.components.BotonPrincipal
+import com.santamaria.campusgps.ui.components.CajaMensaje
+import com.santamaria.campusgps.ui.components.TipoMensaje
 import com.santamaria.campusgps.ui.components.BotonSecundario
 import com.santamaria.campusgps.ui.theme.FormaBoton
 import com.santamaria.campusgps.ui.theme.FormaHoja
@@ -93,6 +95,11 @@ fun PantallaMapa(vm: MapaViewModel) {
     val referencia by vm.referencia.collectAsState()
     val ocultos by vm.ocultos.collectAsState()
     val siguiendo by vm.siguiendo.collectAsState()
+    val enfoque by vm.enfoque.collectAsState()
+    val oscuro by vm.oscuro.collectAsState()
+    val modoRumbo by vm.modoRumbo.collectAsState()
+    val rumbo by vm.rumbo.collectAsState()
+    val llegaste by vm.llegaste.collectAsState()
     val dentro by vm.dentroDelRadio.collectAsState()
     val tipoMapa by vm.tipoMapa.collectAsState()
     val soloCampus by vm.soloCampus.collectAsState()
@@ -155,6 +162,10 @@ fun PantallaMapa(vm: MapaViewModel) {
     // El mapa se centra en lo que no tapa la hoja; con la hoja bajada, el espacio de la barra de navegación queda vacío
     val relleno by animateDpAsState(if (hojaArriba) altoContenido + 24.dp else ALTO_BOTONES + navegacion, label = "relleno")
     val hueco by animateDpAsState(if (hojaArriba) 0.dp else navegacion, label = "hueco")
+    // Al llegar a tu referencia la hoja sube sola para mostrar el aviso
+    LaunchedEffect(llegaste?.id) {
+        if (llegaste != null) estadoHoja.bottomSheetState.expand()
+    }
     // Cuando llega la ubicación (o un error) la hoja sube sola para mostrar el resultado
     LaunchedEffect(estado) {
         if (estado is UbicacionUi.Lista || estado is UbicacionUi.Error) estadoHoja.bottomSheetState.expand()
@@ -195,6 +206,9 @@ fun PantallaMapa(vm: MapaViewModel) {
                 onBuscar = { alPulsar() },
                 siguiendo = siguiendo,
                 onSeguimiento = vm::alternarSeguimiento,
+                modoRumbo = modoRumbo,
+                onRumbo = vm::alternarRumbo,
+                llegaste = llegaste,
                 hueco = hueco,
                 modifier = Modifier.onSizeChanged { altoContenido = with(densidad) { it.height.toDp() } }
             )
@@ -214,6 +228,10 @@ fun PantallaMapa(vm: MapaViewModel) {
                 soloCampus = soloCampus,
                 ubicacionNativa = permisoConcedido,
                 siguiendo = siguiendo,
+                enfoque = enfoque,
+                oscuro = oscuro,
+                modoRumbo = modoRumbo,
+                rumbo = rumbo,
                 modifier = Modifier.fillMaxSize(),
                 relleno = relleno
             )
@@ -259,6 +277,11 @@ fun PantallaMapa(vm: MapaViewModel) {
                     }
                     HorizontalDivider()
                     DropdownMenuItem(
+                        text = { Text("Modo oscuro") },
+                        leadingIcon = { if (oscuro) Icon(Icons.Outlined.Check, null) else Spacer(Modifier.size(24.dp)) },
+                        onClick = { vm.alternarOscuro(); capasAbierto = false }
+                    )
+                    DropdownMenuItem(
                         text = { Text("Solo lugares del campus") },
                         leadingIcon = { if (soloCampus) Icon(Icons.Outlined.Check, null) else Spacer(Modifier.size(24.dp)) },
                         onClick = { vm.alternarSoloCampus(); capasAbierto = false }
@@ -293,6 +316,9 @@ private fun HojaInferior(
     onBuscar: () -> Unit,
     siguiendo: Boolean,
     onSeguimiento: () -> Unit,
+    modoRumbo: Boolean,
+    onRumbo: () -> Unit,
+    llegaste: Lugar?,
     hueco: Dp,
     modifier: Modifier = Modifier
 ) {
@@ -358,6 +384,13 @@ private fun HojaInferior(
                         conRadio = radio != null,
                         cabecera = {
                             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                if (llegaste != null) {
+                                    CajaMensaje(
+                                        tipo = TipoMensaje.EXITO,
+                                        titulo = "Llegaste a ${llegaste.nombre}",
+                                        texto = "Estás a menos de 30 m de tu referencia."
+                                    )
+                                }
                                 Row(
                                     Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
@@ -387,7 +420,7 @@ private fun HojaInferior(
                                     SelectorLugares(todos, ocultos, onAlternarLugar, onMostrarTodos)
                                     FiltroCategorias(categorias, categoria, onCategoria, Modifier.weight(1f))
                                 }
-                                FiltroRadio(radios, radio, onRadio)
+                                FiltroRadio(radios, radio, onRadio, modoRumbo, onRumbo)
                                 // Resumen del radio: cuántos lugares caen dentro (los de afuera se ven atenuados en la lista)
                                 if (radio != null) {
                                     Text(

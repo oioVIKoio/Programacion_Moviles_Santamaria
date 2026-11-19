@@ -121,6 +121,9 @@ El detalle de cada consulta está en [`PROMPTS.md`](PROMPTS.md). Las mejoras de 
 | Seguimiento en vivo (de la lista de la guía) | Arranca solo al ubicarte y actualiza tu posición cada ~2 s con `requestLocationUpdates` convertido en `Flow` (`callbackFlow`); recalcula distancias y el más cercano, y el mapa te sigue. Se pausa con el interruptor, se detiene al salir de la app y se retoma al volver | Repository + ViewModel + View |
 | Elegir qué lugares se ven (extra) | Chip **Lugares** con casillas: lo que desmarcas sale del mapa, de la lista y del cálculo del más cercano | ViewModel + View |
 | Radio con resumen (mejora del radio) | Con un radio elegido dice "N lugares dentro de X m" y atenúa los lugares que quedan fuera | ViewModel + View |
+| Modo oscuro (de la lista de la guía) | Opción **Modo oscuro** en el menú de capas: cambia el tema de toda la app (`darkColorScheme`) y el estilo del mapa (`MapStyleOptions` con un JSON en `res/raw`). Se combina con Normal, Satélite e Híbrido y con «Solo lugares del campus»; en Satélite el mapa son fotos, así que solo cambia la interfaz | ViewModel + View |
+| Mi rumbo (extra) | Chip que hace girar el mapa hacia donde apunta el celular (sensor de orientación de Google convertido en `Flow`); al apagarlo vuelve el norte arriba | Repository + ViewModel + View |
+| Rumbo a tu referencia y «Llegaste» (extra) | La tarjeta de la referencia dice hacia dónde queda («al noreste») y, si estás a menos de 30 m, aparece «Llegaste a X» | ViewModel + View |
 | Hoja arrastrable (extra) | La hoja inferior baja y deja solo **Obtener mi ubicación** e **Ir al más cercano**; sube sola al llegar la ubicación | View |
 
 ## Para pensar

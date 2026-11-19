@@ -7,6 +7,9 @@ import androidx.core.location.LocationManagerCompat
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import android.os.Looper
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.DeviceOrientationListener
+import com.google.android.gms.location.DeviceOrientationRequest
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -51,6 +54,15 @@ class UbicacionRepositoryGoogle(context: Context) : UbicacionRepository {
         }
         cliente.requestLocationUpdates(pedido, callback, Looper.getMainLooper())
         awaitClose { cliente.removeLocationUpdates(callback) }
+    }
+
+    // El sensor de orientación convertido en Flow: al cancelar se quita el listener (awaitClose)
+    override fun seguirRumbo(): Flow<Float> = callbackFlow {
+        val orientacion = LocationServices.getFusedOrientationProviderClient(contexto)
+        val pedido = DeviceOrientationRequest.Builder(DeviceOrientationRequest.OUTPUT_PERIOD_DEFAULT).build()
+        val listener = DeviceOrientationListener { trySend(it.headingDegrees) }
+        orientacion.requestOrientationUpdates(pedido, ContextCompat.getMainExecutor(contexto), listener)
+        awaitClose { orientacion.removeOrientationUpdates(listener) }
     }
 
     override fun playServicesDisponible(): Boolean =

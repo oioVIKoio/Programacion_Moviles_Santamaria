@@ -3,6 +3,10 @@ package com.santamaria.campusgps.ui
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Explore
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -11,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.santamaria.campusgps.ui.theme.AzulSuave
 
 /** Fila de chips para filtrar por categoría. No sabe del ViewModel: recibe datos y avisa la elección. */
 @Composable
@@ -23,7 +26,7 @@ fun FiltroCategorias(
 ) {
     // Colores del diseño: el chip elegido va en azul suave, no en el lila por defecto de Material
     val colores = FilterChipDefaults.filterChipColors(
-        selectedContainerColor = AzulSuave,
+        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
         selectedLabelColor = MaterialTheme.colorScheme.primary
     )
     Row(
@@ -42,20 +45,29 @@ fun FiltroCategorias(
     }
 }
 
-/** Fila de chips para elegir el radio de cercanía (100, 200, 300 m o sin radio). */
+/** Fila de chips: «Mi rumbo» (el mapa gira hacia donde apuntas) y el radio de cercanía (100, 200 o 500 m). Tocar de nuevo el radio elegido lo quita. */
 @Composable
 fun FiltroRadio(
     radios: List<Int>,
     actual: Int?,
     onElegir: (Int?) -> Unit,
+    rumboActivo: Boolean,
+    onRumbo: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val colores = FilterChipDefaults.filterChipColors(
-        selectedContainerColor = AzulSuave,
-        selectedLabelColor = MaterialTheme.colorScheme.primary
+        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+        selectedLabelColor = MaterialTheme.colorScheme.primary,
+        selectedLeadingIconColor = MaterialTheme.colorScheme.primary
     )
     Row(modifier = modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        FilterChip(selected = actual == null, onClick = { onElegir(null) }, label = { Text("Sin radio") }, colors = colores)
+        FilterChip(
+            selected = rumboActivo,
+            onClick = onRumbo,
+            label = { Text("Mi rumbo") },
+            leadingIcon = { Icon(Icons.Outlined.Explore, null, Modifier.size(18.dp)) },
+            colors = colores
+        )
         radios.forEach { metros ->
             FilterChip(
                 selected = actual == metros,

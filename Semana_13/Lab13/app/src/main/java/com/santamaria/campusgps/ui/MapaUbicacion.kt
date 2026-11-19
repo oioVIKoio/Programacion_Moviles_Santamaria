@@ -58,6 +58,10 @@ fun MapaUbicacion(
     soloCampus: Boolean,
     ubicacionNativa: Boolean,
     siguiendo: Boolean = false,
+    enfoque: Int = 0,
+    oscuro: Boolean = false,
+    modoRumbo: Boolean = false,
+    rumbo: Float? = null,
     modifier: Modifier = Modifier,
     // Alto que tapa la hoja inferior: el mapa se centra en la parte que queda a la vista
     relleno: Dp = 0.dp
@@ -72,7 +76,8 @@ fun MapaUbicacion(
     // Cuando llega la ubicación, la cámara viaja hasta ella
     // Siguiendo en vivo la cámara solo se desplaza (no cambia el zoom que tú elijas)
     LaunchedEffect(estado) {
-        if (estado is UbicacionUi.Lista) {
+        // Con un lugar elegido el seguimiento no mueve la cámara: si no, te devolvería a tu posición cada 2 s
+        if (estado is UbicacionUi.Lista && !(siguiendo && seleccionado != null)) {
             val destino = LatLng(estado.posicion.latitud, estado.posicion.longitud)
             camara.animate(
                 if (siguiendo) CameraUpdateFactory.newLatLng(destino) else CameraUpdateFactory.newLatLngZoom(destino, 17f)
@@ -81,7 +86,8 @@ fun MapaUbicacion(
     }
 
     // Al elegir un lugar en la lista, la cámara se acerca a él (zoom 17)
-    LaunchedEffect(seleccionado) {
+    // También se repite en cada toque (enfoque), no solo cuando cambia el lugar elegido
+    LaunchedEffect(seleccionado, enfoque) {
         lugares.firstOrNull { it.lugar.id == seleccionado }?.let { item ->
             camara.animate(
                 CameraUpdateFactory.newLatLngZoom(LatLng(item.lugar.latitud, item.lugar.longitud), 17f)
@@ -98,10 +104,36 @@ fun MapaUbicacion(
         destino?.let { camara.animate(CameraUpdateFactory.newLatLng(it)) }
     }
 
+    // «Mi rumbo»: el mapa gira hacia donde apunta el celular (solo si el cambio pasa de 4 grados, para que no tiemble)
+    LaunchedEffect(rumbo, modoRumbo) {
+        if (modoRumbo && rumbo != null) {
+            var diferencia = kotlin.math.abs(camara.position.bearing - rumbo)
+            if (diferencia > 180f) diferencia = 360f - diferencia
+            if (diferencia > 4f) {
+                val actual = camara.position
+                camara.move(CameraUpdateFactory.newCameraPosition(CameraPosition(actual.target, actual.zoom, actual.tilt, rumbo)))
+            }
+        }
+    }
+    // Al apagar «Mi rumbo» el mapa vuelve a tener el norte arriba
+    LaunchedEffect(modoRumbo) {
+        if (!modoRumbo && camara.position.bearing != 0f) {
+            val actual = camara.position
+            camara.animate(CameraUpdateFactory.newCameraPosition(CameraPosition(actual.target, actual.zoom, actual.tilt, 0f)))
+        }
+    }
+
     val contexto = LocalContext.current
     // "Solo campus": estilo que apaga los puntos de interés y el transporte de Google; si no, el mapa normal
-    val estilo = remember(soloCampus) {
-        if (soloCampus) MapStyleOptions.loadRawResourceStyle(contexto, R.raw.mapa_solo_campus) else null
+    // Estilo del mapa: normal, solo campus, oscuro, u oscuro con solo campus
+    val estilo = remember(soloCampus, oscuro) {
+        val recurso = when {
+            oscuro && soloCampus -> R.raw.mapa_oscuro_solo_campus
+            oscuro -> R.raw.mapa_oscuro
+            soloCampus -> R.raw.mapa_solo_campus
+            else -> null
+        }
+        recurso?.let { MapStyleOptions.loadRawResourceStyle(contexto, it) }
     }
 
     GoogleMap(

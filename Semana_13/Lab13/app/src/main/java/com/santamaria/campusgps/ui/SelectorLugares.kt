@@ -21,7 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.santamaria.campusgps.model.Lugar
-import com.santamaria.campusgps.ui.theme.AzulSuave
 
 /** Chip "Lugares" con un menú de casillas: marca cuáles lugares se ven. No sabe del ViewModel. */
 @Composable
@@ -41,7 +40,7 @@ fun SelectorLugares(
             label = { Text("Lugares $visibles/${todos.size}") },
             leadingIcon = { Icon(Icons.Outlined.Place, null, Modifier.size(18.dp)) },
             colors = FilterChipDefaults.filterChipColors(
-                selectedContainerColor = AzulSuave,
+                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                 selectedLabelColor = MaterialTheme.colorScheme.primary,
                 selectedLeadingIconColor = MaterialTheme.colorScheme.primary
             )

@@ -19,8 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.santamaria.campusgps.ui.theme.FormaBoton
-import com.santamaria.campusgps.ui.theme.Linea
-import com.santamaria.campusgps.ui.theme.Tinta
 
 @Composable
 private fun Contenido(texto: String, icono: ImageVector?) {
@@ -70,12 +68,12 @@ fun BotonSecundario(
         enabled = habilitado,
         modifier = modifier.fillMaxWidth().height(52.dp),
         shape = FormaBoton,
-        border = BorderStroke(1.dp, if (habilitado) Color(0xFFCBD3DE) else Linea),
+        border = BorderStroke(1.dp, if (habilitado) MaterialTheme.colorScheme.outlineVariant else MaterialTheme.colorScheme.outline),
         colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = Color.White,
-            contentColor = Tinta,
-            disabledContainerColor = Color.White,
-            disabledContentColor = Tinta.copy(alpha = 0.43f)
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            disabledContainerColor = MaterialTheme.colorScheme.surface,
+            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.43f)
         )
     ) { Contenido(texto, icono) }
 }

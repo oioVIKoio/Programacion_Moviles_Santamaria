@@ -21,10 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.santamaria.campusgps.ui.theme.Error
-import com.santamaria.campusgps.ui.theme.ErrorSuave
-import com.santamaria.campusgps.ui.theme.Exito
-import com.santamaria.campusgps.ui.theme.ExitoSuave
 import com.santamaria.campusgps.ui.theme.FormaMensaje
 
 enum class TipoMensaje { ERROR, EXITO }
@@ -39,8 +35,8 @@ fun CajaMensaje(
     accion: String? = null,
     onAccion: () -> Unit = {}
 ) {
-    val color = if (tipo == TipoMensaje.ERROR) Error else Exito
-    val fondo = if (tipo == TipoMensaje.ERROR) ErrorSuave else ExitoSuave
+    val color = if (tipo == TipoMensaje.ERROR) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiary
+    val fondo = if (tipo == TipoMensaje.ERROR) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.tertiaryContainer
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = FormaMensaje,
@@ -56,7 +52,7 @@ fun CajaMensaje(
             )
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(titulo, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
-                Text(texto, style = MaterialTheme.typography.bodySmall, color = Color(0xFF5C697A))
+                Text(texto, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (accion != null) {
                     Row(
                         modifier = Modifier.clickable(onClick = onAccion).padding(top = 6.dp),

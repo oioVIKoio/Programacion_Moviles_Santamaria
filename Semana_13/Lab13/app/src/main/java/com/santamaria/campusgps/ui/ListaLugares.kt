@@ -27,11 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.santamaria.campusgps.model.LugarConDistancia
 import com.santamaria.campusgps.ui.components.Insignia
-import com.santamaria.campusgps.ui.theme.AzulSuave
 import com.santamaria.campusgps.ui.theme.Exito
 import com.santamaria.campusgps.ui.theme.FormaFila
 import com.santamaria.campusgps.ui.theme.NumeroGrande
 import com.santamaria.campusgps.ui.theme.ReferenciaTexto
+import com.santamaria.campusgps.util.direccionCardinal
 import com.santamaria.campusgps.util.formatearCaminata
 import com.santamaria.campusgps.util.formatearDistancia
 
@@ -59,7 +59,7 @@ fun ListaLugares(
                 // Con un radio elegido, los lugares que quedan fuera se atenúan
                 modifier = Modifier.fillMaxWidth().alpha(if (conRadio && item.lugar.id !in dentro) 0.5f else 1f).clickable { onClick(item.lugar.id) },
                 shape = FormaFila,
-                color = if (elegido) AzulSuave else MaterialTheme.colorScheme.surface,
+                color = if (elegido) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
                 border = BorderStroke(
                     if (elegido) 1.5.dp else 1.dp,
                     if (elegido) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
@@ -82,7 +82,7 @@ fun ListaLugares(
                         Text(
                             item.lugar.categoria +
                                 (if (esDentro) " · dentro del radio" else "") +
-                                (if (esReferencia) " · tu referencia" else ""),
+                                (if (esReferencia) " · tu referencia" + (item.rumbo?.let { " · al " + direccionCardinal(it) } ?: "") else ""),
                             style = MaterialTheme.typography.bodySmall,
                             color = if (esReferencia) ReferenciaTexto else if (esDentro) Exito else MaterialTheme.colorScheme.onSurfaceVariant
                         )

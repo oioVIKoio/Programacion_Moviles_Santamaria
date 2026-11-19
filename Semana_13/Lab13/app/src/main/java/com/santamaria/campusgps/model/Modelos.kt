@@ -10,8 +10,8 @@ data class Lugar(
     val longitud: Double
 )
 
-// metros = null mientras todavía no se conoce la ubicación del usuario
-data class LugarConDistancia(val lugar: Lugar, val metros: Float?)
+// metros y rumbo (grados desde el norte hacia el lugar) son null mientras todavía no se conoce la ubicación del usuario
+data class LugarConDistancia(val lugar: Lugar, val metros: Float?, val rumbo: Float? = null)
 
 // Qué salió mal: la pantalla decide el botón según el tipo (Abrir ajustes, Reintentar o ninguno)
 enum class TipoError { SIN_PERMISO, GPS_APAGADO, SIN_PLAY_SERVICES, OTRO }
