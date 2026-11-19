@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -61,9 +59,6 @@ import com.santamaria.campusgps.ui.theme.NumeroChico
 import com.santamaria.campusgps.ui.theme.ReferenciaTexto
 import com.santamaria.campusgps.util.formatearDistancia
 import com.santamaria.campusgps.viewmodel.MapaViewModel
-
-// Altura fija de la lista: el mapa se queda con el resto (weight 1f)
-private val ALTO_LISTA = 170.dp
 
 // Ejemplo resuelto: pedir la ubicación y mostrar latitud y longitud, ya con el diseño.
 @Composable
@@ -238,11 +233,10 @@ private fun HojaInferior(
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column(
-            // La hoja nunca pasa del 55 % de la pantalla (así el mapa siempre se ve) y desplaza su contenido si no cabe
+            // La hoja nunca pasa del 58 % de la pantalla (así el mapa siempre se ve). Los botones quedan fijos y solo la lista se desplaza
             Modifier
                 .navigationBarsPadding()
-                .heightIn(max = (LocalConfiguration.current.screenHeightDp * 0.55f).dp)
-                .verticalScroll(rememberScrollState())
+                .heightIn(max = (LocalConfiguration.current.screenHeightDp * 0.58f).dp)
                 .padding(start = 20.dp, end = 20.dp, top = 11.dp, bottom = 20.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
@@ -292,24 +286,30 @@ private fun HojaInferior(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     // Todavía sin ubicación: la lista sale con "Sin calcular"
-                    ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA), referencia = referencia?.lugar?.id)
+                    ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.weight(1f, fill = false), referencia = referencia?.lugar?.id)
                 }
                 is UbicacionUi.Lista -> {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        SelectorLugares(todos, ocultos, onAlternarLugar, onMostrarTodos)
-                        FiltroCategorias(categorias, categoria, onCategoria, Modifier.weight(1f))
-                    }
-                    FiltroRadio(radios, radio, onRadio)
-                    if (lugares.isEmpty()) {
-                        Text(
-                            "No hay lugares visibles. Márcalos en «Lugares».",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 18.dp)
-                        )
-                    } else {
-                        ListaLugares(lugares, seleccionado, masCercano?.id, onSeleccionar, Modifier.height(ALTO_LISTA), dentro, referencia?.lugar?.id)
-                    }
+                    ListaLugares(
+                        lugares, seleccionado, masCercano?.id, onSeleccionar,
+                        Modifier.weight(1f, fill = false), dentro, referencia?.lugar?.id,
+                        cabecera = {
+                            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    SelectorLugares(todos, ocultos, onAlternarLugar, onMostrarTodos)
+                                    FiltroCategorias(categorias, categoria, onCategoria, Modifier.weight(1f))
+                                }
+                                FiltroRadio(radios, radio, onRadio)
+                                if (lugares.isEmpty()) {
+                                    Text(
+                                        "No hay lugares visibles. Márcalos en «Lugares».",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(vertical = 8.dp)
+                                    )
+                                }
+                            }
+                        }
+                    )
                 }
                 is UbicacionUi.Error -> MensajeError(e, onReintentar = onBuscar)
             }

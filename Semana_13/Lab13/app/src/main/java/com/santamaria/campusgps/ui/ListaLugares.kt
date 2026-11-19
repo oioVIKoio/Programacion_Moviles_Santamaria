@@ -45,9 +45,12 @@ fun ListaLugares(
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     dentro: Set<Int> = emptySet(),
-    referencia: Int? = null
+    referencia: Int? = null,
+    cabecera: (@Composable () -> Unit)? = null
 ) {
     LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        // La cabecera (filtros) es el primer elemento: se desplaza junto con la lista y los botones de arriba quedan fijos
+        if (cabecera != null) item(key = "cabecera") { cabecera() }
         items(lugares, key = { it.lugar.id }) { item ->
             val elegido = item.lugar.id == seleccionado
             Surface(
