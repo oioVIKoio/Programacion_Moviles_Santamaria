@@ -7,6 +7,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.compose.foundation.background
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,7 +73,11 @@ import com.santamaria.campusgps.ui.theme.ReferenciaTexto
 import com.santamaria.campusgps.util.formatearDistancia
 import com.santamaria.campusgps.viewmodel.MapaViewModel
 
+// Alto de la hoja bajada: asa (24) + botón (52) + separación (10) + botón (52) + respiro (2)
+private val ALTO_BOTONES = 140.dp
+
 // Ejemplo resuelto: pedir la ubicación y mostrar latitud y longitud, ya con el diseño.
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
@@ -108,23 +125,37 @@ fun PantallaMapa(vm: MapaViewModel) {
         }
     }
 
-    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Column(Modifier.fillMaxSize()) {
-            // El mapa ocupa el espacio libre; la hoja queda debajo
-            MapaUbicacion(
-                estado = estado,
-                lugares = lugares,
-                seleccionado = seleccionado,
-                masCercano = masCercano?.id,
-                radio = radio,
-                onSeleccionar = vm::seleccionar,
-                referencia = referencia?.lugar?.id,
-                tipoMapa = tipoMapa,
-                soloCampus = soloCampus,
-                ubicacionNativa = permisoConcedido,
-                modifier = Modifier.weight(1f)
+    // Hoja arrastrable: abajo solo se ven los dos botones; al subirla aparecen los filtros y la lista
+    val estadoHoja = rememberBottomSheetScaffoldState(
+        rememberStandardBottomSheetState(initialValue = SheetValue.PartiallyExpanded, skipHiddenState = true)
+    )
+    val navegacion = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val densidad = LocalDensity.current
+    var altoContenido by remember { mutableStateOf(0.dp) }
+    val hojaArriba = estadoHoja.bottomSheetState.targetValue == SheetValue.Expanded
+    // El mapa se centra en lo que no tapa la hoja; con la hoja bajada, el espacio de la barra de navegación queda vacío
+    val relleno by animateDpAsState(if (hojaArriba) altoContenido + 24.dp else ALTO_BOTONES + navegacion, label = "relleno")
+    val hueco by animateDpAsState(if (hojaArriba) 0.dp else navegacion, label = "hueco")
+    // Cuando llega la ubicación (o un error) la hoja sube sola para mostrar el resultado
+    LaunchedEffect(estado) {
+        if (estado is UbicacionUi.Lista || estado is UbicacionUi.Error) estadoHoja.bottomSheetState.expand()
+    }
+
+    BottomSheetScaffold(
+        scaffoldState = estadoHoja,
+        sheetPeekHeight = ALTO_BOTONES + navegacion,
+        sheetContainerColor = MaterialTheme.colorScheme.surface,
+        sheetShape = FormaHoja,
+        sheetDragHandle = {
+            Box(
+                Modifier.padding(vertical = 10.dp).size(width = 42.dp, height = 4.dp)
+                    .background(MaterialTheme.colorScheme.outline, CircleShape)
             )
+        },
+        containerColor = MaterialTheme.colorScheme.background,
+        sheetContent = {
             HojaInferior(
+
                 estado = estado,
                 lugares = lugares,
                 seleccionado = seleccionado,
@@ -142,9 +173,28 @@ fun PantallaMapa(vm: MapaViewModel) {
                 dentro = dentro,
                 referencia = referencia,
                 onSeleccionar = vm::seleccionar,
-                onBuscar = { alPulsar() }
+                onBuscar = { alPulsar() },
+                hueco = hueco,
+                modifier = Modifier.onSizeChanged { altoContenido = with(densidad) { it.height.toDp() } }
             )
         }
+    ) {
+        Box(Modifier.fillMaxSize()) {
+            MapaUbicacion(
+
+                estado = estado,
+                lugares = lugares,
+                seleccionado = seleccionado,
+                masCercano = masCercano?.id,
+                radio = radio,
+                onSeleccionar = vm::seleccionar,
+                referencia = referencia?.lugar?.id,
+                tipoMapa = tipoMapa,
+                soloCampus = soloCampus,
+                ubicacionNativa = permisoConcedido,
+                modifier = Modifier.fillMaxSize(),
+                relleno = relleno
+            )
 
         // Arriba a la izquierda: chip de marca y el botón de capas del mapa
         Row(
@@ -194,6 +244,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 }
             }
         }
+        }
     }
 }
 
@@ -217,33 +268,19 @@ private fun HojaInferior(
     dentro: Set<Int>,
     referencia: LugarConDistancia?,
     onSeleccionar: (Int) -> Unit,
-    onBuscar: () -> Unit
+    onBuscar: () -> Unit,
+    hueco: Dp,
+    modifier: Modifier = Modifier
 ) {
-    val solape = 28.dp
-    Surface(
-        modifier = Modifier
+    Column(
+        // La hoja nunca pasa del 58 % de la pantalla (así el mapa siempre se ve). Los botones quedan arriba y solo la lista se desplaza
+        modifier
             .fillMaxWidth()
-            .layout { medida, restricciones ->
-                val pieza = medida.measure(restricciones)
-                val px = solape.roundToPx()
-                layout(pieza.width, pieza.height - px) { pieza.place(0, -px) }
-            },
-        shape = FormaHoja,
-        color = MaterialTheme.colorScheme.surface,
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+            .navigationBarsPadding()
+            .heightIn(max = (LocalConfiguration.current.screenHeightDp * 0.58f).dp)
+            .padding(start = 20.dp, end = 20.dp, bottom = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Column(
-            // La hoja nunca pasa del 58 % de la pantalla (así el mapa siempre se ve). Los botones quedan fijos y solo la lista se desplaza
-            Modifier
-                .navigationBarsPadding()
-                .heightIn(max = (LocalConfiguration.current.screenHeightDp * 0.58f).dp)
-                .padding(start = 20.dp, end = 20.dp, top = 11.dp, bottom = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Box(
-                Modifier.align(Alignment.CenterHorizontally).size(width = 42.dp, height = 4.dp)
-                    .background(MaterialTheme.colorScheme.outline, CircleShape)
-            )
             BotonPrincipal(
                 texto = if (estado is UbicacionUi.Buscando) "Buscando…" else "Obtener mi ubicación",
                 icono = Icons.Outlined.NearMe,
@@ -257,6 +294,8 @@ private fun HojaInferior(
                 habilitado = masCercano != null,
                 onClick = { masCercano?.let { onSeleccionar(it.id) } }
             )
+            // Con la hoja bajada empuja el resto fuera de la vista (queda tapado por la barra de navegación)
+            Spacer(Modifier.height(hueco))
             when (val e = estado) {
                 UbicacionUi.Inicial -> Column(
                     Modifier.fillMaxWidth().padding(vertical = 18.dp),
@@ -313,6 +352,5 @@ private fun HojaInferior(
                 }
                 is UbicacionUi.Error -> MensajeError(e, onReintentar = onBuscar)
             }
-        }
     }
 }

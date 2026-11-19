@@ -12,6 +12,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.delay
+import androidx.compose.ui.unit.Dp
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
@@ -55,7 +57,9 @@ fun MapaUbicacion(
     tipoMapa: TipoMapa,
     soloCampus: Boolean,
     ubicacionNativa: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    // Alto que tapa la hoja inferior: el mapa se centra en la parte que queda a la vista
+    relleno: Dp = 0.dp
 ) {
     // La cámara arranca en el centro de los lugares (el campus) y no en un punto fijo de Lima
     val camara = rememberCameraPositionState {
@@ -85,6 +89,15 @@ fun MapaUbicacion(
         }
     }
 
+    // Si la hoja sube o baja, el mapa vuelve a centrarse en lo que queda a la vista (el lugar elegido o tu posición).
+    // La pausa deja terminar la animación de la hoja y solo se actúa con el último valor.
+    LaunchedEffect(relleno) {
+        delay(250)
+        val destino = lugares.firstOrNull { it.lugar.id == seleccionado }?.let { LatLng(it.lugar.latitud, it.lugar.longitud) }
+            ?: (estado as? UbicacionUi.Lista)?.let { LatLng(it.posicion.latitud, it.posicion.longitud) }
+        destino?.let { camara.animate(CameraUpdateFactory.newLatLng(it)) }
+    }
+
     val contexto = LocalContext.current
     // "Solo campus": estilo que apaga los puntos de interés y el transporte de Google; si no, el mapa normal
     val estilo = remember(soloCampus) {
@@ -108,8 +121,8 @@ fun MapaUbicacion(
         ),
         // Sin botones de zoom (el diseño no los lleva) y con margen para que la hoja no tape el logo de Google
         uiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = ubicacionNativa),
-        // Margen arriba para que el botón de mi ubicación no quede bajo la barra de estado, y abajo para el logo de Google
-        contentPadding = PaddingValues(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(), bottom = 28.dp)
+        // Margen arriba para que el botón de mi ubicación no quede bajo la barra de estado, y abajo el alto que tapa la hoja (así el mapa se centra en lo que se ve y el logo de Google queda a la vista)
+        contentPadding = PaddingValues(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(), bottom = relleno)
     ) {
         // Radio de cercanía alrededor de tu posición
         if (estado is UbicacionUi.Lista && radio != null) {
