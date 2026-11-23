@@ -9,6 +9,9 @@ import com.tecsup.murocampus.model.Post
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -19,6 +22,22 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
 
     private val _lista = MutableStateFlow<UiState<List<Post>>>(UiState.Cargando)
     val lista: StateFlow<UiState<List<Post>>> = _lista.asStateFlow()
+
+    private val _busqueda = MutableStateFlow("")
+    val busqueda: StateFlow<String> = _busqueda.asStateFlow()
+
+    // La lista ya descargada, filtrada por título según lo que se escribe
+    val visibles: StateFlow<UiState<List<Post>>> = combine(_lista, _busqueda) { estado, texto ->
+        if (estado is UiState.Exito && texto.isNotBlank()) {
+            UiState.Exito(estado.datos.filter { it.title.contains(texto.trim(), ignoreCase = true) })
+        } else {
+            estado
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UiState.Cargando)
+
+    fun buscar(texto: String) {
+        _busqueda.value = texto
+    }
 
     private val _usuarioFiltro = MutableStateFlow<Int?>(null)   // null significa Todos
     val usuarioFiltro: StateFlow<Int?> = _usuarioFiltro.asStateFlow()
