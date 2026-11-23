@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tecsup.murocampus.data.PostRepository
 import com.tecsup.murocampus.model.Comentario
+import com.tecsup.murocampus.model.NuevoPost
 import com.tecsup.murocampus.model.Post
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -55,5 +56,21 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
                 .onSuccess { _detalle.value = UiState.Exito(it) }
                 .onFailure { _detalle.value = UiState.Error(mensajeDe(it)) }
         }
+    }
+
+    private val _publicacion = MutableStateFlow<UiState<Post>?>(null)   // null = aún no se envió
+    val publicacion: StateFlow<UiState<Post>?> = _publicacion.asStateFlow()
+
+    fun publicar(titulo: String, texto: String) {
+        viewModelScope.launch {
+            _publicacion.value = UiState.Cargando
+            repo.crear(NuevoPost(userId = 1, title = titulo, body = texto))
+                .onSuccess { _publicacion.value = UiState.Exito(it) }
+                .onFailure { _publicacion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    fun reiniciarPublicacion() {
+        _publicacion.value = null
     }
 }
