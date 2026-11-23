@@ -16,6 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.activity.viewModels
 import com.tecsup.murocampus.data.PostRepositoryRemote
 import com.tecsup.murocampus.data.remote.RetrofitClient
+import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import com.tecsup.murocampus.ui.PantallaDetalle
 import com.tecsup.murocampus.ui.PantallaLista
 import com.tecsup.murocampus.ui.theme.MuroCampusTheme
 import com.tecsup.murocampus.viewmodel.PostsViewModel
@@ -33,6 +39,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MuroCampusTheme {
+                var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
+                BackHandler(enabled = idSeleccionado != null) { idSeleccionado = null }
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
@@ -45,7 +53,20 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 ) { padding ->
-                    PantallaLista(vm = vm, modifier = Modifier.padding(padding).fillMaxSize())
+                    val id = idSeleccionado
+                    if (id == null) {
+                        PantallaLista(
+                            vm = vm,
+                            onAbrir = { idSeleccionado = it; vm.abrir(it) },
+                            modifier = Modifier.padding(padding).fillMaxSize()
+                        )
+                    } else {
+                        PantallaDetalle(
+                            vm = vm,
+                            id = id,
+                            modifier = Modifier.padding(padding).fillMaxSize()
+                        )
+                    }
                 }
             }
         }

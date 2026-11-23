@@ -3,11 +3,16 @@ package com.tecsup.murocampus.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tecsup.murocampus.data.PostRepository
+import com.tecsup.murocampus.model.Comentario
 import com.tecsup.murocampus.model.Post
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
+data class DetalleUi(val post: Post, val comentarios: List<Comentario>)
 
 class PostsViewModel(private val repo: PostRepository) : ViewModel() {
 
@@ -22,6 +27,24 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
             repo.listar()
                 .onSuccess { _lista.value = UiState.Exito(it) }
                 .onFailure { _lista.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
+    val detalle: StateFlow<UiState<DetalleUi>> = _detalle.asStateFlow()
+
+    fun abrir(id: Int) {
+        viewModelScope.launch {
+            _detalle.value = UiState.Cargando
+            // Las dos llamadas salen a la vez; si una falla, todo el detalle muestra el error
+            val resultado = coroutineScope {
+                val post = async { repo.detalle(id) }
+                val comentarios = async { repo.comentarios(id) }
+                post.await().mapCatching { p -> DetalleUi(p, comentarios.await().getOrThrow()) }
+            }
+            resultado
+                .onSuccess { _detalle.value = UiState.Exito(it) }
+                .onFailure { _detalle.value = UiState.Error(mensajeDe(it)) }
         }
     }
 }
