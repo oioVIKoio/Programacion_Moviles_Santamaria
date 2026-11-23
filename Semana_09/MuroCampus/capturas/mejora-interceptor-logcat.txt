@@ -1,0 +1,4 @@
+Logcat (filtro okhttp) al abrir la app con el interceptor agregado:
+
+I okhttp.OkHttpClient: --> GET https://jsonplaceholder.typicode.com/posts
+I okhttp.OkHttpClient: Accept: application/json
