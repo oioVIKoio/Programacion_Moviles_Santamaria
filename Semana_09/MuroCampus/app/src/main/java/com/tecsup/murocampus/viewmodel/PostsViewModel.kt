@@ -73,4 +73,27 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     fun reiniciarPublicacion() {
         _publicacion.value = null
     }
+
+    private val _eliminacion = MutableStateFlow<UiState<Unit>?>(null)   // null = aún no se pidió
+    val eliminacion: StateFlow<UiState<Unit>?> = _eliminacion.asStateFlow()
+
+    fun eliminar(id: Int) {
+        viewModelScope.launch {
+            _eliminacion.value = UiState.Cargando
+            repo.borrar(id)
+                .onSuccess {
+                    // JSONPlaceholder no borra de verdad: se quita de la lista que ya está en pantalla
+                    val actual = _lista.value
+                    if (actual is UiState.Exito) {
+                        _lista.value = UiState.Exito(actual.datos.filter { it.id != id })
+                    }
+                    _eliminacion.value = UiState.Exito(Unit)
+                }
+                .onFailure { _eliminacion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    fun reiniciarEliminacion() {
+        _eliminacion.value = null
+    }
 }

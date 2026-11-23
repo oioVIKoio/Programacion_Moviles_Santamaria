@@ -78,6 +78,7 @@ class MainActivity : ComponentActivity() {
                         PantallaDetalle(
                             vm = vm,
                             id = id,
+                            onEliminada = { idSeleccionado = null },
                             modifier = Modifier.padding(padding).fillMaxSize()
                         )
                     }
