@@ -1,11 +1,11 @@
-# MuroCampus - Servicios Web y plataforma REST | SIN IA
+# MuroCampus - Servicios Web y plataforma REST | CON IA
 
 Laboratorio 09 de Programación en Móviles (Tecsup, docente Juan León): **Servicios Web y plataforma REST**.
 Autor: Victor Santamaria.
 
 Aplicación Android desarrollada con **Kotlin, Jetpack Compose, Retrofit, OkHttp y kotlinx.serialization**.
 
-Esta carpeta corresponde a la **Fase 1 (SIN IA)**. MuroCampus es un muro de publicaciones que viene de internet: consume el servicio REST de práctica JSONPlaceholder, lista las publicaciones, muestra el detalle con sus comentarios, filtra por usuario y crea una publicación nueva. También se comporta bien cuando no hay internet. La pantalla nunca llama a Retrofit: habla con el `ViewModel`, y este con el `Repository`.
+Esta carpeta corresponde a la **Fase 2 (CON IA)**: parte de la Fase 1 (RF01 a RF05, hecha sin IA) y le suma tres mejoras (RF06 a RF08) sin romper la arquitectura MVVM + Repository. El prompt está en [PROMPTS.md](PROMPTS.md). MuroCampus es un muro de publicaciones que viene de internet: consume el servicio REST de práctica JSONPlaceholder, lista las publicaciones, muestra el detalle con sus comentarios, filtra por usuario y crea una publicación nueva. También se comporta bien cuando no hay internet. La pantalla nunca llama a Retrofit: habla con el `ViewModel`, y este con el `Repository`.
 
 ---
 
@@ -100,15 +100,60 @@ Ninguna falla cierra la aplicación. El Repository convierte toda excepción en 
 
 ---
 
+## Mejoras de la Fase 2
+
+### RF06 - Borrar una publicación
+
+Botón **Eliminar** en el detalle. Usa `@DELETE("posts/{id}")` y la función devuelve `Response<Unit>`: el Repository revisa el código de respuesta y, si no es 2xx, lo convierte en `HttpException` dentro del `Result`. Si sale bien, la app vuelve a la lista y la publicación ya no aparece. JSONPlaceholder responde 200 pero no borra de verdad, por eso la app la quita de la lista que ya tiene en pantalla.
+
+Capas que cambian: API, Repository, ViewModel y View. En Logcat: `DELETE posts/1` con respuesta 200.
+
+**Evidencia:**
+
+![Botón Eliminar en el detalle](capturas/mejora-borrar-1-detalle.png)
+
+![Lista sin la publicación borrada](capturas/mejora-borrar-2-lista.png)
+
+---
+
+### RF07 - Búsqueda por título
+
+Campo **Buscar por título** sobre los chips. Filtra mientras se escribe las publicaciones que ya se descargaron (sin nueva llamada a la red) y se combina con el filtro por usuario. El `ViewModel` expone `visibles`, que combina la lista descargada con el texto de búsqueda.
+
+Capas que cambian: ViewModel y View.
+
+**Evidencia (búsqueda de "eum"):**
+
+![Búsqueda](capturas/mejora-busqueda.png)
+
+---
+
+### RF08 - Encabezado con interceptor
+
+Un `Interceptor` de OkHttp agrega `Accept: application/json` a todas las peticiones. Se registra antes que el de logging, para verlo en Logcat.
+
+Capa que cambia: `RetrofitClient`.
+
+**Evidencia:** [capturas/mejora-interceptor-logcat.txt](capturas/mejora-interceptor-logcat.txt)
+
+```
+--> GET https://jsonplaceholder.typicode.com/posts
+Accept: application/json
+```
+
+---
+
 ## Flujo de la aplicación
 
     ABRIR LA APP
       ↓
     LISTA  (Cargando → Éxito | Error + Reintentar)
+      ├── campo de búsqueda → filtra por título lo ya descargado
       ├── chips Todos / Usuario 1..10 → recarga con posts?userId=N
       ├── tocar tarjeta
       │      ↓
       │   DETALLE  (posts/{id} + posts/{id}/comments a la vez)
+      │      ├── Eliminar → DELETE posts/{id} → LISTA sin esa publicación
       │      ↓
       │    ATRÁS → LISTA (sin recargar)
       │
@@ -129,8 +174,8 @@ com.tecsup.murocampus/
 │   └── Modelos.kt                  Post, Comentario, NuevoPost (+ Usuario)
 ├── data/
 │   ├── remote/
-│   │   ├── PostApi.kt              la interface de Retrofit
-│   │   ├── RetrofitClient.kt       OkHttp + conversor JSON, una sola vez
+│   │   ├── PostApi.kt              la interface de Retrofit (+ DELETE)
+│   │   ├── RetrofitClient.kt       OkHttp + conversor JSON + interceptor Accept, una sola vez
 │   │   └── UsuarioApi.kt           ejemplo resuelto
 │   ├── PostRepository.kt           interface + PostRepositoryRemote (devuelve Result)
 │   └── UsuarioRepository.kt        ejemplo resuelto
