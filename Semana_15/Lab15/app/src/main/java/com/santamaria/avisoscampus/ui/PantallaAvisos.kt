@@ -1,5 +1,10 @@
 package com.santamaria.avisoscampus.ui
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +22,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import com.santamaria.avisoscampus.model.PermisoUi
+import com.santamaria.avisoscampus.ui.theme.Gris
+import com.santamaria.avisoscampus.ui.theme.GrisSuave
+import com.santamaria.avisoscampus.ui.theme.ErrorRojo
+import com.santamaria.avisoscampus.ui.theme.ErrorSuave
+import com.santamaria.avisoscampus.ui.theme.Verde
+import com.santamaria.avisoscampus.ui.theme.VerdeSuave
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -35,6 +51,17 @@ import com.santamaria.avisoscampus.viewmodel.AvisosViewModel
 @Composable
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
+    val permiso by vm.permiso.collectAsState()
+
+    val lanzador = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { concedido ->
+        vm.permisoRespondido(concedido)
+    }
+
+    LaunchedEffect(Unit) {
+        if (Notificador.tienePermiso(contexto)) vm.permisoRespondido(true)
+    }
 
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
@@ -63,8 +90,13 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // TODO Paso 2: tarjeta Permiso de notificaciones
-            TarjetaPermiso()
+            TarjetaPermiso(permiso) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    lanzador.launch(Manifest.permission.POST_NOTIFICATIONS)
+                } else {
+                    vm.permisoRespondido(true)
+                }
+            }
             // TODO Paso 3: tarjeta Avisos
             TarjetaAvisos()
             // TODO Paso 5: tarjeta Recordatorio
@@ -96,8 +128,30 @@ private fun Tarjeta(titulo: String, contenido: @Composable () -> Unit) {
 }
 
 @Composable
-private fun TarjetaPermiso() = Tarjeta("Permiso de notificaciones") {
-    Button(onClick = { /* TODO Paso 2 */ }, modifier = Modifier.fillMaxWidth()) {
+private fun TarjetaPermiso(permiso: PermisoUi, alPedir: () -> Unit) = Tarjeta("Permiso de notificaciones") {
+    val (texto, fondo, color) = when (permiso) {
+        PermisoUi.SinPedir -> Triple("Sin pedir", GrisSuave, Gris)
+        PermisoUi.Concedido -> Triple("Permitido", VerdeSuave, Verde)
+        PermisoUi.Denegado -> Triple("Denegado", ErrorSuave, ErrorRojo)
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("Estado:  ")
+        Text(
+            texto,
+            color = color,
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier
+                .clip(RoundedCornerShape(50))
+                .background(fondo)
+                .padding(horizontal = 12.dp, vertical = 4.dp)
+        )
+    }
+    Button(onClick = alPedir, modifier = Modifier.fillMaxWidth()) {
         Text("Permitir notificaciones")
     }
 }
