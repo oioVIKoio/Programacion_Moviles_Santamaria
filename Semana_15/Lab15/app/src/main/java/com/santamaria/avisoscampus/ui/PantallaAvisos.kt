@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.provider.Settings
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -63,6 +64,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.santamaria.avisoscampus.R
 import com.santamaria.avisoscampus.model.PermisoUi
 import com.santamaria.avisoscampus.notificacion.Notificador
@@ -127,8 +130,18 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         vm.permisoRespondido(concedido)
     }
 
-    LaunchedEffect(Unit) {
-        if (Notificador.tienePermiso(contexto)) vm.permisoRespondido(true)
+    // El permiso se vuelve a revisar cada vez que la app regresa al frente (por ejemplo, al volver de Ajustes),
+    // así la etiqueta y el mensaje de error nunca contradicen lo que el sistema ya permite.
+    val actividad = contexto as ComponentActivity
+    DisposableEffect(actividad) {
+        val observador = LifecycleEventObserver { _, evento ->
+            if (evento == Lifecycle.Event.ON_RESUME) {
+                if (Notificador.tienePermiso(contexto)) vm.permisoRespondido(true)
+                else if (vm.permiso.value == PermisoUi.Concedido) vm.permisoRespondido(false)
+            }
+        }
+        actividad.lifecycle.addObserver(observador)
+        onDispose { actividad.lifecycle.removeObserver(observador) }
     }
 
     LaunchedEffect(Unit) {
