@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.IntentFilter
 import android.content.Intent
 import android.os.Build
+import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.compose.runtime.DisposableEffect
 import com.santamaria.avisoscampus.receiver.ModoAvionReceiver
@@ -61,6 +62,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val faltan by vm.faltan.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
     val avisos by vm.avisos.collectAsState()
+    val mensaje by vm.mensaje.collectAsState()
 
     DisposableEffect(escuchando) {
         if (escuchando) {
@@ -90,7 +92,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
             val mostrado = Notificador.mostrar(contexto, aviso)
-            // TODO Paso 8: si no se mostró, avisar al ViewModel
+            if (!mostrado) vm.noSePudoMostrar()
         }
     }
 
@@ -122,6 +124,13 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 }
             }
             TarjetaAvisos { vm.avisarAhora() }
+            if (mensaje != null) {
+                CajaError(mensaje!!) {
+                    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                        .putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
+                    contexto.startActivity(intent)
+                }
+            }
             TarjetaRecordatorio(faltan, { vm.recordarEn() }, { vm.cancelarRecordatorio() })
             TarjetaReceptor(escuchando) { vm.cambiarEscucha(it) }
             HistorialAvisos(avisos)
@@ -216,4 +225,26 @@ private fun TarjetaReceptor(escuchando: Boolean, alCambiar: (Boolean) -> Unit) =
         style = MaterialTheme.typography.bodySmall,
         color = Gris
     )
+}
+
+@Composable
+private fun CajaError(texto: String, alAbrirAjustes: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text(
+            texto,
+            color = ErrorRojo,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(ErrorSuave)
+                .padding(14.dp)
+        )
+        OutlinedButton(onClick = alAbrirAjustes) { Text("Abrir ajustes") }
+    }
 }
