@@ -60,6 +60,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
+    val avisos by vm.avisos.collectAsState()
 
     DisposableEffect(escuchando) {
         if (escuchando) {
@@ -123,7 +124,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             TarjetaAvisos { vm.avisarAhora() }
             TarjetaRecordatorio(faltan, { vm.recordarEn() }, { vm.cancelarRecordatorio() })
             TarjetaReceptor(escuchando) { vm.cambiarEscucha(it) }
-            // TODO Paso 7: tarjeta Historial (HistorialAvisos)
+            HistorialAvisos(avisos)
         }
     }
 }
