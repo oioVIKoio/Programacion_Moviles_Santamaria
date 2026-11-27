@@ -97,8 +97,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     vm.permisoRespondido(true)
                 }
             }
-            // TODO Paso 3: tarjeta Avisos
-            TarjetaAvisos()
+            TarjetaAvisos { vm.avisarAhora() }
             // TODO Paso 5: tarjeta Recordatorio
             TarjetaRecordatorio()
             // TODO Paso 6: tarjeta Receptor de anuncios
@@ -157,8 +156,8 @@ private fun TarjetaPermiso(permiso: PermisoUi, alPedir: () -> Unit) = Tarjeta("P
 }
 
 @Composable
-private fun TarjetaAvisos() = Tarjeta("Avisos") {
-    Button(onClick = { /* TODO Paso 3 */ }, modifier = Modifier.fillMaxWidth()) {
+private fun TarjetaAvisos(alMostrar: () -> Unit) = Tarjeta("Avisos") {
+    Button(onClick = alMostrar, modifier = Modifier.fillMaxWidth()) {
         Text("Mostrar aviso")
     }
 }
