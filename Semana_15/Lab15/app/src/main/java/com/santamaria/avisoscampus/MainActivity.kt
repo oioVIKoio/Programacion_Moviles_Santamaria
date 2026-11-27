@@ -4,8 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.santamaria.avisoscampus.data.AvisosRepositoryMemoria
+import com.santamaria.avisoscampus.data.AvisosRepositoryDataStore
+import com.santamaria.avisoscampus.data.avisosStore
 import com.santamaria.avisoscampus.ui.PantallaAvisos
 import com.santamaria.avisoscampus.ui.theme.AvisosCampusTheme
 import com.santamaria.avisoscampus.viewmodel.AvisosViewModel
@@ -17,9 +19,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AvisosCampusTheme {
-                val vm: AvisosViewModel = viewModel(
-                    factory = AvisosViewModelFactory(AvisosRepositoryMemoria())
-                )
+                val repo = remember { AvisosRepositoryDataStore(applicationContext.avisosStore) }
+                val vm: AvisosViewModel = viewModel(factory = AvisosViewModelFactory(repo))
                 PantallaAvisos(vm)
             }
         }
