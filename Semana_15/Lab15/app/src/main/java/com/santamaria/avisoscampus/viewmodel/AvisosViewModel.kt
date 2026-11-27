@@ -55,7 +55,7 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
                     _faltan.value = restante
                     delay(1000)
                 }
-                val aviso = repo.registrar("Recordatorio", "Revisa tu laboratorio pendiente", Origen.RECORDATORIO)
+                val aviso = repo.registrar("Recordatorio", "Revisa tu laboratorio pendiente", Origen.RECORDATORIO, urgente = true)
                 _eventos.emit(aviso)
             } finally {
                 _faltan.value = null
