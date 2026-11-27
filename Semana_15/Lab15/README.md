@@ -81,9 +81,12 @@ El ViewModel decide qué avisar y lo anota en el Repository; después emite un e
 | Switch desactivado y cambiar el modo avión | No hay aviso |
 | Permiso denegado y **Mostrar aviso** | Mensaje de error, aviso en el historial y la app no se cierra |
 | Rotar la pantalla (switch activado) | El receptor sigue escuchando y el historial se conserva |
+| Rotar la pantalla durante el recordatorio | La cuenta regresiva continúa (sigue en "Faltan 6 s", no se reinicia a 10) y el aviso llega al llegar a 0 |
 | Revisar el código | No hay `Context` en `viewmodel/`; el receptor se quita en `onDispose` |
 
-No se probó el recordatorio rotando la pantalla en pleno conteo: la cuenta vive en el `viewModelScope`, así que no depende de la rotación, pero no se comprobó a la vista.
+Rotación durante el recordatorio (la cuenta vive en el `viewModelScope`, por eso no se reinicia):
+
+![Rotar durante el recordatorio](capturas/09-rotar-durante-recordatorio.png)
 
 ## Para pensar
 
@@ -101,3 +104,19 @@ No se probó el recordatorio rotando la pantalla en pleno conteo: la cuenta vive
 
 5. **¿En qué casos usarías una notificación local y en cuáles una push de Firebase?**
    Local: cuando el aviso nace dentro del propio celular (recordatorios, temporizadores, el resultado de una tarea, cambios del sistema como el modo avión). Push: cuando el aviso lo origina un servidor y el celular no sabe que existe (mensaje nuevo de otra persona, una promoción, un cambio de estado en la nube), incluso con la app cerrada.
+
+## Fase 2 (rama `con-ia`): mejoras
+
+Detalle de los prompts en [PROMPTS.md](PROMPTS.md).
+
+1. **Dos canales**: el recordatorio usa el canal **Urgentes** (`IMPORTANCE_HIGH`, emergente) y lo demás el canal **Avisos**. Cambian `Notificador`, `Aviso`, el Repository y el ViewModel.
+
+   ![Recordatorio urgente](capturas/f2-01-recordatorio-urgente.png)
+
+2. **Texto largo** con `BigTextStyle`: al expandir la notificación se ve el texto completo con origen y hora. Cambia solo `Notificador`.
+
+   ![Texto largo](capturas/f2-02-texto-largo.png)
+
+3. **Historial persistente** con DataStore: el historial no se pierde al cerrar la app. Cambia el Repository (`AvisosRepositoryDataStore`) y la creación en `MainActivity`.
+
+   ![Historial persistente](capturas/f2-03-historial-persistente.png)
