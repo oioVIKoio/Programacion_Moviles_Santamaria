@@ -1,7 +1,12 @@
 package com.santamaria.avisoscampus.ui
 
 import android.Manifest
+import android.content.IntentFilter
+import android.content.Intent
 import android.os.Build
+import androidx.core.content.ContextCompat
+import androidx.compose.runtime.DisposableEffect
+import com.santamaria.avisoscampus.receiver.ModoAvionReceiver
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -54,6 +59,22 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
+    val escuchando by vm.escuchandoAvion.collectAsState()
+
+    DisposableEffect(escuchando) {
+        if (escuchando) {
+            val receptor = ModoAvionReceiver { activo -> vm.alCambiarModoAvion(activo) }
+            ContextCompat.registerReceiver(
+                contexto,
+                receptor,
+                IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+            onDispose { contexto.unregisterReceiver(receptor) }
+        } else {
+            onDispose { }
+        }
+    }
 
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -101,8 +122,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             }
             TarjetaAvisos { vm.avisarAhora() }
             TarjetaRecordatorio(faltan, { vm.recordarEn() }, { vm.cancelarRecordatorio() })
-            // TODO Paso 6: tarjeta Receptor de anuncios
-            TarjetaReceptor()
+            TarjetaReceptor(escuchando) { vm.cambiarEscucha(it) }
             // TODO Paso 7: tarjeta Historial (HistorialAvisos)
         }
     }
@@ -185,9 +205,14 @@ private fun TarjetaRecordatorio(faltan: Int?, alRecordar: () -> Unit, alCancelar
     }
 
 @Composable
-private fun TarjetaReceptor() = Tarjeta("Receptor de anuncios") {
+private fun TarjetaReceptor(escuchando: Boolean, alCambiar: (Boolean) -> Unit) = Tarjeta("Receptor de anuncios") {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text("Escuchar el modo avión", modifier = Modifier.weight(1f))
-        Switch(checked = false, onCheckedChange = { /* TODO Paso 6 */ })
+        Switch(checked = escuchando, onCheckedChange = alCambiar)
     }
+    Text(
+        "Activa o desactiva el modo avión del celular",
+        style = MaterialTheme.typography.bodySmall,
+        color = Gris
+    )
 }
