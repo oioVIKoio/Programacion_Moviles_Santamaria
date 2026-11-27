@@ -25,10 +25,12 @@ object Notificador {
             val manager = context.getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(
                 NotificationChannel(CANAL, "Avisos", NotificationManager.IMPORTANCE_DEFAULT)
+                    .apply { description = "Entregas y cambios del modo avión" }
             )
             // IMPORTANCE_HIGH: la notificación aparece emergente (heads-up)
             manager.createNotificationChannel(
                 NotificationChannel(CANAL_URGENTE, "Urgentes", NotificationManager.IMPORTANCE_HIGH)
+                    .apply { description = "Recordatorios · notificación emergente" }
             )
         }
     }
@@ -49,6 +51,7 @@ object Notificador {
 
         val notificacion = NotificationCompat.Builder(context, if (aviso.urgente) CANAL_URGENTE else CANAL)
             .setSmallIcon(R.drawable.ic_notificacion)
+            .setColor(0xFF142C46.toInt())
             .setContentTitle(aviso.titulo)
             .setContentText(aviso.texto)
             .setStyle(NotificationCompat.BigTextStyle().bigText(

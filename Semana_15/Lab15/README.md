@@ -120,3 +120,9 @@ Detalle de los prompts en [PROMPTS.md](PROMPTS.md).
 3. **Historial persistente** con DataStore: el historial no se pierde al cerrar la app. Cambia el Repository (`AvisosRepositoryDataStore`) y la creación en `MainActivity`.
 
    ![Historial persistente](capturas/f2-03-historial-persistente.png)
+
+4. **Rediseño de la pantalla** (diseño hecho en Figma Make, pasado a Compose): cabecera marino con acento lima, tarjetas numeradas, anillo en la cuenta regresiva, filtros por origen en el historial y estados vacío y de error. Respeta la barra de estado, la cámara y la barra de gestos, con franjas fijas para que el contenido no pase por debajo de los íconos del sistema. Solo cambia la capa de interfaz (`ui/`, tema, íconos y fuentes) y el color y la descripción de los canales en el `Notificador`; el ViewModel y el Repository no cambian.
+
+   ![Inicio rediseñado](capturas/f2-04-rediseno-inicio.png)
+   ![Cuenta regresiva](capturas/f2-05-rediseno-cuenta-regresiva.png)
+   ![Permiso denegado](capturas/f2-06-rediseno-permiso-denegado.png)

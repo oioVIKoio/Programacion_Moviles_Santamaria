@@ -2,6 +2,6 @@
 <resources>
 
     <style name="Theme.AvisosCampus" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:windowBackground">#F2F4F7</item>
+        <item name="android:windowBackground">#F5F7FA</item>
     </style>
 </resources>
