@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.santamaria.avisoscampus.notificacion.Notificador
 import com.santamaria.avisoscampus.viewmodel.AvisosViewModel
@@ -52,6 +53,7 @@ import com.santamaria.avisoscampus.viewmodel.AvisosViewModel
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
     val permiso by vm.permiso.collectAsState()
+    val faltan by vm.faltan.collectAsState()
 
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -98,8 +100,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 }
             }
             TarjetaAvisos { vm.avisarAhora() }
-            // TODO Paso 5: tarjeta Recordatorio
-            TarjetaRecordatorio()
+            TarjetaRecordatorio(faltan, { vm.recordarEn() }, { vm.cancelarRecordatorio() })
             // TODO Paso 6: tarjeta Receptor de anuncios
             TarjetaReceptor()
             // TODO Paso 7: tarjeta Historial (HistorialAvisos)
@@ -163,12 +164,25 @@ private fun TarjetaAvisos(alMostrar: () -> Unit) = Tarjeta("Avisos") {
 }
 
 @Composable
-private fun TarjetaRecordatorio() = Tarjeta("Recordatorio") {
-    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        Button(onClick = { /* TODO Paso 5 */ }) { Text("Recordar en 10 s") }
-        OutlinedButton(onClick = { /* TODO Paso 5 */ }) { Text("Cancelar") }
+private fun TarjetaRecordatorio(faltan: Int?, alRecordar: () -> Unit, alCancelar: () -> Unit) =
+    Tarjeta("Recordatorio") {
+        val corriendo = faltan != null
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
+        ) {
+            Button(onClick = alRecordar, enabled = !corriendo) { Text("Recordar en 10 s") }
+            OutlinedButton(onClick = alCancelar, enabled = corriendo) { Text("Cancelar") }
+        }
+        if (faltan != null) {
+            Text(
+                "Faltan $faltan s",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
-}
 
 @Composable
 private fun TarjetaReceptor() = Tarjeta("Receptor de anuncios") {
